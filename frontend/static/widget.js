@@ -10,7 +10,7 @@
 
   JiveSearch.widget.prototype.start = function () {
     var options = this.options;
-    if (options.host === "") {
+    if (options.host === "" || options.host === undefined) {
       options.host = "https://jivesearch.com";
     }
 
