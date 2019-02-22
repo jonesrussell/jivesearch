@@ -1,8 +1,11 @@
 package frontend
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/jivesearch/jivesearch/instant"
 	"github.com/jivesearch/jivesearch/instant/breach"
@@ -13,7 +16,112 @@ import (
 	"github.com/jivesearch/jivesearch/instant/weather"
 	"github.com/jivesearch/jivesearch/instant/whois"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"golang.org/x/text/language"
 )
+
+func TestAnswerHandler(t *testing.T) {
+	bngs, err := bangsFromConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, c := range []struct {
+		name  string
+		query string
+		want  *response
+	}{
+		{
+			"basic", "january birthstone",
+			&response{
+				status:   http.StatusOK,
+				template: "jsonp",
+				data: &AnswerResponse{
+					HTML:       `<div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>Garnet</div></div>`,
+					CSS:        []string{},
+					JavaScript: []string{},
+				},
+			},
+		},
+		{
+			"calculator", "2+2",
+			&response{
+				status:   http.StatusOK,
+				template: "jsonp",
+				data: &AnswerResponse{
+					HTML: `<noscript><div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>4</div></div></noscript><div id=calculator style=display:none><div id=result tabindex=4>4</div><div id=main><div id=first-row><button id=clear class=del-bg>C</button>
+<button class="btn-style operator opera-bg fall-back" value=%>%</button>
+<button class="btn-style opera-bg align operator" value=/>/</button></div><div class=rows><button class="btn-style num-bg number first-child" value=7>7</button>
+<button class="btn-style num-bg number" value=8>8</button>
+<button class="btn-style num-bg number" value=9>9</button>
+<button class="btn-style opera-bg operator" value=*>x</button></div><div class=rows><button class="btn-style num-bg number first-child" value=4>4</button>
+<button class="btn-style num-bg number" value=5>5</button>
+<button class="btn-style num-bg number" value=6>6</button>
+<button class="btn-style opera-bg operator" value=->-</button></div><div class=rows><button class="btn-style num-bg number first-child" value=1>1</button>
+<button class="btn-style num-bg number" value=2>2</button>
+<button class="btn-style num-bg number" value=3>3</button>
+<button class="btn-style opera-bg operator" value=+>+</button></div><div class=rows><button id=zero class="num-bg zero" value=0>0</button>
+<button class="btn-style num-bg period fall-back" value=.>.</button>
+<button id=eqn-bg class="eqn align" value="=">=</button></div></div></div>`,
+					CSS:        []string{"http://anything.com/static/instant/calculator/calculator.css"},
+					JavaScript: []string{"http://anything.com/static/instant/calculator/calculator.js"},
+				},
+			},
+		},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			ParseTemplates()
+
+			var matcher = language.NewMatcher(
+				[]language.Tag{
+					language.English,
+					language.French,
+				},
+			)
+
+			f := &Frontend{
+				Brand: Brand{
+					Host: "http://anything.com",
+				},
+				Bangs: bngs,
+				Document: Document{
+					Matcher: matcher,
+				},
+				Instant: &instant.Instant{
+					BreachFetcher:        &mockBreachFetcher{},
+					WikipediaFetcher:     &mockWikipediaFetcher{},
+					StackOverflowFetcher: &mockStackOverflowFetcher{},
+				},
+				Wikipedia: Wikipedia{
+					Matcher: matcher,
+				},
+			}
+
+			f.Cache.Cacher = &mockCacher{}
+			f.Cache.Instant = 10 * time.Second
+			f.Cache.Search = 10 * time.Second
+
+			req, err := http.NewRequest("GET", "/answer", nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			q := req.URL.Query()
+			q.Add("q", c.query)
+			req.URL.RawQuery = q.Encode()
+
+			got := f.answerHandler(httptest.NewRecorder(), req)
+
+			got.data.(*AnswerResponse).HTML, err = htmlMinify(got.data.(*AnswerResponse).HTML)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if !reflect.DeepEqual(got, c.want) {
+				t.Fatalf("got %+v; want %+v", got, c.want)
+			}
+		})
+	}
+}
 
 func TestDetectType(t *testing.T) {
 	for _, c := range []struct {

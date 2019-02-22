@@ -10,6 +10,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/bangs"
 	"github.com/jivesearch/jivesearch/instant"
+	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/stackoverflow"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"github.com/jivesearch/jivesearch/search"
@@ -446,6 +447,10 @@ func (c *mockCacher) Get(key string) (interface{}, error) {
 	var v interface{}
 
 	switch key {
+	case "::instant::en::US::/answer?q=2%2B2":
+		v = mockCalculatorInstantAnswer
+	case "::instant::en::US::/answer?q=january+birthstone":
+		v = mockBirthstoneInstantAnswer
 	case "::instant::en::US::/?l=en&o=json&q=+some+query", "::instant::en::US::/?l=en&o=&q=+some+query+":
 		v = mockInstantAnswer
 	case "::search::en::US::/?l=en&o=json&q=+some+query", "::search::en::US::/?l=en&o=&q=+some+query+":
@@ -466,6 +471,13 @@ func (c *mockCacher) Put(key string, value interface{}, ttl time.Duration) error
 	return nil
 }
 
+// mock BreachFetcher
+type mockBreachFetcher struct{}
+
+func (m *mockBreachFetcher) Fetch(account string) (*breach.Response, error) {
+	return &breach.Response{}, nil
+}
+
 // mock Stack Overflow Fetcher
 type mockStackOverflowFetcher struct{}
 
@@ -482,6 +494,20 @@ func (mf *mockWikipediaFetcher) Fetch(query string, lang language.Tag) ([]*wikip
 
 func (mf *mockWikipediaFetcher) Setup() error {
 	return nil
+}
+
+var mockBirthstoneInstantAnswer = instant.Data{
+	Type:      "birthstone",
+	Triggered: true,
+	Solution:  "Garnet",
+	Err:       nil,
+}
+
+var mockCalculatorInstantAnswer = instant.Data{
+	Type:      "calculator",
+	Triggered: true,
+	Solution:  "4",
+	Err:       nil,
 }
 
 var mockInstantAnswer = instant.Data{

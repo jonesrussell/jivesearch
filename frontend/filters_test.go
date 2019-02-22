@@ -66,14 +66,14 @@ func TestAnswerCSS(t *testing.T) {
 		{
 			name: "breach",
 			want: []string{
-				"owl.carousel.min.css",
-				"breach/breach.css",
+				"http://127.0.0.1:8000/static/instant/owl.carousel.min.css",
+				"http://127.0.0.1:8000/static/instant/breach/breach.css",
 			},
 		},
 		{
 			name: "calculator",
 			want: []string{
-				"calculator/calculator.css",
+				"http://127.0.0.1:8000/static/instant/calculator/calculator.css",
 			},
 		},
 		{
@@ -82,11 +82,13 @@ func TestAnswerCSS(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+			host := "http://127.0.0.1:8000"
+
 			a := instant.Data{
 				Type: instant.Type(tt.name),
 			}
 
-			got := answerCSS(a)
+			got := answerCSS(host, a)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("got %q; want %q", got, tt.want)
 			}
@@ -102,14 +104,14 @@ func TestAnswerJS(t *testing.T) {
 		{
 			name: "breach",
 			want: []string{
-				"owl.carousel.min.js",
-				"breach/breach.js",
+				"http://127.0.0.1:8000/static/instant/owl.carousel.min.js",
+				"http://127.0.0.1:8000/static/instant/breach/breach.js",
 			},
 		},
 		{
 			name: "calculator",
 			want: []string{
-				"calculator/calculator.js",
+				"http://127.0.0.1:8000/static/instant/calculator/calculator.js",
 			},
 		},
 		{
@@ -118,11 +120,13 @@ func TestAnswerJS(t *testing.T) {
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
+			host := "http://127.0.0.1:8000"
+
 			a := instant.Data{
 				Type: instant.Type(tt.name),
 			}
 
-			got := answerJS(a)
+			got := answerJS(host, a)
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Fatalf("got %q; want %q", got, tt.want)
 			}

@@ -66,107 +66,112 @@ func add(x, y int) int {
 	return x + y
 }
 
-func answerCSS(a instant.Data) []string {
+var addStaticPrefix = func(host, f string) string {
+	return fmt.Sprintf("%v/static/instant/%v", host, f)
+}
+
+func answerCSS(host string, a instant.Data) []string {
 	files := []string{}
 
 	switch a.Type {
 	case "breach":
 		files = []string{
-			"owl.carousel.min.css",
-			"breach/breach.css",
+			addStaticPrefix(host, "owl.carousel.min.css"),
+			addStaticPrefix(host, "breach/breach.css"),
 		}
 	case "calculator":
 		files = []string{
-			"calculator/calculator.css",
+			addStaticPrefix(host, "calculator/calculator.css"),
 		}
 	case "currency":
 		files = []string{
-			"currency/currency.css",
+			addStaticPrefix(host, "currency/currency.css"),
 		}
 	case "discography":
 		files = []string{
-			"owl.carousel.min.css",
-			"discography/discography.css",
+			addStaticPrefix(host, "owl.carousel.min.css"),
+			addStaticPrefix(host, "discography/discography.css"),
 		}
 	case "gdp":
 		files = []string{
-			"gdp/gdp.css",
+			addStaticPrefix(host, "gdp/gdp.css"),
 		}
 	case "maps":
 		files = []string{
-			"maps/mapbox.css",
-			"maps/mapbox_directions.css",
+			addStaticPrefix(host, "maps/mapbox.css"),
+			addStaticPrefix(host, "maps/mapbox_directions.css"),
 		}
 	case "population":
 		files = []string{
-			"population/population.css",
+			addStaticPrefix(host, "population/population.css"),
 		}
 	case "stock quote":
 		files = []string{
-			"stock_quotes/stock_quotes.css",
+			addStaticPrefix(host, "stock_quotes/stock_quotes.css"),
 		}
 	case "unit converter":
 		files = []string{
-			"unit_converter/unit_converter.css",
+			addStaticPrefix(host, "unit_converter/unit_converter.css"),
 		}
 	case "local weather", "weather":
 		files = []string{
-			"weather/weather.css",
+			addStaticPrefix(host, "weather/weather.css"),
 		}
 	}
+
 	return files
 }
 
-func answerJS(a instant.Data) []string {
+func answerJS(host string, a instant.Data) []string {
 	files := []string{}
 
 	switch a.Type {
 	case "breach":
 		files = []string{
-			"owl.carousel.min.js",
-			"breach/breach.js",
+			addStaticPrefix(host, "owl.carousel.min.js"),
+			addStaticPrefix(host, "breach/breach.js"),
 		}
 	case "calculator":
 		files = []string{
-			"calculator/calculator.js",
+			addStaticPrefix(host, "calculator/calculator.js"),
 		}
 	case "currency":
 		files = []string{
-			"d3.v4.min.js",
-			"currency/currency.js",
+			addStaticPrefix(host, "d3.v4.min.js"),
+			addStaticPrefix(host, "currency/currency.js"),
 		}
 	case "discography":
 		files = []string{
-			"owl.carousel.min.js",
-			"discography/discography.js",
+			addStaticPrefix(host, "owl.carousel.min.js"),
+			addStaticPrefix(host, "discography/discography.js"),
 		}
 	case "gdp":
 		files = []string{
-			"d3.v4.min.js",
-			"gdp/gdp.js",
+			addStaticPrefix(host, "d3.v4.min.js"),
+			addStaticPrefix(host, "gdp/gdp.js"),
 		}
 	case "maps":
 		files = []string{
-			"maps/mapbox.js",
-			"maps/mapbox_directions.js",
+			addStaticPrefix(host, "maps/mapbox.js"),
+			addStaticPrefix(host, "maps/mapbox_directions.js"),
 		}
 	case "mortgage calculator":
 		files = []string{
-			"mortgage_calculator/mortgage_calculator.js",
+			addStaticPrefix(host, "mortgage_calculator/mortgage_calculator.js"),
 		}
 	case "population":
 		files = []string{
-			"d3.v4.min.js",
-			"population/population.js",
+			addStaticPrefix(host, "d3.v4.min.js"),
+			addStaticPrefix(host, "population/population.js"),
 		}
 	case "stock quote":
 		files = []string{
-			"d3.v4.min.js",
-			"stock_quotes/stock_quotes.js",
+			addStaticPrefix(host, "d3.v4.min.js"),
+			addStaticPrefix(host, "stock_quotes/stock_quotes.js"),
 		}
 	case "unit converter":
 		files = []string{
-			"unit_converter/unit_converter.js",
+			addStaticPrefix(host, "unit_converter/unit_converter.js"),
 		}
 	case "minify":
 		/*
@@ -177,8 +182,8 @@ func answerJS(a instant.Data) []string {
 						Another option is to use https://github.com/prettier/prettier
 		*/
 		files = []string{
-			"minify/prettydiff.js",
-			"minify/minify.js",
+			addStaticPrefix(host, "minify/prettydiff.js"),
+			addStaticPrefix(host, "minify/minify.js"),
 		}
 	}
 

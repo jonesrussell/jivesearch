@@ -1,7 +1,9 @@
 package frontend
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -19,13 +21,19 @@ import (
 	"golang.org/x/text/language"
 )
 
+// AnswerResponse is an instant answer response
+type AnswerResponse struct {
+	HTML       string   `json:"html"`
+	CSS        []string `json:"css"`
+	JavaScript []string `json:"javascript"`
+}
+
 func (f *Frontend) answerHandler(w http.ResponseWriter, r *http.Request) *response {
 	d := f.getData(r)
 
 	resp := &response{
 		status:   http.StatusOK,
-		data:     d,
-		template: "answer",
+		template: "jsonp",
 		err:      nil,
 	}
 
@@ -34,6 +42,28 @@ func (f *Frontend) answerHandler(w http.ResponseWriter, r *http.Request) *respon
 
 	d.Instant = <-ic
 	resp.data = d
+
+	a := &AnswerResponse{}
+
+	// get the html string
+	var buf bytes.Buffer
+	answerTemplate := "answer"
+	tmpl, ok := templates[answerTemplate]
+	if !ok {
+		resp.status = http.StatusInternalServerError
+		resp.err = fmt.Errorf("template doesn't exist: %q", answerTemplate)
+		return resp
+	}
+
+	if err := tmpl.Execute(&buf, resp.data); err != nil {
+		resp.status, resp.err = http.StatusInternalServerError, err
+		return resp
+	}
+
+	a.HTML = buf.String()
+	a.CSS = answerCSS(f.Brand.Host, d.Instant)
+	a.JavaScript = answerJS(f.Brand.Host, d.Instant)
+	resp.data = a
 
 	return resp
 }

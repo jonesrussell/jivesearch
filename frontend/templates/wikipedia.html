@@ -13,8 +13,8 @@
           {{if $wikipedia.Claims.Image}}
             {{$img := index $wikipedia.Claims.Image 0}}
             {{$key := $img | HMACKey}}
-            <a href="/image/250x,s{{$key}}/{{$img}}">
-              <img src="/image/250x,s{{$key}}/{{$img}}" title="{{$img}}" border="0" style="vertical-align:middle;max-height:100%;max-width:49.5%;display:inline-block;position:relative;padding:0px;margin:0px;"/>
+            <a href="{{$context.Brand.Host}}/image/250x,s{{$key}}/{{$img}}">
+              <img src="{{$context.Brand.Host}}/image/250x,s{{$key}}/{{$img}}" title="{{$img}}" border="0" style="vertical-align:middle;max-height:100%;max-width:49.5%;display:inline-block;position:relative;padding:0px;margin:0px;"/>
             </a>
           {{end}}
           <!--show either map or flag but not both (since we only have space for 1)-->
@@ -36,8 +36,8 @@
           {{else if $wikipedia.Claims.Flag}}
             {{$img := index $wikipedia.Claims.Flag 0}}
             {{$key := $img | HMACKey}}
-            <a href="/image/250x,s{{$key}}/{{$img}}">
-              <img src="/image/250x,s{{$key}}/{{$img}}" title="{{$img}}" border="0" style="vertical-align:middle;max-height:100%;max-width:49.5%;display:inline-block;position:relative;padding:0px;margin:0px;"/>
+            <a href="{{$context.Brand.Host}}/image/250x,s{{$key}}/{{$img}}">
+              <img src="{{$context.Brand.Host}}/image/250x,s{{$key}}/{{$img}}" title="{{$img}}" border="0" style="vertical-align:middle;max-height:100%;max-width:49.5%;display:inline-block;position:relative;padding:0px;margin:0px;"/>
             </a>
           {{end}}
         </div>

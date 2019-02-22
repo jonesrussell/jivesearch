@@ -112,6 +112,17 @@ func (fn appHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					errHandler(w, rsp)
 					return
 				}
+			case "jsonp":
+				w.Header().Set("Content-Type", "application/javascript")
+				err := json.NewEncoder(buf).Encode(rsp.data)
+				if err != nil {
+					rsp.status, rsp.err = http.StatusInternalServerError, err
+					errHandler(w, rsp)
+					return
+				}
+
+				fmt.Fprintf(w, "jivesearchcallback(%s)", buf)
+				return // return here as we're done!
 			case "proxy_css":
 				w.Header().Set("Content-Type", "text/css; charset=utf-8")
 
@@ -284,12 +295,14 @@ var ParseTemplates = func() {
 				"templates/about.html",
 			),
 	)
+
+	t := template.New("tmp")
+	t.Parse(`{{template "answer" .}}`)
 	templates["answer"] = template.Must(
-		template.New("answer.html").
-			Funcs(funcMap).
+		t.Funcs(funcMap).
 			ParseFiles(
-				"templates/answer.html",
 				"templates/wikipedia.html",
+				"templates/answer.html",
 			),
 	)
 	templates["maps"] = template.Must(

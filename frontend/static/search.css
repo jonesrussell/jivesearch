@@ -244,3 +244,59 @@ and (min-width: 80em) { /* .pure-u-xl-*, >=1280px */
     top: 5px;
   }
 }
+
+/* widget popup */
+.widget-window {
+  position: fixed;
+  background-color: rgba(200, 200, 200, 0.75);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+.widget-window:target {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.widget-window>div {
+  letter-spacing: normal; /* reset purecss's style here */
+  width: 550px;
+  position: relative;
+  margin: 10% auto;
+  padding: 1.5rem;
+  background: #fff;
+  color: #444;
+}
+
+.widget-window header {
+  font-weight: bold;
+}
+
+.widget-close {
+  color: #aaa;
+  line-height: 50px;
+  font-size: 90%;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+  width: 70px;
+  text-decoration: none;
+}
+
+.widget-close:hover {
+  color: #000;
+}
+
+.widget-window h1 {
+  font-size: 150%;
+  margin: 0 0 15px;
+}

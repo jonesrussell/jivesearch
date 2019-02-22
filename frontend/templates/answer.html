@@ -1,10 +1,14 @@
 {{define "source"}}
 <div class="pure-u-1" style="margin-top:5px;">
-  <div class="pure-u-1" style="margin-top:10px;">
-  <div class="pure-u-1-2" style="float:left;text-align:left;padding:15px;">
-    <em>Source</em><br>{{.Instant|Source|SafeHTML}}
-  </div>
-  </div>
+  <div class="pure-u-1" style="margin-top:7px;">
+    <div id="source" class="pure-u-22-24" style="float:left;text-align:left;padding:15px;">
+      <em>Source</em><br>
+      {{.Instant|Source|SafeHTML}}
+      <span style="float:right;text-align:right;">
+        <a href="#open-widget">Get Widget</a>
+      </span>
+    </div>
+  </div>  
 </div>
 {{end}}
 
@@ -16,8 +20,7 @@
   {{else if eq .Instant.Type "breach"}}
   <!--100% width instant answer-->
   {{if .Instant.Solution.Breaches}}
-  <div id="answer" class="pure-u-1"
-    style="height:305px;background-color:#fcfcfc;resize:none;padding-top:5px;margin-bottom:15px;">
+  <div id="answer" class="pure-u-1" style="height:305px;background-color:#fcfcfc;resize:none;padding-top:5px;margin-bottom:15px;">
     {{$account:= .Instant.Solution.Account}}
     <span style="color:rgb(196, 35, 75);font-size:14px;"><em>{{$account}} has been compromised:</em></span>
     <div style="margin:2px;margin-bottom:0px;">

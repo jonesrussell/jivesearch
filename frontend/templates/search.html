@@ -4,20 +4,22 @@
 
 {{define "css"}}
   {{if .Context.Q -}}
-    <link rel="stylesheet" href="/static/search.css">
-    {{if .Instant -}}
-      {{range $i, $f := .Instant | AnswerCSS -}}
-      <link rel="stylesheet" href="/static/instant/{{$f}}">
-      {{- end}}
+  <link rel="stylesheet" href="/static/search.css">
+  {{if .Instant -}}
+    {{$css := AnswerCSS .Brand.Host .Instant}}
+    {{range $i, $f := $css -}}
+      <link rel="stylesheet" href="{{$f}}">
     {{- end}}
+  {{- end}}
   {{- end}}
 {{end}}
 
 {{define "javascript"}}
   <script src="/static/search.js"></script>
   {{if .Instant -}}
-    {{range $i, $f := .Instant | AnswerJS -}}
-    <script src="/static/instant/{{$f}}"></script>
+    {{$js := AnswerJS .Brand.Host .Instant}}
+    {{range $i, $f := $js -}}
+      <script src="{{$f}}"></script>
     {{- end}}
     {{if eq .Instant.Type "maps"}}
     <script>
@@ -28,16 +30,16 @@
         zoom: 9
       });
 
-      if ({{.Instant.Solution.Directions}}){
+      if ({{.Instant.Solution.Directions }}) {
         var directions = new MapboxDirections({
           accessToken: mapboxgl.accessToken
         });
         map.addControl(directions, 'top-left');
-        directions.setOrigin({{.Instant.Solution.Origin}});
-        directions.setDestination({{.Instant.Solution.Destination}});
-      } else {
-        map.setCenter([{{.Instant.Solution.Longitude}}, {{.Instant.Solution.Latitude}}]);
-      }
+        directions.setOrigin({{.Instant.Solution.Origin }});
+      directions.setDestination({{.Instant.Solution.Destination }});
+          } else {
+        map.setCenter([{{.Instant.Solution.Longitude }}, { {.Instant.Solution.Latitude } }]);
+          }
     </script>
     {{end}}
   {{- end}}
@@ -47,6 +49,29 @@
 {{$context := .Context}}
 {{if $context.Q}}
 <div id="container" class="pure-g">
+  <div id="open-widget" class="widget-window">
+    <div>
+      <a href="#widget-close" title="Close" class="widget-close">close &times;</a>
+      <h1></h1>
+      <div id="answer_widget" onClick="selectText('answer_widget')">
+<pre><code>&lt!-- Begin Jive Search Widget --&gt
+&ltdiv id="jive_search"&gt&lt/div&gt
+&ltscript src="{{.Brand.Host}}/static/widget.js"&gt&lt/script&gt
+&ltscript&gt
+  new JiveSearch.widget({
+    id: "jive_search", // id of element to place the answer
+    {{ if ne .Brand.Host "https://jivesearch.com" -}}host: "{{.Brand.Host}}",{{- end }}
+    query: "{{$context.Q}}",
+    border: false,
+    width: "",
+    height: ""
+  });
+&lt/script&gt
+&lt!-- End Jive Search Widget --&gt</code></pre>
+      </div>
+    </div>
+  </div>
+
   <div class="pure-u-1 pure-u-xl-2-24 spacer" style="text-align:center;">
     <a href="/">{{template "small_logo" .}}</a>
   </div>
@@ -54,17 +79,22 @@
     {{template "search_form" .}}
     <div class="pure-u-1" style="margin-bottom:-8px;font-size:16px;color:#444;cursor:pointer;">
       <div class="navbar">
-        <span id="all" {{if eq $context.T "images" "maps"}}class="nav"{{else}}class="nav_selected"{{end}} style="margin-right:20px;">All</span>
-        <span id="images" {{if eq $context.T "images"}}class="nav_selected"{{else}}class="nav"{{end}} style="margin-right:20px;">Images</span>
+        <span id="all" {{if eq $context.T "images" "maps"}}class="nav" {{else}}class="nav_selected" {{end}}
+          style="margin-right:20px;">All</span>
+        <span id="images" {{if eq $context.T "images"}}class="nav_selected" {{else}}class="nav" {{end}}
+          style="margin-right:20px;">Images</span>
         {{if eq .Instant.Type "maps"}}
-        <span id="maps" {{if eq $context.T "maps"}}class="nav_selected"{{else}}class="nav"{{end}} style="margin-right:20px;">Maps</span>
+        <span id="maps" {{if eq $context.T "maps"}}class="nav_selected" {{else}}class="nav" {{end}}
+          style="margin-right:20px;">Maps</span>
         {{end}}
         {{if eq $context.T "images"}}
         <div id="safesearch" style="float:right;">
-          <button id="safesearchbtn">SafeSearch <span id="safesearch_selection">{{if eq $context.Safe false}}Off{{else}}On{{end}}</span></button>
+          <button id="safesearchbtn">SafeSearch <span
+              id="safesearch_selection">{{if eq $context.Safe false}}Off{{else}}On{{end}}</span></button>
           <div id="safesearch-content">
             <label class="safesearch-content-label" for="safe">
-              <input id="safe" type="checkbox" {{if eq $context.Safe true}}checked="checked"{{end}}> Turn on Safe Search
+              <input id="safe" type="checkbox" {{if eq $context.Safe true}}checked="checked" {{end}}> Turn on Safe
+              Search
             </label>
           </div>
         </div>
@@ -74,13 +104,16 @@
           <div id="safesearch-content" style="min-width: 250px;">
             <form id="search_filter">
               <label class="safesearch-content-label" for="safe" style="padding: 7px 10px;">
-                <input type="radio" name="search_filter" value="strict" {{if eq $context.F "strict"}}checked="checked"{{end}}> Strict </br>
+                <input type="radio" name="search_filter" value="strict" {{if eq $context.F "strict"}}checked="checked"
+                  {{end}}> Strict </br>
               </label>
               <label class="safesearch-content-label" for="safe" style="padding: 7px 10px;">
-                <input type="radio" name="search_filter" value="moderate" {{if eq $context.F "moderate"}}checked="checked"{{end}}> Moderate </br>
+                <input type="radio" name="search_filter" value="moderate"
+                  {{if eq $context.F "moderate"}}checked="checked" {{end}}> Moderate </br>
               </label>
               <label class="safesearch-content-label" for="safe" style="padding: 7px 10px;">
-                <input type="radio" name="search_filter" value="off" {{if eq $context.F "off"}}checked="checked"{{end}}> Off </br>
+                <input type="radio" name="search_filter" value="off" {{if eq $context.F "off"}}checked="checked"
+                  {{end}}> Off </br>
               </label>
             </form>
           </div>
@@ -99,10 +132,10 @@
     <div class="pure-u-1 pure-u-xl-15-24">
       <div class="pure-u-1">
         <div class="pure-button-group" role="group" aria-label="bang select" style="margin-bottom:10px;">
-        {{range $i, $bng := .Context.DefaultBangs}}
-          <button class="pure-button bang_submit" tabindex="{{Add $i 3}}" 
+          {{range $i, $bng := .Context.DefaultBangs}}
+          <button class="pure-button bang_submit" tabindex="{{Add $i 3}}"
             data-location="!{{$bng.Trigger}} {{$context.Q}}">!{{$bng.Trigger}}<br>{{$bng.Name}}</button>
-        {{end}}
+          {{end}}
         </div>
       </div>
     </div>
@@ -110,20 +143,20 @@
   {{end}}
 
   {{if .Images}}
-    <div class="pure-u-1">
+  <div class="pure-u-1">
     {{range $i, $img := .Images.Images}}
-      {{if $img.Base64}}
-        {{$key := $img.ID | HMACKey}}
-        <!--
+    {{if $img.Base64}}
+    {{$key := $img.ID | HMACKey}}
+    <!--
           Using an object tag here will hide broken images.
           https://stackoverflow.com/questions/22051573/how-to-hide-image-broken-icon-using-only-css-html-without-js/37334582
         -->
-        <a href="/image/225x,s{{$key}}/{{$img.ID}}">
-          <object data="data:image/jpg;base64,{{$img.Base64}}" title="{{$img.Alt}}"></object>
-        </a>
-      {{end}}
+    <a href="/image/225x,s{{$key}}/{{$img.ID}}">
+      <object data="data:image/jpg;base64,{{$img.Base64}}" title="{{$img.Alt}}"></object>
+    </a>
     {{end}}
-    </div>
+    {{end}}
+  </div>
   {{else}}
   {{if .Search.Count}}
   <div class="pure-u-1 pure-u-xl-2-24 spacer count"></div>
@@ -131,33 +164,36 @@
   {{end}}
 
   {{if and .Instant .Instant.Triggered}}
-    {{if eq .Instant.Type "wikipedia"}}<!--Wikipedia Box-->
-    <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
-    <div id="results_container" class="pure-u-1 pure-u-xl-22-24">
-      {{template "answer" .}}
-      {{template "search_results" .}}
-    </div>
-    {{else if (or (eq .Instant.Type "breach") (eq .Instant.Type "discography"))}}<!--100% width instant answer-->
-      {{template "answer" .}}
-      <div class="pure-u-1">
-        <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
-        <div id="results_container" class="pure-u-1 pure-u-xl-22-24">{{template "search_results" .}}</div>
-      </div>
-    {{else if .Instant.Type}}<!--normal size instant answer-->
-    <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
-    <div class="pure-u-1 pure-u-xl-22-24">
-      <div id="instant" class="pure-u-1 pure-u-xl-15-24">
-      {{template "answer" .}}
-      </div>
-    </div>
+  {{if eq .Instant.Type "wikipedia"}}
+  <!--Wikipedia Box-->
+  <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
+  <div id="results_container" class="pure-u-1 pure-u-xl-22-24">
+    {{template "answer" .}}
+    {{template "search_results" .}}
+  </div>
+  {{else if (or (eq .Instant.Type "breach") (eq .Instant.Type "discography"))}}
+  <!--100% width instant answer-->
+  {{template "answer" .}}
+  <div class="pure-u-1">
     <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
     <div id="results_container" class="pure-u-1 pure-u-xl-22-24">{{template "search_results" .}}</div>
-    {{end}}
+  </div>
+  {{else if .Instant.Type}}
+  <!--normal size instant answer-->
+  <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
+  <div class="pure-u-1 pure-u-xl-22-24">
+    <div id="instant" class="pure-u-1 pure-u-xl-15-24">
+      {{template "answer" .}}
+    </div>
+  </div>
+  <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
+  <div id="results_container" class="pure-u-1 pure-u-xl-22-24">{{template "search_results" .}}</div>
+  {{end}}
   {{else}}
   <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
   <div id="results_container" class="pure-u-1 pure-u-xl-22-24">{{template "search_results" .}}</div>
   {{end}}
-{{end}}
+  {{end}}
 </div>
 {{else}}
 <div class="pure-g">
@@ -172,7 +208,8 @@
           {{template "instructions" .}}
         </div>
       </div>
-      <div id="about_us" style="position:absolute;right:0;bottom:0;left:0;padding:1rem;background-color:#efefef;text-align:center;">
+      <div id="about_us"
+        style="position:absolute;right:0;bottom:0;left:0;padding:1rem;background-color:#efefef;text-align:center;">
         <a href="/about">How we protect your privacy</a>
       </div>
     </div>
