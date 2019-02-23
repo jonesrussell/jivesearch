@@ -108,7 +108,7 @@
       jQuery("#jive_search #source a #jivesearch_src_tagline").css("color", "#333")
         .css("display", "inline-block")
         .css("text-decoration", "none")
-        .css("cursor", "default");
+        .css("cursor", "text");
       jQuery("#jive_search #source a:hover #jivesearch_src_tagline").css("text-decoration", "none");
       jQuery("#jive_search #source a:active #jivesearch_src_tagline").css("text-decoration", "none");
       jQuery("#jive_search #source a:visited #jivesearch_src_tagline").css("text-decoration", "none");
