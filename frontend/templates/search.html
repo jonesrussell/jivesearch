@@ -59,8 +59,7 @@
 &ltscript src="{{.Brand.Host}}/static/widget.js"&gt&lt/script&gt
 &ltscript&gt
   new JiveSearch.widget({
-    id: "jive_search", // id of element to place the answer
-    {{ if ne .Brand.Host "https://jivesearch.com" -}}host: "{{.Brand.Host}}",{{- end }}
+    id: "jive_search", // id of element to place the answer{{ if ne .Brand.Host "https://jivesearch.com" -}}</br>    host: "{{.Brand.Host}}",{{- end }}
     query: "{{$context.Q}}",
     border: false,
     width: "",
