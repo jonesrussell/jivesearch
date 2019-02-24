@@ -69,7 +69,7 @@ func (w *Weather) solve(r *http.Request) Answerer {
 	case 0:
 		return w.local(r)
 	default:
-		if w.remainder == "local" || w.remainder == "" {
+		if w.remainder == "local" {
 			return w.local(r)
 		} else if len(w.remainder) == 5 { // U.S. zipcodes
 			if z, err := strconv.Atoi(w.remainder); err == nil {
