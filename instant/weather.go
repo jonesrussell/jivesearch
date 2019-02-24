@@ -47,14 +47,17 @@ func (w *Weather) setType() Answerer {
 }
 
 func (w *Weather) setRegex() Answerer {
+	w.regex = append(w.regex, regexp.MustCompile(`^(?P<trigger>weather|weather forecast|weather fore cast|forecast|fore cast|climate)$`))
+
 	triggers := []string{
 		"climate for", "climate",
-		"forecast for", "forecast",
-		"weather forecast for", "weather forecast in", "weather forecast", "weather for", "weather in", "weather",
+		"forecast for", "forecast", "fore cast for", "fore cast",
+		"weather forecast for", "weather forecast in", "weather forecast",
+		"weather fore cast for", "weather fore cast in", "weather fore cast",
+		"weather for", "weather in", "weather",
 	}
 
 	t := strings.Join(triggers, "|")
-
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s)\s(?P<remainder>.*)$`, t)))
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*)\s(?P<trigger>%s)$`, t)))
 
@@ -66,7 +69,7 @@ func (w *Weather) solve(r *http.Request) Answerer {
 	case 0:
 		return w.local(r)
 	default:
-		if w.remainder == "local" {
+		if w.remainder == "local" || w.remainder == "" {
 			return w.local(r)
 		} else if len(w.remainder) == 5 { // U.S. zipcodes
 			if z, err := strconv.Atoi(w.remainder); err == nil {
