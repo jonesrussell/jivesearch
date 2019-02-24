@@ -26,25 +26,24 @@ func TestAnswerHandler(t *testing.T) {
 	}
 
 	for _, c := range []struct {
-		name  string
 		query string
 		want  *response
 	}{
 		{
-			"basic", "january birthstone",
+			"january birthstone",
 			&response{
 				status:   http.StatusOK,
 				template: "jsonp",
 				data: &AnswerResponse{
 					HTML: `<div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>Garnet</div><div class=pure-u-1 style=margin-top:5px><div class=pure-u-1 style=margin-top:7px><div id=source class=pure-u-22-24 style=float:left;text-align:left;padding:15px><em>Source</em><br>Jive Search
-<span style=float:right;text-align:right><a href=#open-widget>Get Widget</a></span></div></div></div></div>`,
+<span style=float:right;text-align:right><a href=#open-widget onclick="document.getElementById('open-widget').style.display='block'">Get Widget</a></span></div></div></div></div>`,
 					CSS:        []string{},
 					JavaScript: []string{},
 				},
 			},
 		},
 		{
-			"calculator", "2+2",
+			"2+2",
 			&response{
 				status:   http.StatusOK,
 				template: "jsonp",
@@ -63,14 +62,14 @@ func TestAnswerHandler(t *testing.T) {
 <button class="btn-style opera-bg operator" value=+>+</button></div><div class=rows><button id=zero class="num-bg zero" value=0>0</button>
 <button class="btn-style num-bg period fall-back" value=.>.</button>
 <button id=eqn-bg class="eqn align" value="=">=</button></div></div></div><div class=pure-u-1 style=margin-top:5px><div class=pure-u-1 style=margin-top:7px><div id=source class=pure-u-22-24 style=float:left;text-align:left;padding:15px><em>Source</em><br>Jive Search
-<span style=float:right;text-align:right><a href=#open-widget>Get Widget</a></span></div></div></div></div>`,
+<span style=float:right;text-align:right><a href=#open-widget onclick="document.getElementById('open-widget').style.display='block'">Get Widget</a></span></div></div></div></div>`,
 					CSS:        []string{"http://anything.com/static/instant/calculator/calculator.css"},
 					JavaScript: []string{"http://anything.com/static/instant/calculator/calculator.js"},
 				},
 			},
 		},
 	} {
-		t.Run(c.name, func(t *testing.T) {
+		t.Run(c.query, func(t *testing.T) {
 			ParseTemplates()
 
 			var matcher = language.NewMatcher(
@@ -117,6 +116,11 @@ func TestAnswerHandler(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+
+			/*
+				fmt.Println(got.data.(*AnswerResponse).HTML)
+				fmt.Println(c.want.data.(*AnswerResponse).HTML)
+			*/
 
 			if !reflect.DeepEqual(got, c.want) {
 				t.Fatalf("got %+v; want %+v", got, c.want)

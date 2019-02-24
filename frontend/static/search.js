@@ -170,3 +170,12 @@ function selectText(containerid) {
       window.getSelection().addRange(range);
   }
 }
+
+// When the user clicks anywhere outside of the widget modal, close it
+var widget_modal = document.getElementById('open-widget');
+
+window.onclick = function(event) {
+  if (event.target == widget_modal) {
+    widget_modal.style.display = "none";
+  }
+}
