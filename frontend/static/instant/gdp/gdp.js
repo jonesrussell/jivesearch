@@ -1,6 +1,5 @@
 window.onload = function() {
     // chart
-    $("#answer").css("height", "385px");
     draw();
 
     function draw(){

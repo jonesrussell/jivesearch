@@ -389,8 +389,11 @@ func source(answer instant.Data) string {
 	case "wiktionary":
 		img = fmt.Sprintf(`<img width="12" height="12" alt="wiktionary" src="%v"/>`, proxyFavIcon("https://www.wiktionary.org/static/favicon/piece.ico"))
 		f = fmt.Sprintf(`%v <a href="https://www.wiktionary.org/">Wiktionary</a>`, img)
+	case "wikipedia":
+		img = fmt.Sprintf(`<img width="12" height="12" alt="wikipedia" src="%v"/>`, proxyFavIcon("https://en.wikipedia.org/static/favicon/wikipedia.ico"))
+		f = fmt.Sprintf(`%v <a href="https://www.wikipedia.org/">Wikipedia</a>`, img)
 	default:
-		log.Debug.Printf("unknown instant answer type %v\n", answer.Type)
+		f = "Jive Search"
 	}
 
 	return f

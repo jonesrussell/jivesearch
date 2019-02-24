@@ -16,7 +16,7 @@
 {{$context := .Context}}
 {{if and .Instant .Instant.Triggered}}
   {{if eq .Instant.Type "wikipedia"}}
-    {{template "wikipedia" .}}
+    {{template "wikipedia" .}}    
   {{else if eq .Instant.Type "breach"}}
   <!--100% width instant answer-->
   {{if .Instant.Solution.Breaches}}
@@ -48,8 +48,7 @@
   <!--100% width instant answer-->
   {{$length := len .Instant.Solution}}
   {{if ne $length 0 }}
-  <div id="answer" class="pure-u-1"
-    style="height:325px;background-color:#fcfcfc;resize:none;padding-top:15px;margin-bottom:15px;">
+  <div id="answer" class="pure-u-1" style="height:325px;background-color:#fcfcfc;resize:none;padding-top:15px;margin-bottom:15px;">
     <div style="margin:15px;margin-bottom:0px;">
       <div class="carousel-wrap">
         <div class="owl-carousel">
@@ -95,82 +94,84 @@
   <a id="prettify" data-value="beautify" class="pure-button" tabindex="7"
     style="font-size:20px;background:rgba(112,234,157,1);color:#333;border-radius:4px;text-shadow: 0 1px 1px rgba(255,255,255,1);">Prettify</a>
   {{else if eq .Instant.Type "unit converter"}}
-  <div id="unit_converter" class="pure-u-18-24" style="margin-bottom:25px;">
-    <div class="pure-u-1">
-      <form class="pure-form pure-g">
-        <div class="pure-u-1">
-          <select id="selector" class="pure-input-1" style="margin-bottom:15px;">
-            <option {{if eq .Instant.Solution "digital storage"}}selected{{end}}>Digital Storage</option>
-            <option {{if eq .Instant.Solution "length"}}selected{{end}}>Length</option>
-            <option {{if eq .Instant.Solution "power"}}selected{{end}}>Power</option>
-            <option {{if eq .Instant.Solution "speed"}}selected{{end}}>Speed</option>
-            <option {{if eq .Instant.Solution "temperature"}}selected{{end}}>Temperature</option>
-          </select>
+  <div id="answer" class="pure-u-1" style="width:567px;height:209px;padding:25px;">
+    <div id="unit_converter" class="pure-u-1" style="margin-bottom:25px;">
+      <div class="pure-u-1">
+        <form class="pure-form pure-g">
+          <div class="pure-u-1">
+            <select id="selector" class="pure-input-1" style="margin-bottom:15px;padding-bottom:0px;">
+              <option {{if eq .Instant.Solution "digital storage"}}selected{{end}}>Digital Storage</option>
+              <option {{if eq .Instant.Solution "length"}}selected{{end}}>Length</option>
+              <option {{if eq .Instant.Solution "power"}}selected{{end}}>Power</option>
+              <option {{if eq .Instant.Solution "speed"}}selected{{end}}>Speed</option>
+              <option {{if eq .Instant.Solution "temperature"}}selected{{end}}>Temperature</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="pure-g">
+        <div class="pure-u-11-24">
+          <form class="pure-form unit">
+            <input class="pure-input-1" />
+            <select class="pure-input-1"></select>
+          </form>
         </div>
-      </form>
-    </div>
-    <div class="pure-g">
-      <div class="pure-u-11-24">
-        <form class="pure-form unit">
-          <input class="pure-input-1" />
-          <select class="pure-input-1"></select>
-        </form>
-      </div>
-      <div class="pure-u-2-24" style="font-size:24px;color:#666;margin-top:15px;text-align:center;">=</div>
-      <div class="pure-u-11-24">
-        <form class="pure-form unit">
-          <input class="pure-input-1" />
-          <select class="pure-input-1"></select>
-        </form>
+        <div class="pure-u-2-24" style="font-size:24px;color:#666;margin-top:15px;text-align:center;">=</div>
+        <div class="pure-u-11-24">
+          <form class="pure-form unit">
+            <input class="pure-input-1" />
+            <select class="pure-input-1"></select>
+          </form>
+        </div>
       </div>
     </div>
+    {{template "source" .}}
   </div>
   {{else if eq .Instant.Type "calculator"}}
-  <noscript>
-    <div id="answer" class="pure-u-1">
-      <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution}}</div>
-    </div>
-  </noscript>
-  <div id="calculator" style="display:none;">
-    <div id="result" tabindex="4">{{if .Instant.Solution}}{{.Instant.Solution}}{{end}}</div>
-    <div id="main">
-      <div id="first-row">
-        <button id="clear" class="del-bg">C</button>
-        <button class="btn-style operator opera-bg fall-back" value="%">%</button>
-        <button class="btn-style opera-bg align operator" value="/">/</button>
+  <div id="answer" class="pure-u-1" style="width:323px;height:500px;padding:25px;padding-bottom:0px;">
+    <noscript>
+      <div id="answer" class="pure-u-1">
+        <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution}}</div>
       </div>
-
-      <div class="rows">
-        <button class="btn-style num-bg number first-child" value="7">7</button>
-        <button class="btn-style num-bg number" value="8">8</button>
-        <button class="btn-style num-bg number" value="9">9</button>
-        <button class="btn-style opera-bg operator" value="*">x</button>
-      </div>
-
-      <div class="rows">
-        <button class="btn-style num-bg number first-child" value="4">4</button>
-        <button class="btn-style num-bg number" value="5">5</button>
-        <button class="btn-style num-bg number" value="6">6</button>
-        <button class="btn-style opera-bg operator" value="-">-</button>
-      </div>
-
-      <div class="rows">
-        <button class="btn-style num-bg number first-child" value="1">1</button>
-        <button class="btn-style num-bg number" value="2">2</button>
-        <button class="btn-style num-bg number" value="3">3</button>
-        <button class="btn-style opera-bg operator" value="+">+</button>
-      </div>
-
-      <div class="rows">
-        <button id="zero" class="num-bg zero" value="0">0</button>
-        <button class="btn-style num-bg period fall-back" value=".">.</button>
-        <button id="eqn-bg" class="eqn align" value="=">=</button>
+    </noscript>
+    <div id="calculator" style="display:none;">
+      <div id="result" tabindex="4">{{if .Instant.Solution}}{{.Instant.Solution}}{{end}}</div>
+      <div id="main">
+        <div id="first-row">
+          <button id="clear" class="del-bg">C</button>
+          <button class="btn-style operator opera-bg fall-back" value="%">%</button>
+          <button class="btn-style opera-bg align operator" value="/">/</button>
+        </div>
+        <div class="rows">
+          <button class="btn-style num-bg number first-child" value="7">7</button>
+          <button class="btn-style num-bg number" value="8">8</button>
+          <button class="btn-style num-bg number" value="9">9</button>
+          <button class="btn-style opera-bg operator" value="*">x</button>
+        </div>
+        <div class="rows">
+          <button class="btn-style num-bg number first-child" value="4">4</button>
+          <button class="btn-style num-bg number" value="5">5</button>
+          <button class="btn-style num-bg number" value="6">6</button>
+          <button class="btn-style opera-bg operator" value="-">-</button>
+        </div>
+        <div class="rows">
+          <button class="btn-style num-bg number first-child" value="1">1</button>
+          <button class="btn-style num-bg number" value="2">2</button>
+          <button class="btn-style num-bg number" value="3">3</button>
+          <button class="btn-style opera-bg operator" value="+">+</button>
+        </div>
+        <div class="rows">
+          <button id="zero" class="num-bg zero" value="0">0</button>
+          <button class="btn-style num-bg period fall-back" value=".">.</button>
+          <button id="eqn-bg" class="eqn align" value="=">=</button>
+        </div>
       </div>
     </div>
+    {{template "source" .}}
   </div>
   {{else if eq .Instant.Type "congress"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1" style="height:225px;">
+  <div id="answer" class="pure-u-1" style="width:550px;height:220px;">
     <div style="margin-top:10px;margin-left:15px;font-size:18px;">
       <em>{{.Instant.Solution.Location.State}} {{.Instant.Solution.Role}}</em>
     </div><br>
@@ -202,10 +203,10 @@
   {{end}}
   {{else if eq .Instant.Type "country code"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:150px;">
     <div style="margin:15px;margin-bottom:5px;"><em>{{.Instant.Solution.Solution}}</em></div>
-    <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution.Format}} Country: {{.Instant.Solution.Country}}
-    </div>
+    <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution.Format}} Country: {{.Instant.Solution.Country}}</div>
+    {{template "source" .}}
   </div>
   {{end}}
   {{else if eq .Instant.Type "currency"}}
@@ -320,7 +321,7 @@
   </div>
   {{else if eq .Instant.Type "gdp"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:325px;">
     <div style="margin:15px;margin-bottom:5px;">
       <div class="pure-u-1">
         {{$n := len .Instant.Solution.History}}
@@ -360,10 +361,11 @@
         </div>
       </fieldset>
     </form>
+    {{template "source" .}}
   </div>
   {{else if eq .Instant.Type "population"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:325px;">
     <div style="margin:15px;margin-bottom:5px;">
       <div class="pure-u-1">
         {{$n := len .Instant.Solution.History}}
@@ -479,7 +481,7 @@
   {{end}}
   {{else if eq .Instant.Type "url shortener"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:135px;width:535px;">
     <div style="margin:15px;margin-bottom:5px;">
       <div class="pure-u-1">
         <div class="pure-u-1" style="font-size:20px;">{{.Instant.Solution.Short}}</div><br>
@@ -588,7 +590,7 @@
   {{end}}
   {{else if or (eq .Instant.Type "wikidata age") (eq .Instant.Type "wikidata birthday") (eq .Instant.Type "wikidata death") (eq .Instant.Type "wikidata height") (eq .Instant.Type "wikidata weight")}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:135px;">
     <div style="margin:15px;margin-bottom:5px;">
       {{WikiData .Instant $context.Region|SafeHTML}}
     </div>
@@ -636,16 +638,17 @@
   {{end}}
   {{else if eq .Instant.Type "hash"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1">
+  <div id="answer" class="pure-u-1" style="height:145px;">
     <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution.Solution}}</div>
-    <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution.HashAlgo}} hash: {{.Instant.Solution.Original}}
-    </div>
+    <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution.HashAlgo}} hash: {{.Instant.Solution.Original}}</div>
+    {{template "source" .}}
   </div>
   {{end}}
   {{else}}
   {{if .Instant.Solution}}
   <div id="answer" class="pure-u-1">
     <div style="margin:15px;margin-bottom:5px;">{{.Instant.Solution}}</div>
+    {{template "source" .}}
   </div>
   {{end}}
   {{end}}    

@@ -36,7 +36,8 @@ func TestAnswerHandler(t *testing.T) {
 				status:   http.StatusOK,
 				template: "jsonp",
 				data: &AnswerResponse{
-					HTML:       `<div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>Garnet</div></div>`,
+					HTML: `<div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>Garnet</div><div class=pure-u-1 style=margin-top:5px><div class=pure-u-1 style=margin-top:7px><div id=source class=pure-u-22-24 style=float:left;text-align:left;padding:15px><em>Source</em><br>Jive Search
+<span style=float:right;text-align:right><a href=#open-widget>Get Widget</a></span></div></div></div></div>`,
 					CSS:        []string{},
 					JavaScript: []string{},
 				},
@@ -48,7 +49,7 @@ func TestAnswerHandler(t *testing.T) {
 				status:   http.StatusOK,
 				template: "jsonp",
 				data: &AnswerResponse{
-					HTML: `<noscript><div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>4</div></div></noscript><div id=calculator style=display:none><div id=result tabindex=4>4</div><div id=main><div id=first-row><button id=clear class=del-bg>C</button>
+					HTML: `<div id=answer class=pure-u-1 style=width:323px;height:500px;padding:25px;padding-bottom:0><noscript><div id=answer class=pure-u-1><div style=margin:15px;margin-bottom:5px>4</div></div></noscript><div id=calculator style=display:none><div id=result tabindex=4>4</div><div id=main><div id=first-row><button id=clear class=del-bg>C</button>
 <button class="btn-style operator opera-bg fall-back" value=%>%</button>
 <button class="btn-style opera-bg align operator" value=/>/</button></div><div class=rows><button class="btn-style num-bg number first-child" value=7>7</button>
 <button class="btn-style num-bg number" value=8>8</button>
@@ -61,7 +62,8 @@ func TestAnswerHandler(t *testing.T) {
 <button class="btn-style num-bg number" value=3>3</button>
 <button class="btn-style opera-bg operator" value=+>+</button></div><div class=rows><button id=zero class="num-bg zero" value=0>0</button>
 <button class="btn-style num-bg period fall-back" value=.>.</button>
-<button id=eqn-bg class="eqn align" value="=">=</button></div></div></div>`,
+<button id=eqn-bg class="eqn align" value="=">=</button></div></div></div><div class=pure-u-1 style=margin-top:5px><div class=pure-u-1 style=margin-top:7px><div id=source class=pure-u-22-24 style=float:left;text-align:left;padding:15px><em>Source</em><br>Jive Search
+<span style=float:right;text-align:right><a href=#open-widget>Get Widget</a></span></div></div></div></div>`,
 					CSS:        []string{"http://anything.com/static/instant/calculator/calculator.css"},
 					JavaScript: []string{"http://anything.com/static/instant/calculator/calculator.js"},
 				},

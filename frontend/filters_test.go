@@ -411,7 +411,7 @@ func TestSource(t *testing.T) {
 		{
 			name: "empty",
 			args: args{instant.Data{}},
-			want: "",
+			want: "Jive Search",
 		},
 		{
 			name: "breach",
