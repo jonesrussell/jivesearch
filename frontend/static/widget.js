@@ -113,6 +113,10 @@
       jQuery("#jive_search #source a:active #jivesearch_src_tagline").css("text-decoration", "none");
       jQuery("#jive_search #source a:visited #jivesearch_src_tagline").css("text-decoration", "none");
 
+      /* undo float:right for Wikipedia */
+      jQuery("#jive_search #wikipedia").css("clear", "both").css("float", "none");
+
+      /* user options */
       if (options.border === false) {
         jQuery("#jive_search #answer").css("box-shadow", "none");
       }
