@@ -41,7 +41,7 @@ func (f *Frontend) Router(cfg config.Provider) *mux.Router {
 
 	// How do we exclude viewing the entire static directory of /static path?
 	router.NewRoute().Name("static").Methods("GET").PathPrefix("/static/").Handler(
-		http.StripPrefix("/static/", http.FileServer(http.Dir("static"))),
+		corsHeaders(http.StripPrefix("/static/", http.FileServer(http.Dir("static")))),
 	)
 
 	// make hmac key available to our templates
@@ -65,4 +65,13 @@ func (f *Frontend) Router(cfg config.Provider) *mux.Router {
 	*/
 
 	return router
+}
+
+// for fonticons for Wikipedia widget
+func corsHeaders(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		h.ServeHTTP(w, r)
+	})
 }
