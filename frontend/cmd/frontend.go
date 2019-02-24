@@ -263,6 +263,7 @@ func main() {
 		QueryVar: "q",
 		BreachFetcher: &breach.Pwned{
 			HTTPClient: httpClient,
+			UserAgent:  v.GetString("useragent"),
 		},
 		CongressFetcher: &congress.ProPublica{
 			Key:        v.GetString("propublica.key"),

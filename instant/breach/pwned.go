@@ -12,6 +12,7 @@ import (
 // Pwned holds settings for the haveibeenpwned.com API
 type Pwned struct {
 	HTTPClient *http.Client
+	UserAgent  string
 }
 
 // HaveIBeenPwnedProvider indicates the source is haveibeenpwned.com
@@ -24,7 +25,9 @@ func (p *Pwned) Fetch(account string) (*Response, error) {
 		return nil, err
 	}
 
-	resp, err := p.HTTPClient.Get(u.String())
+	req, _ := http.NewRequest("GET", u.String(), nil)
+	req.Header.Set("User-Agent", p.UserAgent)
+	resp, err := p.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
