@@ -68,6 +68,8 @@ func (m *Maps) setRegex() Answerer {
 
 func (m *Maps) solve(r *http.Request) Answerer {
 	// The caller is expected to provide the solution when triggered, preferably in JavaScript
+	// Note: "Boston map" needs directions as we are unable to simply get the Lat/Long
+	// "Boston", on the other hand, gets the Lat/Long from Wikidata and is triggered there.
 	ip := getIPAddress(r)
 
 	city, err := m.LocationFetcher.Fetch(ip)
