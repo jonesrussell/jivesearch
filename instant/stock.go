@@ -41,7 +41,7 @@ func (s *StockQuote) setType() Answerer {
 
 func (s *StockQuote) setRegex() Answerer {
 	triggers := []string{
-		"quote", "stock", "stock quote",
+		"stock quote", "stock price", "stock chart", "chart", "quote", "price", "stock",
 	}
 
 	for i, tr := range triggers {
