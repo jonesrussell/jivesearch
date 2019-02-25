@@ -16,7 +16,7 @@ const (
 	WikidataBirthdayType Type = "wikidata birthday"
 	WikidataAgeType      Type = "wikidata age"
 	WikidataDeathType    Type = "wikidata death"
-	WikidataHeightType   Type = "wikidata Height"
+	WikidataHeightType   Type = "wikidata height"
 	WikidataWeightType   Type = "wikidata weight"
 	WikiquoteType        Type = "wikiquote"
 	WiktionaryType       Type = "wiktionary"

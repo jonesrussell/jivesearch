@@ -656,6 +656,9 @@ func wikiDateTime(dt wikipedia.DateTime) string {
 }
 
 func wikipediaItem(sol instant.Data) []*wikipedia.Item {
+	if sol.Solution == nil {
+		return []*wikipedia.Item{}
+	}
 	return sol.Solution.([]*wikipedia.Item)
 }
 
