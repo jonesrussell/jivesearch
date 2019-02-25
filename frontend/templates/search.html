@@ -36,10 +36,10 @@
         });
         map.addControl(directions, 'top-left');
         directions.setOrigin({{.Instant.Solution.Origin }});
-      directions.setDestination({{.Instant.Solution.Destination }});
-          } else {
+        directions.setDestination({{.Instant.Solution.Destination }});
+      } else {
         map.setCenter([{{.Instant.Solution.Longitude }}, {{.Instant.Solution.Latitude }}]);
-          }
+      }
     </script>
     {{end}}
   {{- end}}

@@ -48,10 +48,11 @@ func (m *Maps) setType() Answerer {
 }
 
 func (m *Maps) setRegex() Answerer {
-	m.regex = append(m.regex, regexp.MustCompile(`^directions to (?P<end>.*)$`))
-	m.regex = append(m.regex, regexp.MustCompile(`^directions (?P<start>.*) to (?P<end>.*)$`))
-	m.regex = append(m.regex, regexp.MustCompile(`^(?P<start>.*) to (?P<end>.*) directions$`))
-	m.regex = append(m.regex, regexp.MustCompile(`^(?P<end>.*) directions$`))
+	m.regex = append(m.regex, regexp.MustCompile(`^(directions|map) to (?P<end>.*)$`))
+	m.regex = append(m.regex, regexp.MustCompile(`^(directions|map) (?P<start>.*) to (?P<end>.*)$`))
+	m.regex = append(m.regex, regexp.MustCompile(`^(?P<start>.*) to (?P<end>.*) (directions|map)$`))
+	m.regex = append(m.regex, regexp.MustCompile(`^(?P<end>.*) (directions|map)$`))
+	m.regex = append(m.regex, regexp.MustCompile(`^(directions|map) (?P<end>.*)$`))
 
 	triggers := []string{
 		"map", "maps", "direction", "directions",
@@ -117,6 +118,22 @@ func (m *Maps) tests() []test {
 					Triggered: true,
 					Solution: Map{
 						Location: location.Location{Latitude: 12, Longitude: 18},
+					},
+				},
+			},
+		},
+		{
+			query: "map new york city",
+			ip:    net.ParseIP("161.59.224.138"),
+			expected: []Data{
+				{
+					Type:      MapsType,
+					Triggered: true,
+					Solution: Map{
+						Location:    location.Location{Latitude: 12, Longitude: 18},
+						Directions:  true,
+						Origin:      "",
+						Destination: "new york city",
 					},
 				},
 			},
