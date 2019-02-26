@@ -36,7 +36,7 @@ $ cd $GOPATH/src/github.com/jivesearch/jivesearch/docker
 $ domain=example.com && onion=myonion.onion && data_directory=/path/to/data && sudo mkdir -p $data_directory/elasticsearch && sudo chown 1000:1000 $data_directory/elasticsearch && sudo DATA_DIRECTORY=$data_directory REDIS_PORT=6379 ES_HEAP=2g NGINX_DOMAIN=$domain ONION=$onion docker-compose build --no-cache && sudo DATA_DIRECTORY=$data_directory REDIS_PORT=6379 ES_HEAP=2g NGINX_DOMAIN=$domain ONION=$onion docker-compose up -d
 ```
 
-**For local development you don't need a Let's Encrypt certificate. You can simply access http://127.0.0.1:8000 directly.** 
+**For local development you don't need a Let's Encrypt certificate. You can simply access http://127.0.0.1:8000 directly by running ```cd ~/go/src/github.com/jivesearch/jivesearch/frontend && go run ./cmd/frontend.go --debug=true --provider=yandex```** 
 
 Elasticsearch may give you an error about max virtual memory areas. In that case:
 ```bash
