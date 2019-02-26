@@ -13,6 +13,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/discography"
 	"github.com/jivesearch/jivesearch/instant/parcel"
 	"github.com/jivesearch/jivesearch/instant/shortener"
+	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/stock"
 	"github.com/jivesearch/jivesearch/instant/weather"
 	"github.com/jivesearch/jivesearch/instant/whois"
@@ -177,6 +178,7 @@ func (f *Frontend) DetectInstantAnswer(r *http.Request, lang language.Tag, onlyM
 			&instant.Reverse{},
 			&instant.Shortener{Service: f.Instant.LinkShortener},
 			&instant.Stats{},
+			&instant.Status{Fetcher: f.Instant.StatusFetcher},
 			&instant.StockQuote{Fetcher: f.Instant.StockQuoteFetcher},
 			&instant.Temperature{},
 			&instant.USPS{Fetcher: f.Instant.USPSFetcher},
@@ -262,6 +264,8 @@ func detectType(t instant.Type) interface{} {
 		v = &instant.PopulationResponse{}
 	case instant.StackOverflowType:
 		v = &instant.StackOverflowAnswer{}
+	case instant.StatusType:
+		v = &status.Response{}
 	case instant.StockQuoteType:
 		v = &stock.Quote{}
 	case instant.URLShortenerType:

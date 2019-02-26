@@ -344,6 +344,9 @@ func source(answer instant.Data) string {
 		user := answer.Solution.(*instant.StackOverflowAnswer).Answer.User
 		img = fmt.Sprintf(`<img width="12" height="12" alt="stackoverflow" src="%v"/>`, proxyFavIcon("https://cdn.sstatic.net/Sites/stackoverflow/img/favicon.ico"))
 		f = fmt.Sprintf(`%v via %v <a href="https://stackoverflow.com/">Stack Overflow</a>`, user, img)
+	case "status":
+		img = fmt.Sprintf(`<img width="12" height="12" alt="isitup?" src="%v"/>`, proxyFavIcon("https://isitup.org/favicon.ico"))
+		f = fmt.Sprintf(`%v <a href="https://isitup.org/">Is It Up?</a>`, img)
 	case "stock quote":
 		q := answer.Solution.(*stock.Quote)
 		switch q.Provider {

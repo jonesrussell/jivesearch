@@ -12,6 +12,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
+	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
 	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
@@ -41,6 +42,7 @@ type Instant struct {
 	LocationFetcher      location.Fetcher
 	PopulationFetcher    pop.Fetcher
 	StackOverflowFetcher so.Fetcher
+	StatusFetcher        status.Fetcher
 	StockQuoteFetcher    stock.Fetcher
 	UPSFetcher           parcel.Fetcher
 	USPSFetcher          parcel.Fetcher

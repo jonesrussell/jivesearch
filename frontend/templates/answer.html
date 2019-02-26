@@ -437,6 +437,26 @@
     {{template "source" .}}
   </div>
   {{end}}
+  {{else if eq .Instant.Type "status"}}
+    {{if .Instant.Solution}}
+    <div id="answer" class="pure-u-1" style="height:135px;width:535px;">
+      <div style="margin:15px;margin-bottom:5px;">
+        <div class="pure-u-1">
+          <div class="pure-u-1" style="font-size:20px;">
+            {{.Instant.Solution.Domain}}
+            {{if eq .Instant.Solution.Status 1}} seems to be up
+            {{else}}
+            seems to be down
+            {{end}}
+          </div><br>
+          <div class="pure-u-1" style="font-size:14px;color:#666;">
+            Received <em>{{.Instant.Solution.Code}}</em> status from <em><a href="http://{{.Instant.Solution.IP}}">{{.Instant.Solution.IP}}</a></em> in <em>{{.Instant.Solution.Time}}</em> seconds
+          </div>
+        </div>
+      </div>
+      {{template "source" .}}
+    </div>
+    {{end}}
   {{else if eq .Instant.Type "stock quote"}}
   {{if .Instant.Solution}}
   <div id="answer" class="pure-u-1">

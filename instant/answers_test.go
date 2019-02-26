@@ -17,6 +17,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/econ"
 	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
 	pop "github.com/jivesearch/jivesearch/instant/econ/population"
+	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
 	"github.com/jivesearch/jivesearch/instant/location"
@@ -62,6 +63,7 @@ func answers(i Instant) []Answerer {
 		&Reverse{},
 		&Shortener{Service: i.LinkShortener},
 		&Stats{},
+		&Status{Fetcher: i.StatusFetcher},
 		&StockQuote{Fetcher: i.StockQuoteFetcher},
 		&Temperature{},
 		&USPS{Fetcher: i.USPSFetcher},
@@ -97,6 +99,7 @@ func TestDetect(t *testing.T) {
 		LocationFetcher:      &mockLocationFetcher{},
 		PopulationFetcher:    &mockPopulationFetcher{},
 		StackOverflowFetcher: &mockStackOverflowFetcher{},
+		StatusFetcher:        &mockStatusFetcher{},
 		StockQuoteFetcher:    &mockStockQuoteFetcher{},
 		UPSFetcher:           &mockUPSFetcher{},
 		USPSFetcher:          &mockUSPSFetcher{},
@@ -984,4 +987,35 @@ func (m *mockShortener) Shorten(u *url.URL) (*shortener.Response, error) {
 		Short:    shrt,
 		Provider: "mockShortener",
 	}, nil
+}
+
+type mockStatusFetcher struct{}
+
+func (m *mockStatusFetcher) Fetch(domain string) (*status.Response, error) {
+	r := &status.Response{}
+
+	switch domain {
+	case "example.com":
+		r = &status.Response{
+			Domain:   "example.com",
+			Port:     80,
+			Status:   1,
+			IP:       "1.2.3.4",
+			Code:     200,
+			Time:     1.2,
+			Provider: status.IsItUpProvider,
+		}
+	case "something.com":
+		r = &status.Response{
+			Domain:   "something.com",
+			Port:     80,
+			Status:   1,
+			IP:       "1.2.3.5",
+			Code:     301,
+			Time:     .23,
+			Provider: status.IsItUpProvider,
+		}
+	}
+
+	return r, nil
 }

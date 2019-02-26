@@ -12,6 +12,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
+	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
 	"github.com/jivesearch/jivesearch/instant/econ/gdp"
@@ -300,6 +301,9 @@ func main() {
 		StackOverflowFetcher: &stackoverflow.API{
 			HTTPClient: httpClient,
 			Key:        v.GetString("stackoverflow.key"),
+		},
+		StatusFetcher: &status.IsItUp{
+			HTTPClient: httpClient,
 		},
 		StockQuoteFetcher: &stock.IEX{
 			HTTPClient: httpClient,

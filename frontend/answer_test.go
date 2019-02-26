@@ -12,6 +12,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/discography"
 	"github.com/jivesearch/jivesearch/instant/parcel"
 	"github.com/jivesearch/jivesearch/instant/shortener"
+	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/stock"
 	"github.com/jivesearch/jivesearch/instant/weather"
 	"github.com/jivesearch/jivesearch/instant/whois"
@@ -144,6 +145,7 @@ func TestDetectType(t *testing.T) {
 		{instant.HashType, &instant.HashResponse{}},
 		{instant.PopulationType, &instant.PopulationResponse{}},
 		{instant.StackOverflowType, &instant.StackOverflowAnswer{}},
+		{instant.StatusType, &status.Response{}},
 		{instant.StockQuoteType, &stock.Quote{}},
 		{instant.URLShortenerType, &shortener.Response{}},
 		{instant.WeatherType, &weather.Weather{}},
