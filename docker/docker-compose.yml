@@ -13,6 +13,8 @@ services:
         hard: -1
     volumes:
       - ${DATA_DIRECTORY}/elasticsearch:/usr/share/elasticsearch/data
+      - ${DATA_DIRECTORY}/elasticsearch/backup:/usr/share/elasticsearch/backup
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
     ports:
       - 9200:9200
     networks:
