@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
@@ -13,8 +14,9 @@ import (
 // WikipediaType is a Wikipedia answer Type
 const (
 	WikipediaType        Type = "wikipedia"
-	WikidataBirthdayType Type = "wikidata birthday"
 	WikidataAgeType      Type = "wikidata age"
+	WikidataBirthdayType Type = "wikidata birthday"
+	WikidataClockType    Type = "wikidata clock"
 	WikidataDeathType    Type = "wikidata death"
 	WikidataHeightType   Type = "wikidata height"
 	WikidataWeightType   Type = "wikidata weight"
@@ -57,6 +59,10 @@ const howOldIs = "how old is"
 const birthday = "birthday"
 const born = "born"
 
+// clock
+const clock = "clock"
+const wTime = "time"
+
 // death
 const death = "death"
 const died = "died"
@@ -87,6 +93,7 @@ func (w *Wikipedia) setRegex() Answerer {
 		death, died,
 		howTallis, howTallwas, height,
 		mass, weigh, weight,
+		clock, wTime,
 		quote, quotes,
 		define, definition,
 	}
@@ -99,6 +106,12 @@ func (w *Wikipedia) setRegex() Answerer {
 	return w
 }
 
+// Age is a person's current age (in years) or age when they died
+type Age struct {
+	*Birthday `json:"birthday,omitempty"`
+	*Death    `json:"death,omitempty"`
+}
+
 // Birthday is a person's date of birth
 type Birthday struct {
 	Birthday wikipedia.DateTime `json:"birthday,omitempty"`
@@ -108,12 +121,6 @@ type Birthday struct {
 // TODO: add place of death, cause, etc.
 type Death struct {
 	Death wikipedia.DateTime `json:"death,omitempty"`
-}
-
-// Age is a person's current age (in years) or age when they died
-type Age struct {
-	*Birthday `json:"birthday,omitempty"`
-	*Death    `json:"death,omitempty"`
 }
 
 // TODO: Return the Title (and perhaps Image???) as
@@ -156,6 +163,26 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 		}
 
 		w.Data.Solution = b
+	case clock, wTime:
+		w.Type = WikidataClockType
+
+		//tz := "MST"
+		loc, _ := time.LoadLocation("Asia/Shanghai")
+
+		//set timezone,
+		now := time.Now().In(loc)
+
+		fmt.Println(now)
+
+		/*
+			for _, item := range items {
+				if len(item.TimeZone) == 0 {
+					return w
+				}
+				w.Type = WikidataClockType
+				w.Data.Solution = item.TimeZone
+				}
+		*/
 	case death, died:
 		for _, item := range items {
 			if len(item.Death) > 0 {
