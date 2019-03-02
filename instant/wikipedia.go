@@ -130,6 +130,7 @@ type Clock struct {
 	Time     time.Time `json:"time"`
 	Location struct {
 		City    string `json:"city"`
+		State   string `json:"state"`
 		Country string `json:"country"`
 	}
 }
@@ -261,8 +262,13 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 				Time: t,
 			}
 
-			cc.Location.City = c.City.Names["en"]
-			cc.Location.Country = c.Country.Names["en"]
+			lang := "en"
+			cc.Location.City = c.City.Names[lang]
+			for _, s := range c.Subdivisions {
+				cc.Location.State = s.Names[lang]
+			}
+
+			cc.Location.Country = c.Country.Names[lang]
 
 			w.Data.Solution = cc
 		default:
@@ -311,6 +317,7 @@ func (w *Wikipedia) tests() []test {
 		Time: timeInUTC.In(mountain),
 	}
 	cl.Location.City = "Someville"
+	cl.Location.State = "SomeState"
 	cl.Location.Country = "SomeCountry"
 
 	tests := []test{

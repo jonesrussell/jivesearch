@@ -433,6 +433,9 @@ type mockLocationFetcher struct{}
 func (l *mockLocationFetcher) Fetch(ip net.IP) (*location.City, error) {
 	c := &location.City{}
 	c.City.Names = map[string]string{"en": "Someville"}
+	c.Subdivisions = []location.Subdivision{
+		{Names: map[string]string{"en": "SomeState"}},
+	}
 	c.Country.Names = map[string]string{"en": "SomeCountry"}
 	c.Location.Latitude = 12
 	c.Location.Longitude = 18

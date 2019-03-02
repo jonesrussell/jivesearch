@@ -662,7 +662,9 @@
     <div style="margin:15px;margin-bottom:5px;font-size:32px;">{{.Instant.Solution.Time|WikidataClockTime}}</div>
     <div style="margin-left:15px;">{{.Instant.Solution.Time|WikidataClockDate}}</div>
     <div style="margin-left:15px;">
-      {{if .Instant.Solution.Location.City}}{{.Instant.Solution.Location.City}}, {{end}}{{if .Instant.Solution.Location.City}}{{.Instant.Solution.Location.Country}}{{end}}
+      {{if .Instant.Solution.Location.City}}{{.Instant.Solution.Location.City}}, {{end}}
+      {{if .Instant.Solution.Location.State}}{{.Instant.Solution.Location.State}} {{end}}
+      {{if .Instant.Solution.Location.Country}}{{.Instant.Solution.Location.Country}}{{end}}
     </div>
     {{template "source" .}}
   </div>

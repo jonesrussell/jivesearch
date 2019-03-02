@@ -134,7 +134,7 @@ func (m *Maps) tests() []test {
 					Solution: Map{
 						Location:    location.Location{Latitude: 12, Longitude: 18},
 						Directions:  true,
-						Origin:      "",
+						Origin:      "Someville, SomeState",
 						Destination: "new york city",
 					},
 				},
@@ -164,7 +164,7 @@ func (m *Maps) tests() []test {
 					Solution: Map{
 						Location:    location.Location{Latitude: 12, Longitude: 18},
 						Directions:  true,
-						Origin:      "",
+						Origin:      "Someville, SomeState",
 						Destination: "new york city",
 					},
 				},
@@ -180,7 +180,7 @@ func (m *Maps) tests() []test {
 					Solution: Map{
 						Location:    location.Location{Latitude: 12, Longitude: 18},
 						Directions:  true,
-						Origin:      "",
+						Origin:      "Someville, SomeState",
 						Destination: "new york city",
 					},
 				},
