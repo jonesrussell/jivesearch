@@ -658,10 +658,12 @@
   {{end}}
   {{else if eq .Instant.Type "wikidata clock"}}
   {{if .Instant.Solution}}
-  <div id="answer" class="pure-u-1" style="height:150px;">
+  <div id="answer" class="pure-u-1" style="height:170px;">
     <div style="margin:15px;margin-bottom:5px;font-size:32px;">{{.Instant.Solution.Time|WikidataClockTime}}</div>
     <div style="margin-left:15px;">{{.Instant.Solution.Time|WikidataClockDate}}</div>
-    <div>{{.Instant.Solution.Location}}</div>
+    <div style="margin-left:15px;">
+      {{if .Instant.Solution.Location.City}}{{.Instant.Solution.Location.City}}, {{end}}{{if .Instant.Solution.Location.City}}{{.Instant.Solution.Location.Country}}{{end}}
+    </div>
     {{template "source" .}}
   </div>
   {{end}}

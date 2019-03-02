@@ -125,9 +125,13 @@ type Birthday struct {
 }
 
 // Clock is a current time for a location
+// TODO: make Location a map/struct of different languages, not just 1
 type Clock struct {
-	Time     time.Time
-	Location string
+	Time     time.Time `json:"time"`
+	Location struct {
+		City    string `json:"city"`
+		Country string `json:"country"`
+	}
 }
 
 // Death is a person's date of death
@@ -245,16 +249,22 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 				return w
 			}
 
-			t, err := w.getTime(float32(c.Location.Latitude), float32(c.Location.Longitude))
+			lat, lon := float32(c.Location.Latitude), float32(c.Location.Longitude)
+			t, err := w.getTime(lat, lon)
 			if err != nil {
 				w.Err = err
 				return w
 			}
 
 			w.Type = WikidataClockType
-			w.Data.Solution = &Clock{
+			cc := &Clock{
 				Time: t,
 			}
+
+			cc.Location.City = c.City.Names["en"]
+			cc.Location.Country = c.Country.Names["en"]
+
+			w.Data.Solution = cc
 		default:
 			w.Type = WikipediaType
 			w.Data.Solution = items
@@ -296,6 +306,12 @@ func (w *Wikipedia) tests() []test {
 	}
 
 	timeInUTC := time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC)
+
+	cl := &Clock{
+		Time: timeInUTC.In(mountain),
+	}
+	cl.Location.City = "Someville"
+	cl.Location.Country = "SomeCountry"
 
 	tests := []test{
 		{
@@ -445,8 +461,7 @@ func (w *Wikipedia) tests() []test {
 					Type:      WikidataClockType,
 					Triggered: true,
 					Solution: &Clock{
-						Time:     timeInUTC.In(sydney),
-						Location: "",
+						Time: timeInUTC.In(sydney),
 					},
 				},
 			},
@@ -457,10 +472,7 @@ func (w *Wikipedia) tests() []test {
 				{
 					Type:      WikidataClockType,
 					Triggered: true,
-					Solution: &Clock{
-						Time:     timeInUTC.In(mountain),
-						Location: "",
-					},
+					Solution:  cl,
 				},
 			},
 		},
