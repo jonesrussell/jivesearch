@@ -104,7 +104,7 @@ func (f *Frontend) getAnswer(r *http.Request, dd data, ic chan instant.Data) {
 	var cache bool
 
 	switch res.Type {
-	case instant.CoinTossType, instant.LocalWeatherType, instant.RandomType, instant.UserAgentType: // only local weather
+	case instant.WikidataClockType, instant.CoinTossType, instant.LocalWeatherType, instant.RandomType, instant.UserAgentType: // only local weather
 		cache = false
 	case instant.CurrencyType, instant.StockQuoteType, instant.FedExType, instant.UPSType, instant.USPSType:
 		d = 1 * time.Minute
