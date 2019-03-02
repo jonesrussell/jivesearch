@@ -81,15 +81,16 @@ A timezone database is used to get the timezone from a lat/lon for our clock ins
 ```bash
 $ go get -u github.com/evanoberholster/timezoneLookup
 $ go install $GOPATH/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go
-$ rm -Rf ~/timezone && mkdir ~/timezone && cd ~/timezone
 ```
 Download the latest release (countries change their timezones all the time). For instance:
 ```
+$ rm -Rf ~/timezone && mkdir ~/timezone && cd ~/timezone
 $ cd ~/timezone && wget https://github.com/evansiroky/timezone-boundary-builder/releases/download/2018i/timezones.geojson.zip
 $ cd ~/timezone && unzip ~/timezone/timezones.geojson.zip
 $ cd ~/timezone/dist && timezone -json "combined.json" -db=timezone -type=memory
 $ sudo rm -Rf /usr/share/timezone
 $ sudo mkdir /usr/share/timezone
+$ sudo mv timezone.snap.json /usr/share/timezone
 ```
 
 ##### MusicBrainz
