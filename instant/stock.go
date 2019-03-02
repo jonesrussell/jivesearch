@@ -60,6 +60,15 @@ func (s *StockQuote) setRegex() Answerer {
 func (s *StockQuote) solve(r *http.Request) Answerer {
 	ticker := strings.ToUpper(strings.Replace(s.remainder, "$", "", -1))
 
+	// this shouldn't be handled in the package but by the caller...will fix later...
+	for _, skipped := range []string{clock, currentTime, timeIn, wTime} {
+		if strings.ToLower(ticker) == skipped {
+			s.Err = fmt.Errorf("skipping stock. prefer another answer")
+			fmt.Println("returning...")
+			return s
+		}
+	}
+
 	resp, err := s.Fetcher.Fetch(ticker)
 	if err != nil {
 		s.Err = err

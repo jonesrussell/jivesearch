@@ -54,6 +54,8 @@ var funcMap = template.FuncMap{
 	"WeatherDailyForecast": weatherDailyForecast,
 	"WikiAmount":           wikiAmount,
 	"WikiCanonical":        wikiCanonical,
+	"WikidataClockTime":    wikidataClockTime,
+	"WikidataClockDate":    wikidataClockDate,
 	"WikiData":             wikiData,
 	"WikiDateTime":         wikiDateTime,
 	"WikiJoin":             wikiJoin,
@@ -383,7 +385,7 @@ func source(answer instant.Data) string {
 	case "whois":
 		img = fmt.Sprintf(`<img width="12" height="12" alt="jivedata" src="%v"/>`, proxyFavIcon("https://jivedata.com/static/favicon.ico"))
 		f = fmt.Sprintf(`%v <a href="https://jivedata.com">Jive Data</a>`, img)
-	case "wikidata age", "wikidata birthday", "wikidata death", "wikidata height", "wikidata weight":
+	case "wikidata age", "wikidata clock", "wikidata birthday", "wikidata death", "wikidata height", "wikidata weight":
 		img = fmt.Sprintf(`<img width="12" height="12" alt="wikipedia" src="%v"/>`, proxyFavIcon("https://en.wikipedia.org/favicon.ico"))
 		f = fmt.Sprintf(`%v <a href="https://www.wikipedia.org/">Wikipedia</a>`, img)
 	case "wikiquote":
@@ -589,6 +591,14 @@ func wikiAmount(q wikipedia.Quantity, r language.Region) string {
 // if this breaks Wikidata dumps have "sitelinks"
 func wikiCanonical(t string) string {
 	return strings.Replace(t, " ", "_", -1)
+}
+
+func wikidataClockTime(t time.Time) string {
+	return t.Format("3:04 PM")
+}
+
+func wikidataClockDate(t time.Time) string {
+	return t.Format("Monday, January 2, 2006 (GMT-07)")
 }
 
 func wikiData(sol instant.Data, r language.Region) string {

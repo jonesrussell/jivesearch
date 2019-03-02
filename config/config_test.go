@@ -155,6 +155,9 @@ func TestSetDefaults(t *testing.T) {
 		// OpenWeatherMap API settings
 		{"openweathermap.key", "key"},
 
+		// Timezone database location
+		{"timezone.database", "/usr/share/timezone/timezone"},
+
 		// wikipedia settings
 		{"wikipedia.truncate", 250},
 	}

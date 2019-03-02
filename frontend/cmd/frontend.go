@@ -21,10 +21,11 @@ import (
 	"github.com/jivesearch/jivesearch/instant/econ/population"
 	"github.com/jivesearch/jivesearch/instant/shortener"
 
+	"time"
+
+	timezone "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/location"
 	"github.com/jivesearch/jivesearch/instant/weather"
-
-	"time"
 
 	"github.com/abursavich/nett"
 	"github.com/garyburd/redigo/redis"
@@ -255,6 +256,19 @@ func main() {
 	defer db.Close()
 	db.SetMaxIdleConns(0)
 
+	// timezone database for "current time in xxx"
+	tz, err := timezone.LoadTimezones(timezone.Config{
+		DatabaseType: "memory",
+		DatabaseName: v.GetString("timezone.database"),
+		Snappy:       true,
+		Encoding:     "json",
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	defer tz.Close()
+
 	// Instant Answers
 	f.GitHub = frontend.GitHub{
 		HTTPClient: httpClient,
@@ -308,6 +322,7 @@ func main() {
 		StockQuoteFetcher: &stock.IEX{
 			HTTPClient: httpClient,
 		},
+		TimeZoneFetcher: tz,
 		UPSFetcher: &parcel.UPS{
 			HTTPClient: httpClient,
 			User:       v.GetString("ups.user"),

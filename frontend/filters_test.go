@@ -1007,6 +1007,62 @@ func TestWikiData(t *testing.T) {
 	}
 }
 
+func TestWikidataClockTime(t *testing.T) {
+	type args struct {
+		t time.Time
+	}
+
+	for _, tt := range []struct {
+		name string
+		args
+		want string
+	}{
+		{
+			name: "basic",
+			args: args{
+				time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC),
+			},
+			want: "3:02 AM",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := wikidataClockTime(tt.args.t)
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("got %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestWikidataClockDate(t *testing.T) {
+	type args struct {
+		t time.Time
+	}
+
+	for _, tt := range []struct {
+		name string
+		args
+		want string
+	}{
+		{
+			name: "basic",
+			args: args{
+				time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC),
+			},
+			want: "Sunday, June 5, 2016 (GMT+00)",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := wikidataClockDate(tt.args.t)
+
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Fatalf("got %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestWikiDateTime(t *testing.T) {
 	type args struct {
 		dt wikipedia.DateTime

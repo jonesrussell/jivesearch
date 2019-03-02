@@ -190,7 +190,9 @@ func (f *Frontend) DetectInstantAnswer(r *http.Request, lang language.Tag, onlyM
 			&instant.Weather{Fetcher: f.Instant.WeatherFetcher, LocationFetcher: f.Instant.LocationFetcher},
 			&instant.WHOIS{Fetcher: f.Instant.WHOISFetcher},
 			&instant.Wikipedia{
-				Fetcher: f.Instant.WikipediaFetcher,
+				LocationFetcher: f.Instant.LocationFetcher,
+				TimeZoneFetcher: f.Instant.TimeZoneFetcher,
+				Fetcher:         f.Instant.WikipediaFetcher,
 			}, // always keep this last so that Wikipedia Box will trigger if none other
 		}
 	}
@@ -283,6 +285,8 @@ func detectType(t instant.Type) interface{} {
 		}
 	case instant.WikidataBirthdayType:
 		v = &instant.Birthday{}
+	case instant.WikidataClockType:
+		v = &instant.Clock{}
 	case instant.WikidataDeathType:
 		v = &instant.Death{}
 	case instant.WikidataHeightType, instant.WikidataWeightType:

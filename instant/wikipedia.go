@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	timezone "github.com/evanoberholster/timezoneLookup"
+	"github.com/jivesearch/jivesearch/instant/location"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
@@ -27,6 +29,8 @@ const (
 // Wikipedia is a Wiki* instant answer,
 // including Wikidata/Wikiquote/Wiktionary
 type Wikipedia struct {
+	LocationFetcher location.Fetcher
+	TimeZoneFetcher timezone.TimezoneInterface
 	wikipedia.Fetcher
 	Answer
 }
@@ -61,6 +65,8 @@ const born = "born"
 
 // clock
 const clock = "clock"
+const currentTime = "current time"
+const timeIn = "time in"
 const wTime = "time"
 
 // death
@@ -93,12 +99,13 @@ func (w *Wikipedia) setRegex() Answerer {
 		death, died,
 		howTallis, howTallwas, height,
 		mass, weigh, weight,
-		clock, wTime,
+		clock, currentTime, timeIn, wTime,
 		quote, quotes,
 		define, definition,
 	}
 
 	t := strings.Join(triggers, "|")
+
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
 	w.regex = append(w.regex, regexp.MustCompile(`^(?P<remainder>.*)$`)) // this needs to be last regex here
@@ -115,6 +122,12 @@ type Age struct {
 // Birthday is a person's date of birth
 type Birthday struct {
 	Birthday wikipedia.DateTime `json:"birthday,omitempty"`
+}
+
+// Clock is a current time for a location
+type Clock struct {
+	Time     time.Time
+	Location string
 }
 
 // Death is a person's date of death
@@ -163,26 +176,26 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 		}
 
 		w.Data.Solution = b
-	case clock, wTime:
+	case clock, currentTime, timeIn, wTime:
+		var lat, lon float32
+
+		for _, item := range items {
+			for _, c := range item.Coordinate {
+				lat = float32(c.Latitude[0])
+				lon = float32(c.Longitude[0])
+			}
+		}
+
+		t, err := w.getTime(lat, lon)
+		if err != nil {
+			w.Err = err
+			return w
+		}
+
 		w.Type = WikidataClockType
-
-		//tz := "MST"
-		loc, _ := time.LoadLocation("Asia/Shanghai")
-
-		//set timezone,
-		now := time.Now().In(loc)
-
-		fmt.Println(now)
-
-		/*
-			for _, item := range items {
-				if len(item.TimeZone) == 0 {
-					return w
-				}
-				w.Type = WikidataClockType
-				w.Data.Solution = item.TimeZone
-				}
-		*/
+		w.Data.Solution = &Clock{
+			Time: t,
+		}
 	case death, died:
 		for _, item := range items {
 			if len(item.Death) > 0 {
@@ -222,15 +235,68 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Type = WiktionaryType
 			w.Data.Solution = item.Wiktionary
 		}
-	default: // full Wikipedia box
-		w.Type = WikipediaType
-		w.Data.Solution = items
+	default: // full Wikipedia box unless for certain words
+		switch w.remainder {
+		case clock, currentTime, timeIn, wTime: // if "clock", "current time", etc. then they want the current time for their current location
+			ip := getIPAddress(r)
+			c, err := w.LocationFetcher.Fetch(ip)
+			if err != nil {
+				w.Err = err
+				return w
+			}
+
+			t, err := w.getTime(float32(c.Location.Latitude), float32(c.Location.Longitude))
+			if err != nil {
+				w.Err = err
+				return w
+			}
+
+			w.Type = WikidataClockType
+			w.Data.Solution = &Clock{
+				Time: t,
+			}
+		default:
+			w.Type = WikipediaType
+			w.Data.Solution = items
+		}
 	}
 
 	return w
 }
 
+func (w *Wikipedia) getTime(lat, lon float32) (time.Time, error) {
+	t := time.Time{}
+
+	zone, err := w.TimeZoneFetcher.Query(
+		timezone.Coord{Lat: lon, Lon: lat}, // is this backwards or just me???
+	)
+
+	if err != nil {
+		return t, err
+	}
+
+	loc, err := time.LoadLocation(zone)
+	if err != nil {
+		return t, err
+	}
+
+	t = now().In(loc)
+	return t, nil
+}
+
 func (w *Wikipedia) tests() []test {
+	sydney, err := time.LoadLocation("Australia/Sydney")
+	if err != nil {
+		panic(err)
+	}
+
+	mountain, err := time.LoadLocation("America/Denver")
+	if err != nil {
+		panic(err)
+	}
+
+	timeInUTC := time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC)
+
 	tests := []test{
 		{
 			query: "Bob Marley age",
@@ -368,6 +434,32 @@ func (w *Wikipedia) tests() []test {
 								},
 							},
 						},
+					},
+				},
+			},
+		},
+		{
+			query: "Sydney time",
+			expected: []Data{
+				{
+					Type:      WikidataClockType,
+					Triggered: true,
+					Solution: &Clock{
+						Time:     timeInUTC.In(sydney),
+						Location: "",
+					},
+				},
+			},
+		},
+		{
+			query: "time",
+			expected: []Data{
+				{
+					Type:      WikidataClockType,
+					Triggered: true,
+					Solution: &Clock{
+						Time:     timeInUTC.In(mountain),
+						Location: "",
 					},
 				},
 			},

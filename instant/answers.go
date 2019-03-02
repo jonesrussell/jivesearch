@@ -15,6 +15,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
+	timezone "github.com/evanoberholster/timezoneLookup"
 	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
 
 	disc "github.com/jivesearch/jivesearch/instant/discography"
@@ -44,6 +45,7 @@ type Instant struct {
 	StackOverflowFetcher so.Fetcher
 	StatusFetcher        status.Fetcher
 	StockQuoteFetcher    stock.Fetcher
+	TimeZoneFetcher      timezone.TimezoneInterface
 	UPSFetcher           parcel.Fetcher
 	USPSFetcher          parcel.Fetcher
 	WeatherFetcher       weather.Fetcher
@@ -78,6 +80,9 @@ type Answer struct {
 
 // Type is the answer type
 type Type string
+
+// For mocking....MUST use time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC) in tests
+var now = func() time.Time { return time.Now().UTC() }
 
 // Data holds the returned data of an answer
 type Data struct {

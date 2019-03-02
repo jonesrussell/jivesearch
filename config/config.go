@@ -175,6 +175,9 @@ func SetDefaults(cfg Provider) {
 	// OpenWeatherMap API settings
 	cfg.SetDefault("openweathermap.key", "key")
 
+	// Timezone database location
+	cfg.SetDefault("timezone.database", "/usr/share/timezone/timezone") // suffix is automatically added
+
 	// wikipedia settings
 	truncate := 250
 	cfg.SetDefault("wikipedia.truncate", truncate) // chars

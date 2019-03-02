@@ -10,6 +10,7 @@ import (
 	"testing"
 	"time"
 
+	timezone "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
 	curr "github.com/jivesearch/jivesearch/instant/currency"
@@ -75,7 +76,9 @@ func answers(i Instant) []Answerer {
 		&WHOIS{Fetcher: i.WHOISFetcher},
 		&Weather{Fetcher: i.WeatherFetcher, LocationFetcher: i.LocationFetcher},
 		&Wikipedia{
-			Fetcher: i.WikipediaFetcher,
+			LocationFetcher: i.LocationFetcher,
+			TimeZoneFetcher: i.TimeZoneFetcher,
+			Fetcher:         i.WikipediaFetcher,
 		},
 	}
 }
@@ -101,6 +104,7 @@ func TestDetect(t *testing.T) {
 		StackOverflowFetcher: &mockStackOverflowFetcher{},
 		StatusFetcher:        &mockStatusFetcher{},
 		StockQuoteFetcher:    &mockStockQuoteFetcher{},
+		TimeZoneFetcher:      &mockTimeZoneFetcher{},
 		UPSFetcher:           &mockUPSFetcher{},
 		USPSFetcher:          &mockUSPSFetcher{},
 		WeatherFetcher:       &mockWeatherFetcher{},
@@ -132,6 +136,10 @@ func TestDetect(t *testing.T) {
 
 			for _, ia := range answers(i) {
 				if triggered := i.Trigger(ia, r, language.English); triggered {
+					now = func() time.Time {
+						return time.Date(2016, 6, 5, 3, 2, 0, 0, time.UTC)
+					}
+
 					got := i.Solve(ia, r)
 					if got.Err != nil {
 						continue
@@ -149,12 +157,11 @@ func TestDetect(t *testing.T) {
 						fmt.Println(got.Type)
 						t.Errorf("Instant answer failed %v", ctx)
 						t.Errorf("got %+v;", got)
-						//t.Errorf("got %+v;", got.Solution.(*PopulationResponse).Response)
+						//t.Errorf("got %+v;", got.Solution.(*Clock).Time)
 						t.Errorf("want ")
 						for _, expected := range c.expected {
 							t.Errorf("    %+v\n", expected)
-							//t.Errorf("    %+v\n", expected.Solution.(*weather.Weather))
-							//t.Error(expected.Solution.(*PopulationResponse).Country, got.Solution.(*PopulationResponse).Country)
+							//t.Errorf("    %+v\n", expected.Solution.(*Clock).Time)
 						}
 						t.FailNow()
 					}
@@ -918,11 +925,33 @@ func (mf *mockWikipediaFetcher) Fetch(query string, lang language.Tag) ([]*wikip
 				},
 			},
 		}, nil
+	case "sydney":
+		return []*wikipedia.Item{
+			{
+				Wikidata: &wikipedia.Wikidata{
+					Claims: &wikipedia.Claims{
+						Coordinate: []wikipedia.Coordinate{
+							{
+								Latitude:  []float64{-33.8667},
+								Longitude: []float64{151.2},
+							},
+						},
+					},
+				},
+			},
+		}, nil
 	default:
 		return []*wikipedia.Item{
 			{
 				Wikidata: &wikipedia.Wikidata{
-					Claims: &wikipedia.Claims{},
+					Claims: &wikipedia.Claims{
+						Coordinate: []wikipedia.Coordinate{
+							{
+								Latitude:  []float64{123.45},
+								Longitude: []float64{56.789},
+							},
+						},
+					},
 				},
 			},
 		}, nil
@@ -1019,3 +1048,25 @@ func (m *mockStatusFetcher) Fetch(domain string) (*status.Response, error) {
 
 	return r, nil
 }
+
+type mockTimeZoneFetcher struct{}
+
+func (m *mockTimeZoneFetcher) CreateTimezones(jsonFilename string) error {
+	return nil
+}
+func (m *mockTimeZoneFetcher) LoadTimezones() error {
+	return nil
+}
+func (m *mockTimeZoneFetcher) Query(q timezone.Coord) (string, error) {
+	sydney := timezone.Coord{
+		Lat: 151.2,
+		Lon: -33.8667,
+	}
+
+	if reflect.DeepEqual(q, sydney) {
+		return "Australia/Sydney", nil
+	}
+
+	return "America/Denver", nil
+}
+func (m *mockTimeZoneFetcher) Close() {}
