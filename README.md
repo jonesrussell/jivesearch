@@ -76,6 +76,22 @@ $ sudo crontab -e
   56 3 * * 4 /usr/bin/geoipupdate
 ```
 
+##### Timezone
+A timezone database is used to get the timezone from a lat/lon for our clock instant answer
+```bash
+$ go get -u github.com/evanoberholster/timezoneLookup
+$ go install $GOPATH/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go
+$ rm -Rf ~/timezone && mkdir ~/timezone && cd ~/timezone
+```
+Download the latest release (countries change their timezones all the time). For instance:
+```
+$ cd ~/timezone && wget https://github.com/evansiroky/timezone-boundary-builder/releases/download/2018i/timezones.geojson.zip
+$ cd ~/timezone && unzip ~/timezone/timezones.geojson.zip
+$ cd ~/timezone/dist && timezone -json "combined.json" -db=timezone -type=memory
+$ sudo rm -Rf /usr/share/timezone
+$ sudo mkdir /usr/share/timezone
+```
+
 ##### MusicBrainz
 Instructions for MusicBrainz (to show the album discography instant answer) can be found [here](https://gist.github.com/brentadamson/b711d5c9c4d974d6999876004f8bc1cd).
 
