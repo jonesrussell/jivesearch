@@ -182,25 +182,49 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 
 		w.Data.Solution = b
 	case clock, currentTime, timeIn, wTime:
+		var err error
+		cc := &Clock{}
+
 		var lat, lon float32
 
 		for _, item := range items {
+			for _, c := range item.Instance {
+				switch c.ID {
+				case "Q515", "Q1093829": // a city
+					cc.Location.City = item.Labels["en"].Text
+					for _, c := range item.Country {
+						for _, item := range c.Item {
+							cc.Location.Country = string(item.Labels["en"].Text)
+						}
+					}
+				case "Q6256": // a country
+					cc.Location.Country = item.Labels["en"].Text
+					for _, c := range item.Capital {
+						// get the current capital city...e.g. has no end date
+						if len(c.End) == 0 {
+							for _, cap := range c.Item {
+								cc.Location.City = cap.Labels["en"].Text
+							}
+						}
+					}
+				}
+
+			}
 			for _, c := range item.Coordinate {
 				lat = float32(c.Latitude[0])
 				lon = float32(c.Longitude[0])
 			}
+
 		}
 
-		t, err := w.getTime(lat, lon)
+		cc.Time, err = w.getTime(lat, lon)
 		if err != nil {
 			w.Err = err
 			return w
 		}
 
 		w.Type = WikidataClockType
-		w.Data.Solution = &Clock{
-			Time: t,
-		}
+		w.Data.Solution = cc
 	case death, died:
 		for _, item := range items {
 			if len(item.Death) > 0 {

@@ -141,124 +141,143 @@ type Nomination struct {
 	Date []DateTime `json:"date,omitempty" property:"P585"`
 }
 
+// City is a geographical city
+// NOTE: This datastructure is duplicative and can be combined into
+// a more general label and combined with Country, Interment, Military, etc. structs.
+// Perhaps just add all the qualifiers to our Wikidata structure?
+type City struct {
+	Item  []Wikidata `json:"item,omitempty"`
+	Start []DateTime `json:"start,omitempty" property:"P580"`
+	End   []DateTime `json:"end,omitempty" property:"P582"`
+}
+
+// Country is a geographical country
+type Country struct {
+	Item  []Wikidata `json:"item,omitempty"`
+	Start []DateTime `json:"start,omitempty" property:"P580"`
+	End   []DateTime `json:"end,omitempty" property:"P582"`
+}
+
 // claims is the raw version of the wikidata claims
 type claims struct {
-	Image       []claim `json:"P18"`
-	BirthPlace  []claim `json:"P19"`
-	Sex         []claim `json:"P21"`
-	Father      []claim `json:"P22"`
-	Mother      []claim `json:"P25"`
-	Spouse      []claim `json:"P26"`
-	Country     []claim `json:"P27"`
-	Instance    []claim `json:"P31"` // eg person, book, etc...
-	Capital     []claim `json:"P36"`
-	Currency    []claim `json:"P38"`
-	Flag        []claim `json:"P41"`
-	Teams       []claim `json:"P54"`
-	Education   []claim `json:"P69"`
-	Occupation  []claim `json:"P106"`
-	Signature   []claim `json:"P109"`
-	Interment   []claim `json:"P119"`
-	Genre       []claim `json:"P136"`
-	Religion    []claim `json:"P140"`
-	Awards      []claim `json:"P166"`
-	Ethnicity   []claim `json:"P172"`
-	Military    []claim `json:"P241"`
-	RecordLabel []claim `json:"P264"`
-	Position    []claim `json:"P413"`
-	MusicBrainz []claim `json:"P434"`
-	Partner     []claim `json:"P451"` // non-married spouse
-	Origin      []claim `json:"P495"`
-	DeathCause  []claim `json:"P509"`
-	Members     []claim `json:"P527"`
-	Residence   []claim `json:"P551"`
-	Hand        []claim `json:"P552"`
-	Coordinate  []claim `json:"P625"`
-	Birthday    []claim `json:"P569"`
-	Death       []claim `json:"P570"`
-	Start       []claim `json:"P571"`
-	Publication []claim `json:"P577"`
-	Sport       []claim `json:"P641"`
-	Drafted     []claim `json:"P647"`
-	GivenName   []claim `json:"P735"`
-	Influences  []claim `json:"P737"`
-	Location    []claim `json:"P740"` // location where a group was formed
-	Website     []claim `json:"P856"`
-	Population  []claim `json:"P1082"`
-	Instrument  []claim `json:"P1303"`
-	Participant []claim `json:"P1344"`
-	Nominations []claim `json:"P1411"`
-	Languages   []claim `json:"P1412"`
-	BirthName   []claim `json:"P1477"`
-	Spotify     []claim `json:"P1902"`
-	Twitter     []claim `json:"P2002"`
-	Instagram   []claim `json:"P2003"`
-	Facebook    []claim `json:"P2013"`
-	YouTube     []claim `json:"P2397"`
-	WorkStart   []claim `json:"P2031"`
-	Height      []claim `json:"P2048"`
-	Weight      []claim `json:"P2067"`
-	Siblings    []claim `json:"P3373"`
+	Country              []claim `json:"P17"`
+	Image                []claim `json:"P18"`
+	BirthPlace           []claim `json:"P19"`
+	Sex                  []claim `json:"P21"`
+	Father               []claim `json:"P22"`
+	Mother               []claim `json:"P25"`
+	Spouse               []claim `json:"P26"`
+	CountryOfCitizenship []claim `json:"P27"`
+	Instance             []claim `json:"P31"` // eg person, book, etc...
+	Capital              []claim `json:"P36"`
+	Currency             []claim `json:"P38"`
+	Flag                 []claim `json:"P41"`
+	Teams                []claim `json:"P54"`
+	Education            []claim `json:"P69"`
+	Occupation           []claim `json:"P106"`
+	Signature            []claim `json:"P109"`
+	Interment            []claim `json:"P119"`
+	Genre                []claim `json:"P136"`
+	Religion             []claim `json:"P140"`
+	Awards               []claim `json:"P166"`
+	Ethnicity            []claim `json:"P172"`
+	Military             []claim `json:"P241"`
+	RecordLabel          []claim `json:"P264"`
+	Position             []claim `json:"P413"`
+	MusicBrainz          []claim `json:"P434"`
+	Partner              []claim `json:"P451"` // non-married spouse
+	Origin               []claim `json:"P495"`
+	DeathCause           []claim `json:"P509"`
+	Members              []claim `json:"P527"`
+	Residence            []claim `json:"P551"`
+	Hand                 []claim `json:"P552"`
+	Coordinate           []claim `json:"P625"`
+	Birthday             []claim `json:"P569"`
+	Death                []claim `json:"P570"`
+	Start                []claim `json:"P571"`
+	Publication          []claim `json:"P577"`
+	Sport                []claim `json:"P641"`
+	Drafted              []claim `json:"P647"`
+	GivenName            []claim `json:"P735"`
+	Influences           []claim `json:"P737"`
+	Location             []claim `json:"P740"` // location where a group was formed
+	Website              []claim `json:"P856"`
+	Population           []claim `json:"P1082"`
+	Instrument           []claim `json:"P1303"`
+	Participant          []claim `json:"P1344"`
+	Nominations          []claim `json:"P1411"`
+	Languages            []claim `json:"P1412"`
+	BirthName            []claim `json:"P1477"`
+	Spotify              []claim `json:"P1902"`
+	Twitter              []claim `json:"P2002"`
+	Instagram            []claim `json:"P2003"`
+	Facebook             []claim `json:"P2013"`
+	YouTube              []claim `json:"P2397"`
+	WorkStart            []claim `json:"P2031"`
+	Height               []claim `json:"P2048"`
+	Weight               []claim `json:"P2067"`
+	Siblings             []claim `json:"P3373"`
 }
 
 // Claims are the formatted and condensed version of the Wikidata claims
 type Claims struct {
-	Image       []string     `json:"image,omitempty"`
-	BirthPlace  []Wikidata   `json:"birthplace,omitempty"`
-	Sex         []Wikidata   `json:"sex,omitempty"`
-	Father      []Wikidata   `json:"father,omitempty"`
-	Mother      []Wikidata   `json:"mother,omitempty"`
-	Spouse      []Spouse     `json:"spouse,omitempty"`
-	Country     []Wikidata   `json:"country,omitempty"` // country of residence
-	Instance    []Wikidata   `json:"instance,omitempty"`
-	Capital     []Wikidata   `json:"capital,omitempty"`
-	Currency    []Wikidata   `json:"currency,omitempty"`
-	Flag        []string     `json:"flag,omitempty"`
-	Teams       []Team       `json:"teams,omitempty"` // sports teams
-	Education   []Education  `json:"education,omitempty"`
-	Occupation  []Wikidata   `json:"occupation,omitempty"`
-	Signature   []string     `json:"signature,omitempty"`
-	Interment   []Interment  `json:"interment,omitempty"` // burial/ashes location
-	Genre       []Wikidata   `json:"genre,omitempty"`
-	Religion    []Wikidata   `json:"religion,omitempty"`
-	Awards      []Award      `json:"awards,omitempty"`
-	Ethnicity   []Wikidata   `json:"ethnicity,omitempty"`
-	Military    []Military   `json:"military,omitempty"` // military branch
-	RecordLabel []Wikidata   `json:"record_label,omitempty"`
-	Position    []Wikidata   `json:"position,omitempty"` // e.g. position on team...forward, center, etc..
-	MusicBrainz []string     `json:"musicbrainz,omitempty"`
-	Partner     []Spouse     `json:"partner,omitempty"`
-	Origin      []Wikidata   `json:"origin,omitempty"`         // country of origin
-	DeathCause  []Wikidata   `json:"cause_of_death,omitempty"` // there is also P1196 "manner of death"
-	Members     []Member     `json:"members,omitempty"`
-	Residence   []Wikidata   `json:"residence,omitempty"`
-	Hand        []Wikidata   `json:"hand,omitempty"` // left or right-handed
-	Coordinate  []Coordinate `json:"coordinate,omitempty"`
-	Birthday    []DateTime   `json:"birthday,omitempty"`
-	Death       []DateTime   `json:"death,omitempty"`
-	Start       []DateTime   `json:"start,omitempty"`
-	Publication []DateTime   `json:"publication,omitempty"`
-	Sport       []Wikidata   `json:"sport,omitempty"`
-	Drafted     []Wikidata   `json:"drafted,omitempty"`
-	GivenName   []Wikidata   `json:"given_name,omitempty"`
-	Influences  []Wikidata   `json:"influences,omitempty"`
-	Location    []Wikidata   `json:"location,omitempty"`
-	Website     []string     `json:"website,omitempty"`
-	Population  []Population `json:"population,omitempty"`
-	Instrument  []Instrument `json:"instrument,omitempty"` // Jimi Hendrix Fender Stratocaster
-	Participant []Wikidata   `json:"participant,omitempty"`
-	Nominations []Nomination `json:"nominations,omitempty"`
-	Languages   []Wikidata   `json:"languages,omitempty"` // languages spoken and/or written proficiency
-	BirthName   []Text       `json:"birth_name,omitempty"`
-	Spotify     []string     `json:"spotify,omitempty"`
-	Twitter     []string     `json:"twitter,omitempty"`
-	Instagram   []string     `json:"instagram,omitempty"`
-	Facebook    []string     `json:"facebook,omitempty"`
-	YouTube     []string     `json:"youtube,omitempty"`
-	WorkStart   []DateTime   `json:"work_start,omitempty"` // better name??? P571 is similar tag
-	Height      []Quantity   `json:"height,omitempty"`
-	Weight      []Quantity   `json:"weight,omitempty"`
-	Siblings    []Wikidata   `json:"siblings,omitempty"`
+	Country              []Country    `json:"country,omitempty"`
+	Image                []string     `json:"image,omitempty"`
+	BirthPlace           []Wikidata   `json:"birthplace,omitempty"`
+	Sex                  []Wikidata   `json:"sex,omitempty"`
+	Father               []Wikidata   `json:"father,omitempty"`
+	Mother               []Wikidata   `json:"mother,omitempty"`
+	Spouse               []Spouse     `json:"spouse,omitempty"`
+	CountryOfCitizenship []Wikidata   `json:"country_of_citizenship,omitempty"` // country of residence
+	Instance             []Wikidata   `json:"instance,omitempty"`
+	Capital              []City       `json:"capital,omitempty"`
+	Currency             []Wikidata   `json:"currency,omitempty"`
+	Flag                 []string     `json:"flag,omitempty"`
+	Teams                []Team       `json:"teams,omitempty"` // sports teams
+	Education            []Education  `json:"education,omitempty"`
+	Occupation           []Wikidata   `json:"occupation,omitempty"`
+	Signature            []string     `json:"signature,omitempty"`
+	Interment            []Interment  `json:"interment,omitempty"` // burial/ashes location
+	Genre                []Wikidata   `json:"genre,omitempty"`
+	Religion             []Wikidata   `json:"religion,omitempty"`
+	Awards               []Award      `json:"awards,omitempty"`
+	Ethnicity            []Wikidata   `json:"ethnicity,omitempty"`
+	Military             []Military   `json:"military,omitempty"` // military branch
+	RecordLabel          []Wikidata   `json:"record_label,omitempty"`
+	Position             []Wikidata   `json:"position,omitempty"` // e.g. position on team...forward, center, etc..
+	MusicBrainz          []string     `json:"musicbrainz,omitempty"`
+	Partner              []Spouse     `json:"partner,omitempty"`
+	Origin               []Wikidata   `json:"origin,omitempty"`         // country of origin
+	DeathCause           []Wikidata   `json:"cause_of_death,omitempty"` // there is also P1196 "manner of death"
+	Members              []Member     `json:"members,omitempty"`
+	Residence            []Wikidata   `json:"residence,omitempty"`
+	Hand                 []Wikidata   `json:"hand,omitempty"` // left or right-handed
+	Coordinate           []Coordinate `json:"coordinate,omitempty"`
+	Birthday             []DateTime   `json:"birthday,omitempty"`
+	Death                []DateTime   `json:"death,omitempty"`
+	Start                []DateTime   `json:"start,omitempty"`
+	Publication          []DateTime   `json:"publication,omitempty"`
+	Sport                []Wikidata   `json:"sport,omitempty"`
+	Drafted              []Wikidata   `json:"drafted,omitempty"`
+	GivenName            []Wikidata   `json:"given_name,omitempty"`
+	Influences           []Wikidata   `json:"influences,omitempty"`
+	Location             []Wikidata   `json:"location,omitempty"`
+	Website              []string     `json:"website,omitempty"`
+	Population           []Population `json:"population,omitempty"`
+	Instrument           []Instrument `json:"instrument,omitempty"` // Jimi Hendrix Fender Stratocaster
+	Participant          []Wikidata   `json:"participant,omitempty"`
+	Nominations          []Nomination `json:"nominations,omitempty"`
+	Languages            []Wikidata   `json:"languages,omitempty"` // languages spoken and/or written proficiency
+	BirthName            []Text       `json:"birth_name,omitempty"`
+	Spotify              []string     `json:"spotify,omitempty"`
+	Twitter              []string     `json:"twitter,omitempty"`
+	Instagram            []string     `json:"instagram,omitempty"`
+	Facebook             []string     `json:"facebook,omitempty"`
+	YouTube              []string     `json:"youtube,omitempty"`
+	WorkStart            []DateTime   `json:"work_start,omitempty"` // better name??? P571 is similar tag
+	Height               []Quantity   `json:"height,omitempty"`
+	Weight               []Quantity   `json:"weight,omitempty"`
+	Siblings             []Wikidata   `json:"siblings,omitempty"`
 }
 
 // UnmarshalJSON formats and extracts only the info we need from claims
