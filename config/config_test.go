@@ -148,6 +148,9 @@ func TestSetDefaults(t *testing.T) {
 		{"ups.password", "password"},
 		{"ups.key", "key"},
 
+		// USDA National Nutrient Database
+		{"usda.key", "DEMO_KEY"},
+
 		// USPS package tracking API settings
 		{"usps.user", "user"},
 		{"usps.password", "password"},

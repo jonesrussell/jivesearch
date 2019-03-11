@@ -161,6 +161,10 @@ func answerJS(host string, a instant.Data) []string {
 		files = []string{
 			addStaticPrefix(host, "mortgage_calculator/mortgage_calculator.js"),
 		}
+	case "wikidata nutrition":
+		files = []string{
+			addStaticPrefix(host, "nutrition/nutrition.js"),
+		}
 	case "population":
 		files = []string{
 			addStaticPrefix(host, "d3.v4.min.js"),
@@ -200,6 +204,12 @@ func commafy(v interface{}) string {
 		return humanize.Comma(v)
 	case float32, float64:
 		return humanize.Commaf(v.(float64))
+	case json.Number:
+		f, err := v.Float64()
+		if err != nil {
+			log.Debug.Println(err)
+		}
+		return humanize.Commaf(f)
 	default:
 		log.Debug.Printf("unknown type %T\n", v)
 		return ""
@@ -388,6 +398,9 @@ func source(answer instant.Data) string {
 	case "wikidata age", "wikidata clock", "wikidata birthday", "wikidata death", "wikidata height", "wikidata weight":
 		img = fmt.Sprintf(`<img width="12" height="12" alt="wikipedia" src="%v"/>`, proxyFavIcon("https://en.wikipedia.org/favicon.ico"))
 		f = fmt.Sprintf(`%v <a href="https://www.wikipedia.org/">Wikipedia</a>`, img)
+	case "wikidata nutrition":
+		img = fmt.Sprintf(`<img width="12" height="12" alt="usda" src="%v"/>`, proxyFavIcon("https://www.usda.gov/themes/usda/img/favicons/favicon.ico"))
+		f = fmt.Sprintf(`%v <a href="https://www.usda.gov/">U.S. Department of Agriculture</a>`, img)
 	case "wikiquote":
 		img = fmt.Sprintf(`<img width="12" height="12" alt="wikiquote" src="%v"/>`, proxyFavIcon("https://en.wikiquote.org/favicon.ico"))
 		f = fmt.Sprintf(`%v <a href="https://www.wikiquote.org/">Wikiquote</a>`, img)

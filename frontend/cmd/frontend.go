@@ -12,6 +12,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
+	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
@@ -308,6 +309,10 @@ func main() {
 		},
 		LocationFetcher: &location.MaxMind{
 			DB: v.GetString("maxmind.database"),
+		},
+		NutritionFetcher: &nutrition.USDA{
+			HTTPClient: httpClient,
+			Key:        v.GetString("usda.key"),
 		},
 		PopulationFetcher: &population.WorldBank{
 			HTTPClient: httpClient,

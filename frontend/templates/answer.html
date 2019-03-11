@@ -363,6 +363,91 @@
     </form>
     {{template "source" .}}
   </div>
+  {{else if eq .Instant.Type "wikidata nutrition"}}
+    {{if .Instant.Solution}}
+    <div id="answer" class="pure-u-1" style="height:255px;">
+      <div style="margin:15px;margin-bottom:5px;">
+        <div id="nutrition_header" style="font-size:16px;margin-bottom:15px;color:#666;font-weight:100;"></div>
+        <div class="pure-u-1">
+          <form class="pure-form pure-form-stacked">
+            <fieldset>
+              <div class="pure-g">
+                <div class="pure-u-1">
+                  <div id="nutrition_nutrient" style="font-size:32px;margin-bottom:15px;color:#333;font-weight:100;">
+                    <span id="nutrition_nutrient_value"></span> <span id="nutrition_nutrient_units"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="pure-g">
+                <div class="pure-u-1 pure-u-md-2-3">
+                  <label for="nutrition_items">Item</label>
+                  <select id="nutrition_items" class="pure-u-23-24"></select>
+                </div>      
+                <div class="pure-u-1 pure-u-md-1-3">
+                  <label for="nutrition_serving">Serving Size</label>
+                  <select id="nutrition_serving" class="pure-u-23-24"></select>
+                </div>
+              </div>
+            </fieldset>
+          </form>
+        </div>
+      </div>
+      {{template "source" .}}
+    </div>
+
+    <script>
+      var nutrients = {};
+      nutrients.calories = {
+        "id": "208",
+        "units": "calories" 
+      };
+      nutrients.protein = {
+        "id": "203",
+        "units": "g"
+      };
+      nutrients.sodium = {
+        "id": "307",
+        "units": "mg"
+      };
+
+      var data = {};
+      data.trigger = {{.Instant.Solution.Trigger}};
+      data.items = [];
+
+      {{range $i, $f := .Instant.Solution.Foods -}}
+        var item = {};
+        item.name = {{$f.Name}};
+        {{range $j, $n := $f.Nutrients}}
+          // only looking for the nutrient they want
+          // TODO: List all nutrients if none selected
+          var id = {{$n.ID}};
+          for (var key in nutrients) {
+            if ((data.trigger == key) && (nutrients.hasOwnProperty(key)) && (id === nutrients[key].id)){
+              data.nutrient_label = nutrients[key].units;
+              item.quantities = [];
+              var q = {};
+              q.quantity_label = "100 grams";
+              q.value = {{$n.Value|Commafy}};
+              q.nutrient = key;
+              item.quantities.push(q);
+              {{range $k, $m := $n.Measures}}
+                var q = {};
+                q.label = nutrients[key].label;
+                q.quantity_label = {{$m.Label}};
+                q.equivalent = {{$m.Equivalent}};
+                q.units = {{$m.Units}};
+                q.quantity = {{$m.Quantity}};
+                q.value = {{$m.Value|Commafy}};
+                q.nutrient = key;
+                item.quantities.push(q);
+              {{end}}
+            }
+          }            
+        {{end}}
+        data.items.push(item);
+      {{end}}    
+    </script>
+    {{end}}
   {{else if eq .Instant.Type "population"}}
   {{if .Instant.Solution}}
   <div id="answer" class="pure-u-1" style="height:325px;">

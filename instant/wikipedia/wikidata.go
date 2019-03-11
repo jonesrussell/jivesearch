@@ -209,6 +209,7 @@ type claims struct {
 	Languages            []claim `json:"P1412"`
 	BirthName            []claim `json:"P1477"`
 	Spotify              []claim `json:"P1902"`
+	USDA                 []claim `json:"P1978"`
 	Twitter              []claim `json:"P2002"`
 	Instagram            []claim `json:"P2003"`
 	Facebook             []claim `json:"P2013"`
@@ -270,6 +271,7 @@ type Claims struct {
 	Languages            []Wikidata   `json:"languages,omitempty"` // languages spoken and/or written proficiency
 	BirthName            []Text       `json:"birth_name,omitempty"`
 	Spotify              []string     `json:"spotify,omitempty"`
+	USDA                 []string     `json:"usda,omitempty"`
 	Twitter              []string     `json:"twitter,omitempty"`
 	Instagram            []string     `json:"instagram,omitempty"`
 	Facebook             []string     `json:"facebook,omitempty"`

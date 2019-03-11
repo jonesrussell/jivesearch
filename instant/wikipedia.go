@@ -1,6 +1,7 @@
 package instant
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -9,28 +10,31 @@ import (
 
 	timezone "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/location"
+	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
 
 // WikipediaType is a Wikipedia answer Type
 const (
-	WikipediaType        Type = "wikipedia"
-	WikidataAgeType      Type = "wikidata age"
-	WikidataBirthdayType Type = "wikidata birthday"
-	WikidataClockType    Type = "wikidata clock"
-	WikidataDeathType    Type = "wikidata death"
-	WikidataHeightType   Type = "wikidata height"
-	WikidataWeightType   Type = "wikidata weight"
-	WikiquoteType        Type = "wikiquote"
-	WiktionaryType       Type = "wiktionary"
+	WikipediaType         Type = "wikipedia"
+	WikidataAgeType       Type = "wikidata age"
+	WikidataBirthdayType  Type = "wikidata birthday"
+	WikidataClockType     Type = "wikidata clock"
+	WikidataDeathType     Type = "wikidata death"
+	WikidataHeightType    Type = "wikidata height"
+	WikidataNutritionType Type = "wikidata nutrition"
+	WikidataWeightType    Type = "wikidata weight"
+	WikiquoteType         Type = "wikiquote"
+	WiktionaryType        Type = "wiktionary"
 )
 
 // Wikipedia is a Wiki* instant answer,
 // including Wikidata/Wikiquote/Wiktionary
 type Wikipedia struct {
-	LocationFetcher location.Fetcher
-	TimeZoneFetcher timezone.TimezoneInterface
+	LocationFetcher  location.Fetcher
+	NutritionFetcher nutrition.Fetcher
+	TimeZoneFetcher  timezone.TimezoneInterface
 	wikipedia.Fetcher
 	Answer
 }
@@ -78,6 +82,11 @@ const height = "height"
 const howTallis = "how tall is"
 const howTallwas = "how tall was"
 
+// nutrition
+const calories = "calories"
+const protein = "protein"
+const sodium = "sodium"
+
 // weight
 // will fail on "how much does x weigh?"
 const mass = "mass"
@@ -105,6 +114,18 @@ func (w *Wikipedia) setRegex() Answerer {
 	}
 
 	t := strings.Join(triggers, "|")
+
+	for _, t := range []string{
+		calories, protein, sodium,
+	} {
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) are in a (?P<remainder>.*)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in (?P<remainder>.*)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
+		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in (?P<remainder>.*)$`, t)))
+	}
 
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
@@ -240,6 +261,82 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Type = WikidataHeightType
 			w.Data.Solution = item.Height
 		}
+	case calories, protein, sodium:
+		// Wikipedia seems more reliable ndbno id's for items like "egg"
+		// but doesn't have things like "Whopper" or "Big Mac without sauce"
+		var ndbnos = []string{}
+		switch w.remainder {
+		case "cheese":
+
+		case "egg", "eggs":
+			ndbnos = []string{"01123"}
+		default:
+			var empty = true
+			for _, item := range items {
+				for _, u := range item.USDA {
+					ndbnos = append(ndbnos, u)
+					empty = false
+				}
+			}
+
+			// if it is a branded product, then get the rest of that brand
+			// e.g. Show McDonald's Big Mac w/out sauce
+			itms, err := w.NutritionFetcher.Lookup(w.remainder)
+			if err != nil {
+				w.Err = err
+				return w
+			}
+
+			var manufacturer string
+
+			var contains = func(x string, sl []string) bool {
+				for _, s := range sl {
+					if x == s {
+						return true
+					}
+				}
+				return false
+			}
+
+			for _, ndbno := range ndbnos {
+				for _, itm := range itms {
+					if itm.NDBNO == ndbno {
+						manufacturer = itm.Manufacturer
+					}
+				}
+			}
+
+			for _, itm := range itms {
+				if contains(itm.NDBNO, ndbnos) {
+					continue
+				}
+
+				switch empty {
+				case true:
+					ndbnos = append(ndbnos, itm.NDBNO)
+				default:
+					if manufacturer != "" && itm.Manufacturer == manufacturer {
+						ndbnos = append(ndbnos, itm.NDBNO)
+					}
+				}
+			}
+
+		}
+
+		if len(ndbnos) == 0 {
+			w.Err = fmt.Errorf("unable to find ndbno identifier for %v", w.remainder)
+			return w
+		}
+
+		resp, err := w.NutritionFetcher.Fetch(ndbnos)
+		if err != nil {
+			w.Err = err
+			return w
+		}
+
+		resp.Trigger = w.triggerWord
+		w.Type = WikidataNutritionType
+		w.Data.Solution = resp
 	case mass, weigh, weight:
 		for _, item := range items {
 			if len(item.Weight) == 0 {
@@ -504,6 +601,87 @@ func (w *Wikipedia) tests() []test {
 					Type:      WikidataClockType,
 					Triggered: true,
 					Solution:  cl,
+				},
+			},
+		},
+		{
+			query: "eggs sodium",
+			expected: []Data{
+				{
+					Type:      WikidataNutritionType,
+					Triggered: true,
+					Solution: &nutrition.Response{
+						Trigger: "sodium",
+						Foods: []nutrition.Food{
+							{
+								Name:        "Egg, whole, raw, fresh",
+								FoodGroup:   "Dairy and Egg Products",
+								Corporation: "",
+								Nutrients: []nutrition.Nutrient{
+									{
+										ID:    "212",
+										Name:  "Sodium",
+										Unit:  "mg",
+										Value: json.Number("12"),
+										Measures: []nutrition.Measure{
+											{
+												Label:      "large",
+												Equivalent: 50,
+												Units:      "g",
+												Quantity:   1,
+												Value:      json.Number("72"),
+											},
+											{
+												Label:      "extra large",
+												Equivalent: 56,
+												Units:      "g",
+												Quantity:   1,
+												Value:      json.Number("80"),
+											},
+										},
+									},
+								},
+							},
+						},
+						Provider: "Mock Response",
+					},
+				},
+			},
+		},
+		{
+			query: "big mac calories",
+			expected: []Data{
+				{
+					Type:      WikidataNutritionType,
+					Triggered: true,
+					Solution: &nutrition.Response{
+						Trigger: "calories",
+						Foods: []nutrition.Food{
+							{
+								Name:        "Big Mac",
+								FoodGroup:   "Some Category",
+								Corporation: "McDowell's",
+								Nutrients: []nutrition.Nutrient{
+									{
+										ID:    "208",
+										Name:  "Energy",
+										Unit:  "kcal",
+										Value: json.Number("554"),
+										Measures: []nutrition.Measure{
+											{
+												Label:      "1 size",
+												Equivalent: 12,
+												Units:      "g",
+												Quantity:   1,
+												Value:      json.Number("720"),
+											},
+										},
+									},
+								},
+							},
+						},
+						Provider: "Mock Response",
+					},
 				},
 			},
 		},

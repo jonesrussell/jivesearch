@@ -118,6 +118,12 @@ func TestAnswerJS(t *testing.T) {
 			name: "whois",
 			want: []string{},
 		},
+		{
+			name: "wikidata nutrition",
+			want: []string{
+				"http://127.0.0.1:8000/static/instant/nutrition/nutrition.js",
+			},
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			host := "http://127.0.0.1:8000"
@@ -166,6 +172,10 @@ func TestCommafy(t *testing.T) {
 		{
 			number: 48915619813218,
 			want:   "48,915,619,813,218",
+		},
+		{
+			number: json.Number("12"),
+			want:   "12",
 		},
 	} {
 		t.Run(tt.want, func(t *testing.T) {
@@ -574,6 +584,15 @@ func TestSource(t *testing.T) {
 				},
 			},
 			want: `<img width="12" height="12" alt="wikipedia" src="/image/32x,szl9NPdfHe0jt93aiLlox2zOB1DX2ThfpEHiI3AZWUpQ=/https://en.wikipedia.org/favicon.ico"/> <a href="https://www.wikipedia.org/">Wikipedia</a>`,
+		},
+		{
+			name: "wikidata nutrition",
+			args: args{
+				instant.Data{
+					Type: "wikidata nutrition",
+				},
+			},
+			want: `<img width="12" height="12" alt="usda" src="/image/32x,s4sxklPbFqeSiQABvKk-LKPW1cG2gmPJJhy2Wehe73E8=/https://www.usda.gov/themes/usda/img/favicons/favicon.ico"/> <a href="https://www.usda.gov/">U.S. Department of Agriculture</a>`,
 		},
 		{
 			name: "wikiquote",

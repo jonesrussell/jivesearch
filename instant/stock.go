@@ -64,7 +64,6 @@ func (s *StockQuote) solve(r *http.Request) Answerer {
 	for _, skipped := range []string{clock, currentTime, timeIn, wTime} {
 		if strings.ToLower(ticker) == skipped {
 			s.Err = fmt.Errorf("skipping stock. prefer another answer")
-			fmt.Println("returning...")
 			return s
 		}
 	}

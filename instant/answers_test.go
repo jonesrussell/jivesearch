@@ -1,6 +1,7 @@
 package instant
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"net/http"
@@ -18,6 +19,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/econ"
 	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
 	pop "github.com/jivesearch/jivesearch/instant/econ/population"
+	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
@@ -76,9 +78,10 @@ func answers(i Instant) []Answerer {
 		&WHOIS{Fetcher: i.WHOISFetcher},
 		&Weather{Fetcher: i.WeatherFetcher, LocationFetcher: i.LocationFetcher},
 		&Wikipedia{
-			LocationFetcher: i.LocationFetcher,
-			TimeZoneFetcher: i.TimeZoneFetcher,
-			Fetcher:         i.WikipediaFetcher,
+			LocationFetcher:  i.LocationFetcher,
+			NutritionFetcher: i.NutritionFetcher,
+			TimeZoneFetcher:  i.TimeZoneFetcher,
+			Fetcher:          i.WikipediaFetcher,
 		},
 	}
 }
@@ -100,6 +103,7 @@ func TestDetect(t *testing.T) {
 		GDPFetcher:           &mockGDPFetcher{},
 		LinkShortener:        &mockShortener{},
 		LocationFetcher:      &mockLocationFetcher{},
+		NutritionFetcher:     &mockNutritionFetcher{},
 		PopulationFetcher:    &mockPopulationFetcher{},
 		StackOverflowFetcher: &mockStackOverflowFetcher{},
 		StatusFetcher:        &mockStatusFetcher{},
@@ -440,6 +444,106 @@ func (l *mockLocationFetcher) Fetch(ip net.IP) (*location.City, error) {
 	c.Location.Latitude = 12
 	c.Location.Longitude = 18
 	return c, nil
+}
+
+// mock nutrition
+type mockNutritionFetcher struct{}
+
+func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, error) {
+	var r *nutrition.Response
+
+	if reflect.DeepEqual(ndbnos, []string{"01123"}) {
+		r = &nutrition.Response{
+			Trigger: "sodium",
+			Foods: []nutrition.Food{
+				{
+					Name:        "Egg, whole, raw, fresh",
+					FoodGroup:   "Dairy and Egg Products",
+					Corporation: "",
+					Nutrients: []nutrition.Nutrient{
+						{
+							ID:    "212",
+							Name:  "Sodium",
+							Unit:  "mg",
+							Value: json.Number("12"),
+							Measures: []nutrition.Measure{
+								{
+									Label:      "large",
+									Equivalent: 50,
+									Units:      "g",
+									Quantity:   1,
+									Value:      json.Number("72"),
+								},
+								{
+									Label:      "extra large",
+									Equivalent: 56,
+									Units:      "g",
+									Quantity:   1,
+									Value:      json.Number("80"),
+								},
+							},
+						},
+					},
+				},
+			},
+			Provider: "Mock Response",
+		}
+	} else if reflect.DeepEqual(ndbnos, []string{"12"}) {
+		r = &nutrition.Response{
+			Trigger: "calories",
+			Foods: []nutrition.Food{
+				{
+					Name:        "Big Mac",
+					FoodGroup:   "Some Category",
+					Corporation: "McDowell's",
+					Nutrients: []nutrition.Nutrient{
+						{
+							ID:    "208",
+							Name:  "Energy",
+							Unit:  "kcal",
+							Value: json.Number("554"),
+							Measures: []nutrition.Measure{
+								{
+									Label:      "1 size",
+									Equivalent: 12,
+									Units:      "g",
+									Quantity:   1,
+									Value:      json.Number("720"),
+								},
+							},
+						},
+					},
+				},
+			},
+			Provider: "Mock Response",
+		}
+	}
+
+	return r, nil
+}
+
+func (m *mockNutritionFetcher) Lookup(query string) ([]*nutrition.ItemResponse, error) {
+	var r []*nutrition.ItemResponse
+
+	switch query {
+	case "egg":
+		r = []*nutrition.ItemResponse{
+			{
+				Name:  "egg",
+				NDBNO: "01123",
+			},
+		}
+	case "big mac":
+		r = []*nutrition.ItemResponse{
+			{
+				Name:         "Big Mac",
+				NDBNO:        "12",
+				Manufacturer: "McDowell's",
+			},
+		}
+	}
+
+	return r, nil
 }
 
 type mockPopulationFetcher struct{}

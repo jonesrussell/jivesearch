@@ -11,6 +11,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
 	"github.com/jivesearch/jivesearch/instant/discography"
+	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/parcel"
 	"github.com/jivesearch/jivesearch/instant/shortener"
 	"github.com/jivesearch/jivesearch/instant/status"
@@ -190,9 +191,10 @@ func (f *Frontend) DetectInstantAnswer(r *http.Request, lang language.Tag, onlyM
 			&instant.Weather{Fetcher: f.Instant.WeatherFetcher, LocationFetcher: f.Instant.LocationFetcher},
 			&instant.WHOIS{Fetcher: f.Instant.WHOISFetcher},
 			&instant.Wikipedia{
-				LocationFetcher: f.Instant.LocationFetcher,
-				TimeZoneFetcher: f.Instant.TimeZoneFetcher,
-				Fetcher:         f.Instant.WikipediaFetcher,
+				LocationFetcher:  f.Instant.LocationFetcher,
+				NutritionFetcher: f.Instant.NutritionFetcher,
+				TimeZoneFetcher:  f.Instant.TimeZoneFetcher,
+				Fetcher:          f.Instant.WikipediaFetcher,
 			}, // always keep this last so that Wikipedia Box will trigger if none other
 		}
 	}
@@ -291,6 +293,8 @@ func detectType(t instant.Type) interface{} {
 		v = &instant.Death{}
 	case instant.WikidataHeightType, instant.WikidataWeightType:
 		v = &[]wikipedia.Quantity{}
+	case instant.WikidataNutritionType:
+		v = &nutrition.Response{}
 	case instant.WikiquoteType:
 		v = &[]string{}
 	case instant.WiktionaryType:

@@ -12,6 +12,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
+	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/status"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
@@ -41,6 +42,7 @@ type Instant struct {
 	GDPFetcher           ggdp.Fetcher
 	LinkShortener        shortener.Service
 	LocationFetcher      location.Fetcher
+	NutritionFetcher     nutrition.Fetcher
 	PopulationFetcher    pop.Fetcher
 	StackOverflowFetcher so.Fetcher
 	StatusFetcher        status.Fetcher

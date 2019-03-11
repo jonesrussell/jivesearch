@@ -168,6 +168,9 @@ func SetDefaults(cfg Provider) {
 	cfg.SetDefault("ups.password", "password")
 	cfg.SetDefault("ups.key", "key")
 
+	// USDA National Nutrient Database
+	cfg.SetDefault("usda.key", "DEMO_KEY")
+
 	// USPS package tracking API settings
 	cfg.SetDefault("usps.user", "user")
 	cfg.SetDefault("usps.password", "password")
