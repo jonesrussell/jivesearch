@@ -82,10 +82,47 @@ const height = "height"
 const howTallis = "how tall is"
 const howTallwas = "how tall was"
 
-// nutrition
-const calories = "calories"
-const protein = "protein"
-const sodium = "sodium"
+// Nutrient is an individual nutrient
+type Nutrient struct {
+	Name string
+	Code string
+}
+
+// Nutrients is all the nutrients
+type Nutrients []Nutrient
+
+const (
+	calcium       = "calcium"
+	calories      = "calories"
+	carbs         = "carbs"
+	carbohydrates = "carbohydrates"
+	cholesterol   = "cholesterol"
+	saturatedFat  = "saturated fat"
+	fat           = "fat"
+	fiber         = "fiber"
+	iron          = "iron"
+	lipid         = "lipid"
+	magnesium     = "magnesium"
+	potassium     = "potassium"
+	protein       = "protein"
+	sodium        = "sodium"
+	sugars        = "sugars"
+	sugar         = "sugar"
+	vitaminA      = "vitamin a"
+	vitaminB      = "vitamin b"
+	vitaminB12    = "vitamin b12"
+	vitaminBB12   = "vitamin b-12"
+	vitaminBBB12  = "vitamin b 12"
+	vitaminC      = "vitamin c"
+	vitaminD      = "vitamin d"
+	zinc          = "zinc"
+)
+
+var nutritionTriggers = []string{
+	calcium, calories, carbs, carbohydrates, cholesterol, saturatedFat, fat, fiber, iron, lipid,
+	magnesium, potassium, protein, sodium, sugars, sugar, vitaminA,
+	vitaminB, vitaminB12, vitaminBB12, vitaminBBB12, vitaminC, vitaminD, zinc,
+}
 
 // weight
 // will fail on "how much does x weigh?"
@@ -115,9 +152,7 @@ func (w *Wikipedia) setRegex() Answerer {
 
 	t := strings.Join(triggers, "|")
 
-	for _, t := range []string{
-		calories, protein, sodium,
-	} {
+	for _, t := range nutritionTriggers {
 		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
 		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
 		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) are in a (?P<remainder>.*)$`, t)))
@@ -160,6 +195,15 @@ type Clock struct {
 // TODO: add place of death, cause, etc.
 type Death struct {
 	Death wikipedia.DateTime `json:"death,omitempty"`
+}
+
+var contains = func(x string, sl []string) bool {
+	for _, s := range sl {
+		if x == s {
+			return true
+		}
+	}
+	return false
 }
 
 // TODO: Return the Title (and perhaps Image???) as
@@ -261,7 +305,9 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Type = WikidataHeightType
 			w.Data.Solution = item.Height
 		}
-	case calories, protein, sodium:
+	case calcium, calories, carbs, carbohydrates, cholesterol, saturatedFat, fat, fiber, iron, lipid,
+		magnesium, potassium, protein, sodium, sugars, sugar, vitaminA,
+		vitaminB, vitaminB12, vitaminBB12, vitaminBBB12, vitaminC, vitaminD, zinc:
 		// Wikipedia seems more reliable ndbno id's for items like "egg"
 		// but doesn't have things like "Whopper" or "Big Mac without sauce"
 		var ndbnos = []string{}
@@ -288,15 +334,6 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			}
 
 			var manufacturer string
-
-			var contains = func(x string, sl []string) bool {
-				for _, s := range sl {
-					if x == s {
-						return true
-					}
-				}
-				return false
-			}
 
 			for _, ndbno := range ndbnos {
 				for _, itm := range itms {

@@ -397,23 +397,131 @@
 
     <script>
       var nutrients = {};
+      nutrients.calcium = {
+        "id": "301",
+        "label": "calcium",
+        "units": "mg",
+      };      
       nutrients.calories = {
         "id": "208",
+        "label": "calories",
         "units": "calories" 
+      };      
+      nutrients.carbs = {
+        "id": "205",
+        "label": "carbs",
+        "units": "g",
       };
+       nutrients.carbohydrates = {
+        "id": "205",
+        "label": "carbohydrates",
+        "units": "g",
+      };
+      nutrients.cholesterol = {
+        "id": "601",
+        "label": "cholesterol",
+        "units": "mg",
+      };
+       nutrients.saturated_fat = {
+        "id": "606",
+        "label": "saturated fat",
+        "units": "g",
+      };
+      nutrients.fat = {
+        "id": "204",
+        "label": "fat",
+        "units": "g",
+      };
+      nutrients.fiber = {
+        "id": "291",
+        "label": "fiber",
+        "units": "g",
+      };
+      nutrients.iron = {
+        "id": "303",
+        "label": "iron",
+        "units": "mg",
+      };
+      nutrients.lipid = {
+        "id": "204",
+        "label": "lipid",
+        "units": "g",
+      };
+      nutrients.magnesium = {
+        "id": "304",
+        "label": "magnesium",
+        "units": "mg",
+      };
+      nutrients.potassium = {
+        "id": "306",
+        "label": "potassium",
+        "units": "mg",
+      };      
       nutrients.protein = {
         "id": "203",
+        "label": "protein",
         "units": "g"
-      };
+      };      
       nutrients.sodium = {
         "id": "307",
+        "label": "sodium",
         "units": "mg"
+      };      
+      nutrients.sugars = {
+        "id": "269",
+        "label": "sugars",
+        "units": "g",
+      };
+      nutrients.sugar = {
+        "id": "269",
+        "label": "sugar",
+        "units": "g",
+      };
+      nutrients.vitamin_a = {
+        "id": "318",
+        "label": "vitamin a",
+        "units": "IU",
+      };
+      nutrients.vitamin_b = {
+        "id": "418",
+        "label": "vitamin b",
+        "units": "\u00b5g",
+      };
+      nutrients.vitamin_b12 = {
+        "id": "418",
+        "label": "vitamin b12",
+        "units": "\u00b5g",
+      };
+      nutrients.vitamin_b_12 = {
+        "id": "418",
+        "label": "vitamin b 12",
+        "units": "\u00b5g",
+      };
+      nutrients.vitamin_b__12 = {
+        "id": "418",
+        "label": "vitamin b-12",
+        "units": "\u00b5g",
+      };
+      nutrients.vitamin_c = {
+        "id": "401",
+        "label": "vitamin c",
+        "units": "mg",
+      };
+      nutrients.vitamin_d = {
+        "id": "328",
+        "label": "vitamin d",
+        "units": "\u00b5g",
+      };
+      nutrients.zinc = {
+        "id": "309",
+        "label": "zinc",
+        "units": "mg",
       };
 
       var data = {};
       data.trigger = {{.Instant.Solution.Trigger}};
       data.items = [];
-
+      
       {{range $i, $f := .Instant.Solution.Foods -}}
         var item = {};
         item.name = {{$f.Name}};
@@ -422,11 +530,11 @@
           // TODO: List all nutrients if none selected
           var id = {{$n.ID}};
           for (var key in nutrients) {
-            if ((data.trigger == key) && (nutrients.hasOwnProperty(key)) && (id === nutrients[key].id)){
+            if ((nutrients.hasOwnProperty(key)) && (data.trigger == nutrients[key].label) && (id === nutrients[key].id)){
               data.nutrient_label = nutrients[key].units;
               item.quantities = [];
               var q = {};
-              q.quantity_label = "100 grams";
+              q.quantity_label = "100 grams"; // is this the default for every item???
               q.value = {{$n.Value|Commafy}};
               q.nutrient = key;
               item.quantities.push(q);
