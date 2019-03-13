@@ -454,7 +454,7 @@ func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, erro
 
 	if reflect.DeepEqual(ndbnos, []string{"01123"}) {
 		r = &nutrition.Response{
-			Trigger: "sodium",
+			Provider: "Mock Response",
 			Foods: []nutrition.Food{
 				{
 					Name:        "Egg, whole, raw, fresh",
@@ -486,11 +486,10 @@ func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, erro
 					},
 				},
 			},
-			Provider: "Mock Response",
 		}
 	} else if reflect.DeepEqual(ndbnos, []string{"12"}) {
 		r = &nutrition.Response{
-			Trigger: "calories",
+			Provider: "Mock Response",
 			Foods: []nutrition.Food{
 				{
 					Name:        "Big Mac",
@@ -515,7 +514,6 @@ func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, erro
 					},
 				},
 			},
-			Provider: "Mock Response",
 		}
 	}
 

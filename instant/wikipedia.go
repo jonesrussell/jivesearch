@@ -84,44 +84,151 @@ const howTallwas = "how tall was"
 
 // Nutrient is an individual nutrient
 type Nutrient struct {
-	Name string
-	Code string
+	Name    nutrient
+	Code    string
+	Units   string
+	Aliases []nutrient
 }
 
-// Nutrients is all the nutrients
-type Nutrients []Nutrient
+type nutrient string
 
 const (
-	calcium       = "calcium"
-	calories      = "calories"
-	carbs         = "carbs"
-	carbohydrates = "carbohydrates"
-	cholesterol   = "cholesterol"
-	saturatedFat  = "saturated fat"
-	fat           = "fat"
-	fiber         = "fiber"
-	iron          = "iron"
-	lipid         = "lipid"
-	magnesium     = "magnesium"
-	potassium     = "potassium"
-	protein       = "protein"
-	sodium        = "sodium"
-	sugars        = "sugars"
-	sugar         = "sugar"
-	vitaminA      = "vitamin a"
-	vitaminB      = "vitamin b"
-	vitaminB12    = "vitamin b12"
-	vitaminBB12   = "vitamin b-12"
-	vitaminBBB12  = "vitamin b 12"
-	vitaminC      = "vitamin c"
-	vitaminD      = "vitamin d"
-	zinc          = "zinc"
+	calcium       nutrient = "calcium"
+	calories      nutrient = "calories"
+	energy        nutrient = "energy"
+	carbs         nutrient = "carbs"
+	carbohydrates nutrient = "carbohydrates"
+	cholesterol   nutrient = "cholesterol"
+	saturatedFat  nutrient = "saturated fat"
+	fat           nutrient = "fat"
+	fiber         nutrient = "fiber"
+	iron          nutrient = "iron"
+	lipid         nutrient = "lipid"
+	magnesium     nutrient = "magnesium"
+	potassium     nutrient = "potassium"
+	protein       nutrient = "protein"
+	sodium        nutrient = "sodium"
+	sugars        nutrient = "sugars"
+	sugar         nutrient = "sugar"
+	vitaminA      nutrient = "vitamin a"
+	vitaminB      nutrient = "vitamin b"
+	vitaminB12    nutrient = "vitamin b12"
+	vitaminBB12   nutrient = "vitamin b-12"
+	vitaminBBB12  nutrient = "vitamin b 12"
+	vitaminC      nutrient = "vitamin c"
+	vitaminD      nutrient = "vitamin d"
+	zinc          nutrient = "zinc"
 )
 
-var nutritionTriggers = []string{
-	calcium, calories, carbs, carbohydrates, cholesterol, saturatedFat, fat, fiber, iron, lipid,
-	magnesium, potassium, protein, sodium, sugars, sugar, vitaminA,
-	vitaminB, vitaminB12, vitaminBB12, vitaminBBB12, vitaminC, vitaminD, zinc,
+// Nutrients maps the USDA's codes with names and aliases
+var Nutrients = []Nutrient{
+	{
+		Name:  calcium,
+		Code:  "301",
+		Units: "mg",
+	},
+	{
+		Name:  calories,
+		Code:  "208",
+		Units: "calories",
+		Aliases: []nutrient{
+			energy,
+		},
+	},
+	{
+		Name:  carbohydrates,
+		Code:  "205",
+		Units: "g",
+		Aliases: []nutrient{
+			carbs,
+		},
+	},
+	{
+		Name:  cholesterol,
+		Code:  "601",
+		Units: "mg",
+	},
+	{
+		Name:  saturatedFat,
+		Code:  "606",
+		Units: "g",
+	},
+	{
+		Name:  fat,
+		Code:  "204",
+		Units: "g",
+	},
+	{
+		Name:  fiber,
+		Code:  "291",
+		Units: "g",
+	},
+	{
+		Name:  iron,
+		Code:  "303",
+		Units: "mg",
+	},
+	{
+		Name:  lipid,
+		Code:  "204",
+		Units: "g",
+	},
+	{
+		Name:  magnesium,
+		Code:  "304",
+		Units: "mg",
+	},
+	{
+		Name:  potassium,
+		Code:  "306",
+		Units: "mg",
+	},
+	{
+		Name:  protein,
+		Code:  "203",
+		Units: "g",
+	},
+	{
+		Name:  sodium,
+		Code:  "307",
+		Units: "mg",
+	},
+	{
+		Name:  sugars,
+		Code:  "269",
+		Units: "g",
+		Aliases: []nutrient{
+			sugar,
+		},
+	},
+	{
+		Name:  vitaminA,
+		Code:  "318",
+		Units: "IU",
+	},
+	{
+		Name:  vitaminB,
+		Code:  "418",
+		Units: "\u00b5g",
+		Aliases: []nutrient{
+			vitaminB12, vitaminBB12, vitaminBBB12,
+		},
+	},
+	{
+		Name:  vitaminC,
+		Code:  "401",
+		Units: "mg",
+	},
+	{
+		Name:  vitaminD,
+		Code:  "328",
+		Units: "\u00b5g",
+	},
+	{
+		Name:  zinc,
+		Code:  "309",
+		Units: "mg",
+	},
 }
 
 // weight
@@ -139,6 +246,25 @@ const define = "define"
 const definition = "definition"
 
 func (w *Wikipedia) setRegex() Answerer {
+	addNutrientRegexp := func(sl []*regexp.Regexp, t string) []*regexp.Regexp {
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) are in a (?P<remainder>.*)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in (?P<remainder>.*)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
+		sl = append(sl, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in (?P<remainder>.*)$`, t)))
+
+		return sl
+	}
+
+	for _, n := range Nutrients {
+		w.regex = addNutrientRegexp(w.regex, string(n.Name))
+		for _, a := range n.Aliases {
+			w.regex = addNutrientRegexp(w.regex, string(a))
+		}
+	}
+
 	triggers := []string{
 		age, howOldIs,
 		birthday, born,
@@ -151,16 +277,6 @@ func (w *Wikipedia) setRegex() Answerer {
 	}
 
 	t := strings.Join(triggers, "|")
-
-	for _, t := range nutritionTriggers {
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) are in a (?P<remainder>.*)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^how (many|much) (?P<trigger>%s) in (?P<remainder>.*)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in a (?P<remainder>.*)$`, t)))
-		w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) in (?P<remainder>.*)$`, t)))
-	}
 
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
 	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
@@ -195,6 +311,13 @@ type Clock struct {
 // TODO: add place of death, cause, etc.
 type Death struct {
 	Death wikipedia.DateTime `json:"death,omitempty"`
+}
+
+// NutritionResponse is a food's nutrition content
+type NutritionResponse struct {
+	Trigger   string
+	Nutrients []Nutrient
+	Response  *nutrition.Response
 }
 
 var contains = func(x string, sl []string) bool {
@@ -305,75 +428,6 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Type = WikidataHeightType
 			w.Data.Solution = item.Height
 		}
-	case calcium, calories, carbs, carbohydrates, cholesterol, saturatedFat, fat, fiber, iron, lipid,
-		magnesium, potassium, protein, sodium, sugars, sugar, vitaminA,
-		vitaminB, vitaminB12, vitaminBB12, vitaminBBB12, vitaminC, vitaminD, zinc:
-		// Wikipedia seems more reliable ndbno id's for items like "egg"
-		// but doesn't have things like "Whopper" or "Big Mac without sauce"
-		var ndbnos = []string{}
-		switch w.remainder {
-		case "cheese":
-
-		case "egg", "eggs":
-			ndbnos = []string{"01123"}
-		default:
-			var empty = true
-			for _, item := range items {
-				for _, u := range item.USDA {
-					ndbnos = append(ndbnos, u)
-					empty = false
-				}
-			}
-
-			// if it is a branded product, then get the rest of that brand
-			// e.g. Show McDonald's Big Mac w/out sauce
-			itms, err := w.NutritionFetcher.Lookup(w.remainder)
-			if err != nil {
-				w.Err = err
-				return w
-			}
-
-			var manufacturer string
-
-			for _, ndbno := range ndbnos {
-				for _, itm := range itms {
-					if itm.NDBNO == ndbno {
-						manufacturer = itm.Manufacturer
-					}
-				}
-			}
-
-			for _, itm := range itms {
-				if contains(itm.NDBNO, ndbnos) {
-					continue
-				}
-
-				switch empty {
-				case true:
-					ndbnos = append(ndbnos, itm.NDBNO)
-				default:
-					if manufacturer != "" && itm.Manufacturer == manufacturer {
-						ndbnos = append(ndbnos, itm.NDBNO)
-					}
-				}
-			}
-
-		}
-
-		if len(ndbnos) == 0 {
-			w.Err = fmt.Errorf("unable to find ndbno identifier for %v", w.remainder)
-			return w
-		}
-
-		resp, err := w.NutritionFetcher.Fetch(ndbnos)
-		if err != nil {
-			w.Err = err
-			return w
-		}
-
-		resp.Trigger = w.triggerWord
-		w.Type = WikidataNutritionType
-		w.Data.Solution = resp
 	case mass, weigh, weight:
 		for _, item := range items {
 			if len(item.Weight) == 0 {
@@ -399,6 +453,89 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Data.Solution = item.Wiktionary
 		}
 	default: // full Wikipedia box unless for certain words
+		var allNutrientTriggers []string
+
+		for _, n := range Nutrients {
+			allNutrientTriggers = append(allNutrientTriggers, string(n.Name))
+			for _, a := range n.Aliases {
+				allNutrientTriggers = append(allNutrientTriggers, string(a))
+			}
+		}
+
+		if contains(w.triggerWord, allNutrientTriggers) {
+			// Wikipedia seems more reliable ndbno id's for items like "egg"
+			// but doesn't have things like "Whopper" or "Big Mac without sauce"
+			var ndbnos = []string{}
+			switch w.remainder {
+			case "cheese":
+
+			case "egg", "eggs":
+				ndbnos = []string{"01123"}
+			default:
+				var empty = true
+				for _, item := range items {
+					for _, u := range item.USDA {
+						ndbnos = append(ndbnos, u)
+						empty = false
+					}
+				}
+
+				// if it is a branded product, then get the rest of that brand
+				// e.g. Show McDonald's Big Mac w/out sauce
+				itms, err := w.NutritionFetcher.Lookup(w.remainder)
+				if err != nil {
+					w.Err = err
+					return w
+				}
+
+				var manufacturer string
+
+				for _, ndbno := range ndbnos {
+					for _, itm := range itms {
+						if itm.NDBNO == ndbno {
+							manufacturer = itm.Manufacturer
+						}
+					}
+				}
+
+				for _, itm := range itms {
+					if contains(itm.NDBNO, ndbnos) {
+						continue
+					}
+
+					switch empty {
+					case true:
+						ndbnos = append(ndbnos, itm.NDBNO)
+					default:
+						if manufacturer != "" && itm.Manufacturer == manufacturer {
+							ndbnos = append(ndbnos, itm.NDBNO)
+						}
+					}
+				}
+
+			}
+
+			if len(ndbnos) == 0 {
+				w.Err = fmt.Errorf("unable to find ndbno identifier for %v", w.remainder)
+				return w
+			}
+
+			resp := &NutritionResponse{
+				Trigger:   w.triggerWord,
+				Nutrients: Nutrients,
+			}
+
+			resp.Response, err = w.NutritionFetcher.Fetch(ndbnos)
+			if err != nil {
+				w.Err = err
+				return w
+			}
+
+			w.Type = WikidataNutritionType
+			w.Data.Solution = resp
+			return w
+		}
+
 		switch w.remainder {
 		case clock, currentTime, timeIn, wTime: // if "clock", "current time", etc. then they want the current time for their current location
 			ip := getIPAddress(r)
@@ -433,6 +570,7 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 			w.Type = WikipediaType
 			w.Data.Solution = items
 		}
+
 	}
 
 	return w
@@ -647,40 +785,43 @@ func (w *Wikipedia) tests() []test {
 				{
 					Type:      WikidataNutritionType,
 					Triggered: true,
-					Solution: &nutrition.Response{
-						Trigger: "sodium",
-						Foods: []nutrition.Food{
-							{
-								Name:        "Egg, whole, raw, fresh",
-								FoodGroup:   "Dairy and Egg Products",
-								Corporation: "",
-								Nutrients: []nutrition.Nutrient{
-									{
-										ID:    "212",
-										Name:  "Sodium",
-										Unit:  "mg",
-										Value: json.Number("12"),
-										Measures: []nutrition.Measure{
-											{
-												Label:      "large",
-												Equivalent: 50,
-												Units:      "g",
-												Quantity:   1,
-												Value:      json.Number("72"),
-											},
-											{
-												Label:      "extra large",
-												Equivalent: 56,
-												Units:      "g",
-												Quantity:   1,
-												Value:      json.Number("80"),
+					Solution: &NutritionResponse{
+						Trigger:   "sodium",
+						Nutrients: Nutrients,
+						Response: &nutrition.Response{
+							Provider: "Mock Response",
+							Foods: []nutrition.Food{
+								{
+									Name:        "Egg, whole, raw, fresh",
+									FoodGroup:   "Dairy and Egg Products",
+									Corporation: "",
+									Nutrients: []nutrition.Nutrient{
+										{
+											ID:    "212",
+											Name:  "Sodium",
+											Unit:  "mg",
+											Value: json.Number("12"),
+											Measures: []nutrition.Measure{
+												{
+													Label:      "large",
+													Equivalent: 50,
+													Units:      "g",
+													Quantity:   1,
+													Value:      json.Number("72"),
+												},
+												{
+													Label:      "extra large",
+													Equivalent: 56,
+													Units:      "g",
+													Quantity:   1,
+													Value:      json.Number("80"),
+												},
 											},
 										},
 									},
 								},
 							},
 						},
-						Provider: "Mock Response",
 					},
 				},
 			},
@@ -691,33 +832,36 @@ func (w *Wikipedia) tests() []test {
 				{
 					Type:      WikidataNutritionType,
 					Triggered: true,
-					Solution: &nutrition.Response{
-						Trigger: "calories",
-						Foods: []nutrition.Food{
-							{
-								Name:        "Big Mac",
-								FoodGroup:   "Some Category",
-								Corporation: "McDowell's",
-								Nutrients: []nutrition.Nutrient{
-									{
-										ID:    "208",
-										Name:  "Energy",
-										Unit:  "kcal",
-										Value: json.Number("554"),
-										Measures: []nutrition.Measure{
-											{
-												Label:      "1 size",
-												Equivalent: 12,
-												Units:      "g",
-												Quantity:   1,
-												Value:      json.Number("720"),
+					Solution: &NutritionResponse{
+						Trigger:   "calories",
+						Nutrients: Nutrients,
+						Response: &nutrition.Response{
+							Provider: "Mock Response",
+							Foods: []nutrition.Food{
+								{
+									Name:        "Big Mac",
+									FoodGroup:   "Some Category",
+									Corporation: "McDowell's",
+									Nutrients: []nutrition.Nutrient{
+										{
+											ID:    "208",
+											Name:  "Energy",
+											Unit:  "kcal",
+											Value: json.Number("554"),
+											Measures: []nutrition.Measure{
+												{
+													Label:      "1 size",
+													Equivalent: 12,
+													Units:      "g",
+													Quantity:   1,
+													Value:      json.Number("720"),
+												},
 											},
 										},
 									},
 								},
 							},
 						},
-						Provider: "Mock Response",
 					},
 				},
 			},

@@ -295,6 +295,36 @@ func TestPercent(t *testing.T) {
 	}
 }
 
+func TestPlusOne(t *testing.T) {
+	type args struct {
+		x int
+	}
+
+	for _, tt := range []struct {
+		name string
+		args
+		want int
+	}{
+		{
+			name: "1",
+			args: args{1},
+			want: 2,
+		},
+		{
+			name: "1183",
+			args: args{1183},
+			want: 1184,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			got := plusOne(tt.args.x)
+			if got != tt.want {
+				t.Fatalf("got %q; want %q", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestSafeHTML(t *testing.T) {
 	for _, tt := range []struct {
 		arg  string

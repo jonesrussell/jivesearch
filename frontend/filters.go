@@ -43,6 +43,7 @@ var funcMap = template.FuncMap{
 	"JSONMarshal":          jsonMarshal,
 	"Now":                  now,
 	"Percent":              percent,
+	"PlusOne":              plusOne,
 	"SafeHTML":             safeHTML,
 	"Source":               source,
 	"SortWHOISNameServers": sortWHOISNameServers,
@@ -259,6 +260,11 @@ var now = func() time.Time { return time.Now().UTC() }
 
 func percent(v float64) string {
 	return strconv.FormatFloat(v*100, 'f', 2, 64) + "%"
+}
+
+// plusOne helps us determine if an item is last in a slice
+func plusOne(x int) int {
+	return x + 1
 }
 
 func safeHTML(value string) template.HTML {

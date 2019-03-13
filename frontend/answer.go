@@ -11,7 +11,6 @@ import (
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
 	"github.com/jivesearch/jivesearch/instant/discography"
-	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/parcel"
 	"github.com/jivesearch/jivesearch/instant/shortener"
 	"github.com/jivesearch/jivesearch/instant/status"
@@ -294,7 +293,7 @@ func detectType(t instant.Type) interface{} {
 	case instant.WikidataHeightType, instant.WikidataWeightType:
 		v = &[]wikipedia.Quantity{}
 	case instant.WikidataNutritionType:
-		v = &nutrition.Response{}
+		v = &instant.NutritionResponse{}
 	case instant.WikiquoteType:
 		v = &[]string{}
 	case instant.WiktionaryType:

@@ -19,7 +19,6 @@ type ItemResponse struct {
 
 // Response is a nutrition response
 type Response struct {
-	Trigger  string
 	Foods    []Food
 	Provider provider
 }

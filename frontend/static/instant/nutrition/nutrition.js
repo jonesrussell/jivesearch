@@ -1,5 +1,6 @@
 $(document).ready(function(){
-  $("#nutrition_nutrient_units").html(data.nutrient_label);
+  $("#nutrition_header_nutrient_label").html(data.nutrient_label.toTitleCase());
+  $("#nutrition_nutrient_units").html(data.nutrient_units);
 
   var items = $("#nutrition_items");
   
@@ -7,10 +8,10 @@ $(document).ready(function(){
     items.append($("<option>").data("value", this.name).data("nutrient", this.trigger).text(this.name));
   });
 
-  $("#nutrition_header").html($(items).find(":selected").data("value"));
+  $("#nutrition_header_item").html($(items).find(":selected").data("value"));
 
   $(items).on("change", function(index) {
-    $("#nutrition_header").html($(this).find(":selected").data("value"));
+    $("#nutrition_header_item").html($(this).find(":selected").data("value"));
     var selected_index = $("#nutrition_serving").prop("selectedIndex");
     loadQuantities(data.items[$(this).prop("selectedIndex")].quantities, selected_index);
   });
@@ -21,6 +22,10 @@ $(document).ready(function(){
     findSelectedValue($(this));
   });
 });
+
+String.prototype.toTitleCase = function () {
+  return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
 
 function loadQuantities(quantities, selected_index){
   // load the servings for that item
