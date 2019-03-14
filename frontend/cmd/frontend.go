@@ -291,9 +291,6 @@ func main() {
 		LinkShortener: &shortener.IsGd{
 			HTTPClient: httpClient,
 		},
-		LocationFetcher: &location.MaxMind{
-			DB: v.GetString("maxmind.database"),
-		},
 		NutritionFetcher: &nutrition.USDA{
 			HTTPClient: httpClient,
 			Key:        v.GetString("usda.key"),
@@ -341,11 +338,22 @@ func main() {
 	switch v.GetBool("debug") {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
-		f.TimeZoneFetcher = &timezone.JiveData{
+
+		f.Instant.LocationFetcher = &location.JiveData{
+			HTTPClient: httpClient,
+			Key:        v.GetString("jivedata.key"),
+		}
+
+		f.Instant.TimeZoneFetcher = &timezone.JiveData{
 			HTTPClient: httpClient,
 			Key:        v.GetString("jivedata.key"),
 		}
 	default:
+		f.Instant.LocationFetcher = &location.MaxMind{
+			DB: v.GetString("maxmind.database"),
+		}
+
+		// timezone
 		tz, err := tzz.LoadTimezones(tzz.Config{
 			DatabaseType: "memory",
 			DatabaseName: v.GetString("timezone.database"),
@@ -358,7 +366,7 @@ func main() {
 
 		defer tz.Close()
 
-		f.TimeZoneFetcher = &timezone.TZLookup{
+		f.Instant.TimeZoneFetcher = &timezone.TZLookup{
 			TZ: tz,
 		}
 	}
@@ -378,13 +386,6 @@ func main() {
 	// see notes on customizing languages in search/document/document.go
 	f.Document.Languages = document.Languages(supported)
 	f.Document.Matcher = language.NewMatcher(f.Document.Languages)
-
-	if v.GetBool("jivedata") {
-		f.LocationFetcher = &location.JiveData{
-			HTTPClient: httpClient,
-			Key:        v.GetString("jivedata.key"),
-		}
-	}
 
 	log.Info.Printf("Listening at http://127.0.0.1%v", s.Addr)
 	log.Info.Fatal(s.ListenAndServe())
