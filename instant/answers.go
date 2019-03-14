@@ -14,9 +14,9 @@ import (
 	"github.com/jivesearch/jivesearch/instant/congress"
 	"github.com/jivesearch/jivesearch/instant/nutrition"
 	"github.com/jivesearch/jivesearch/instant/status"
+	"github.com/jivesearch/jivesearch/instant/timezone"
 	"github.com/jivesearch/jivesearch/instant/whois"
 
-	timezone "github.com/evanoberholster/timezoneLookup"
 	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
 
 	disc "github.com/jivesearch/jivesearch/instant/discography"
@@ -47,7 +47,7 @@ type Instant struct {
 	StackOverflowFetcher so.Fetcher
 	StatusFetcher        status.Fetcher
 	StockQuoteFetcher    stock.Fetcher
-	TimeZoneFetcher      timezone.TimezoneInterface
+	TimeZoneFetcher      timezone.Fetcher
 	UPSFetcher           parcel.Fetcher
 	USPSFetcher          parcel.Fetcher
 	WeatherFetcher       weather.Fetcher

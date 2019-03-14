@@ -11,7 +11,6 @@ import (
 	"testing"
 	"time"
 
-	timezone "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
 	curr "github.com/jivesearch/jivesearch/instant/currency"
@@ -1157,22 +1156,10 @@ func (m *mockStatusFetcher) Fetch(domain string) (*status.Response, error) {
 
 type mockTimeZoneFetcher struct{}
 
-func (m *mockTimeZoneFetcher) CreateTimezones(jsonFilename string) error {
-	return nil
-}
-func (m *mockTimeZoneFetcher) LoadTimezones() error {
-	return nil
-}
-func (m *mockTimeZoneFetcher) Query(q timezone.Coord) (string, error) {
-	sydney := timezone.Coord{
-		Lat: 151.2,
-		Lon: -33.8667,
-	}
-
-	if reflect.DeepEqual(q, sydney) {
+func (m *mockTimeZoneFetcher) Fetch(lat, lon float64) (string, error) {
+	if lat == -33.8667 && lon == 151.2 {
 		return "Australia/Sydney", nil
 	}
 
 	return "America/Denver", nil
 }
-func (m *mockTimeZoneFetcher) Close() {}

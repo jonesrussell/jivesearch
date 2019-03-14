@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	timezone "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/location"
 	"github.com/jivesearch/jivesearch/instant/nutrition"
+	"github.com/jivesearch/jivesearch/instant/timezone"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
@@ -34,7 +34,7 @@ const (
 type Wikipedia struct {
 	LocationFetcher  location.Fetcher
 	NutritionFetcher nutrition.Fetcher
-	TimeZoneFetcher  timezone.TimezoneInterface
+	TimeZoneFetcher  timezone.Fetcher
 	wikipedia.Fetcher
 	Answer
 }
@@ -373,7 +373,7 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 		var err error
 		cc := &Clock{}
 
-		var lat, lon float32
+		var lat, lon float64
 
 		for _, item := range items {
 			for _, c := range item.Instance {
@@ -399,8 +399,8 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 
 			}
 			for _, c := range item.Coordinate {
-				lat = float32(c.Latitude[0])
-				lon = float32(c.Longitude[0])
+				lat = c.Latitude[0]
+				lon = c.Longitude[0]
 			}
 
 		}
@@ -545,7 +545,7 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 				return w
 			}
 
-			lat, lon := float32(c.Location.Latitude), float32(c.Location.Longitude)
+			lat, lon := c.Location.Latitude, c.Location.Longitude
 			t, err := w.getTime(lat, lon)
 			if err != nil {
 				w.Err = err
@@ -576,13 +576,10 @@ func (w *Wikipedia) solve(r *http.Request) Answerer {
 	return w
 }
 
-func (w *Wikipedia) getTime(lat, lon float32) (time.Time, error) {
+func (w *Wikipedia) getTime(lat, lon float64) (time.Time, error) {
 	t := time.Time{}
 
-	zone, err := w.TimeZoneFetcher.Query(
-		timezone.Coord{Lat: lon, Lon: lat}, // is this backwards or just me???
-	)
-
+	zone, err := w.TimeZoneFetcher.Fetch(lat, lon)
 	if err != nil {
 		return t, err
 	}

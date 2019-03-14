@@ -24,7 +24,7 @@ import (
 
 	"time"
 
-	timezone "github.com/evanoberholster/timezoneLookup"
+	tzz "github.com/evanoberholster/timezoneLookup"
 	"github.com/jivesearch/jivesearch/instant/location"
 	"github.com/jivesearch/jivesearch/instant/weather"
 
@@ -39,6 +39,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/parcel"
 	"github.com/jivesearch/jivesearch/instant/stackoverflow"
 	"github.com/jivesearch/jivesearch/instant/stock"
+	"github.com/jivesearch/jivesearch/instant/timezone"
 	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"github.com/jivesearch/jivesearch/log"
 	"github.com/jivesearch/jivesearch/search"
@@ -258,7 +259,9 @@ func main() {
 	db.SetMaxIdleConns(0)
 
 	// timezone database for "current time in xxx"
-	tz, err := timezone.LoadTimezones(timezone.Config{
+	tz := &timezone.TZLookup{}
+
+	tz.TZ, err = tzz.LoadTimezones(tzz.Config{
 		DatabaseType: "memory",
 		DatabaseName: v.GetString("timezone.database"),
 		Snappy:       true,
@@ -268,7 +271,7 @@ func main() {
 		panic(err)
 	}
 
-	defer tz.Close()
+	defer tz.TZ.Close()
 
 	// Instant Answers
 	f.GitHub = frontend.GitHub{
