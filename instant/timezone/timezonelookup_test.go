@@ -19,7 +19,7 @@ func TestTZLookupFetch(t *testing.T) {
 		want string
 	}{
 		{
-			name: "basic",
+			name: "Sydney, Australia",
 			args: args{-33.8667, 151.2},
 			want: "Australia/Sydney",
 		},

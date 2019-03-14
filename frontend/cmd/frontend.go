@@ -62,10 +62,6 @@ func setup(v *viper.Viper) *http.Server {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	config.SetDefaults(v)
 
-	if v.GetBool("debug") {
-		log.Debug.SetOutput(os.Stdout)
-	}
-
 	frontend.ParseTemplates()
 	f = &frontend.Frontend{
 		Brand: frontend.Brand{
@@ -258,21 +254,6 @@ func main() {
 	defer db.Close()
 	db.SetMaxIdleConns(0)
 
-	// timezone database for "current time in xxx"
-	tz := &timezone.TZLookup{}
-
-	tz.TZ, err = tzz.LoadTimezones(tzz.Config{
-		DatabaseType: "memory",
-		DatabaseName: v.GetString("timezone.database"),
-		Snappy:       true,
-		Encoding:     "json",
-	})
-	if err != nil {
-		panic(err)
-	}
-
-	defer tz.TZ.Close()
-
 	// Instant Answers
 	f.GitHub = frontend.GitHub{
 		HTTPClient: httpClient,
@@ -330,7 +311,6 @@ func main() {
 		StockQuoteFetcher: &stock.IEX{
 			HTTPClient: httpClient,
 		},
-		TimeZoneFetcher: tz,
 		UPSFetcher: &parcel.UPS{
 			HTTPClient: httpClient,
 			User:       v.GetString("ups.user"),
@@ -355,11 +335,37 @@ func main() {
 		},
 	}
 
+	f.ProxyClient = httpClient
+
+	// use Jive Data when debuggin to make setup easier
+	switch v.GetBool("debug") {
+	case true:
+		log.Debug.SetOutput(os.Stdout)
+		f.TimeZoneFetcher = &timezone.JiveData{
+			HTTPClient: httpClient,
+			Key:        v.GetString("jivedata.key"),
+		}
+	default:
+		tz, err := tzz.LoadTimezones(tzz.Config{
+			DatabaseType: "memory",
+			DatabaseName: v.GetString("timezone.database"),
+			Snappy:       true,
+			Encoding:     "json",
+		})
+		if err != nil {
+			panic(err)
+		}
+
+		defer tz.Close()
+
+		f.TimeZoneFetcher = &timezone.TZLookup{
+			TZ: tz,
+		}
+	}
+
 	if err := f.Instant.WikipediaFetcher.Setup(); err != nil {
 		log.Info.Println(err)
 	}
-
-	f.ProxyClient = httpClient
 
 	// supported languages
 	supported, unsupported := languages(v)
