@@ -198,12 +198,23 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 				LEFT JOIN %vwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id			
 				WHERE LOWER(w.title) = LOWER($1)
+				/* A UNION seems to be faster than OR here */
+				UNION
+				SELECT
+				w."id", w."title", w."text", w."outgoing_link", wq."quotes", 
+				wd."labels", wd."descriptions", wd."claims" 
+				FROM enwikipedia w
+				LEFT JOIN enwikiquote wq ON w.id = wq.id
+				LEFT JOIN wikidata wd ON w.id = wd.id
+				LEFT JOIN wikidata_aliases wa ON w.id = wa.id		
+				WHERE LOWER(wa.alias) = LOWER($2)
+				AND wa.lang = '%v'
 				LIMIT 1
 			) w
 			FULL OUTER JOIN (
 				SELECT "title" wktitle, "definitions"
 				FROM %vwiktionary
-				WHERE title = $2
+				WHERE title = $3
 				LIMIT 1
 			) wk ON LOWER(w.title) = wk.wktitle
 		),
@@ -213,13 +224,13 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 			coalesce(item."quotes", '{}'), coalesce(item."wktitle", ''), coalesce(item."definitions", '[]'),
 			coalesce(item."labels", '{}'::jsonb), coalesce(item."descriptions", '{}'::jsonb), %v "claims"
 		FROM item, %v
-	`, item.Wikipedia.Language, item.Wiktionary.Language, item.Wikipedia.Language,
+	`, item.Wikipedia.Language, item.Wiktionary.Language, item.Wikipedia.Language, item.Wiktionary.Language,
 		strings.Join(stmts, ", "), strings.Join(objects, " || "), strings.Join(tags, ", "),
 	)
 
 	var definitions string
 
-	err := p.DB.QueryRow(sql, query, query).Scan(
+	err := p.DB.QueryRow(sql, query, query, query).Scan(
 		&item.Wikidata.ID, &item.Wikipedia.Title, &item.Wikipedia.Text, pq.Array(&item.Wikipedia.OutgoingLink),
 		pq.Array(&item.Wikiquote.Quotes), &item.Wiktionary.Title, &definitions,
 		&item.Labels, &item.Descriptions, &item.Claims,
@@ -559,7 +570,7 @@ func (t *table) addIndices(tx *sql.Tx) (err error) {
 		}
 
 		col := c.name
-		if t.Type == wikipediaTable && c.name == "title" {
+		if (t.Type == wikipediaTable && c.name == "title") || (t.Type == wikidataAliasesTable && c.name == "alias") {
 			col = fmt.Sprintf("LOWER(%v)", col)
 		}
 
