@@ -193,7 +193,7 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 			FROM (
 				SELECT 
 				w."id", w."title", w."text", w."outgoing_link", wq."quotes", 
-				wd."labels", wd."aliases", wd."descriptions", wd."claims" 
+				wd."labels", wd."descriptions", wd."claims" 
 				FROM %vwikipedia w
 				LEFT JOIN %vwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id			
@@ -211,8 +211,7 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 		SELECT
 			coalesce(item."id", ''), coalesce(item."title", ''), coalesce(item."text", ''), coalesce(item."outgoing_link", '{}'),
 			coalesce(item."quotes", '{}'), coalesce(item."wktitle", ''), coalesce(item."definitions", '[]'),
-			coalesce(item."labels", '{}'::jsonb), coalesce(item."aliases", '{}'::jsonb), 
-			coalesce(item."descriptions", '{}'::jsonb), %v "claims"
+			coalesce(item."labels", '{}'::jsonb), coalesce(item."descriptions", '{}'::jsonb), %v "claims"
 		FROM item, %v
 	`, item.Wikipedia.Language, item.Wiktionary.Language, item.Wikipedia.Language,
 		strings.Join(stmts, ", "), strings.Join(objects, " || "), strings.Join(tags, ", "),
@@ -223,7 +222,7 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 	err := p.DB.QueryRow(sql, query, query).Scan(
 		&item.Wikidata.ID, &item.Wikipedia.Title, &item.Wikipedia.Text, pq.Array(&item.Wikipedia.OutgoingLink),
 		pq.Array(&item.Wikiquote.Quotes), &item.Wiktionary.Title, &definitions,
-		&item.Labels, &item.Aliases, &item.Descriptions, &item.Claims,
+		&item.Labels, &item.Descriptions, &item.Claims,
 	)
 
 	if err != nil {

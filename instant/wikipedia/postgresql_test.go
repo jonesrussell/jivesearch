@@ -65,7 +65,7 @@ func TestPostgreSQL_Fetch(t *testing.T) {
 				[]driver.Value{
 					"Q169452", "Shaquille O'Neal", "Shaquille O'Neal is a basketball player", "{}",
 					"{}", "Shaquille O'Neal", shaqWiktionaryJSON,
-					[]byte(shaqRawLabels), []byte(shaqRawAliases), []byte(shaqRawDescriptions), shaqClaimsJSON,
+					[]byte(shaqRawLabels), []byte(shaqRawDescriptions), shaqClaimsJSON,
 				},
 			},
 			[]*Item{
@@ -79,7 +79,6 @@ func TestPostgreSQL_Fetch(t *testing.T) {
 					Wikidata: &Wikidata{
 						ID:           "Q169452",
 						Descriptions: shaqDescriptions,
-						Aliases:      shaqAliases,
 						Labels:       shaqLabels,
 						Claims:       shaqClaimsPostgres,
 					},
@@ -103,7 +102,7 @@ func TestPostgreSQL_Fetch(t *testing.T) {
 
 			rows := sqlmock.NewRows(
 				[]string{"id", "title", "text", "outgoing_link", "quotes", "wktitle", "definitions",
-					"labels", "aliases", "descriptions", "claims",
+					"labels", "descriptions", "claims",
 				},
 			)
 			rows = rows.AddRow(
