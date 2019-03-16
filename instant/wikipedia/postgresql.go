@@ -19,6 +19,7 @@ type PostgreSQL struct {
 
 type tableType = string
 
+const wikidataAliasesTable tableType = "wikidata_aliases"
 const wikidataTable tableType = "wikidata"
 const wikipediaTable tableType = "wikipedia"
 const wikiquoteTable tableType = "wikiquote"
@@ -323,10 +324,18 @@ func (p *PostgreSQL) Dump(ft FileType, lang language.Tag, rows chan interface{})
 		rows: rows,
 	}
 
+	var aliases *table
+
 	switch ft {
 	case WikidataFT:
 		t.Type = wikidataTable
 		t.name = wikidataTable
+		aliases = &table{
+			Type:      wikidataAliasesTable,
+			name:      wikidataAliasesTable,
+			temporary: wikidataAliasesTable + "_tmp",
+		}
+		aliases.setColumns()
 	case WikipediaFT:
 		t.Type = wikipediaTable
 		n := strings.Replace(lang.String(), "-", "_", -1)
@@ -365,13 +374,71 @@ func (p *PostgreSQL) Dump(ft FileType, lang language.Tag, rows chan interface{})
 		return err
 	}
 
-	return p.executeTransaction(t.rename)
+	if err := p.executeTransaction(t.rename); err != nil {
+		return err
+	}
+
+	if aliases != nil {
+		if _, err := p.DB.Exec(fmt.Sprintf(`DROP TABLE IF EXISTS %v`, aliases.temporary)); err != nil {
+			return err
+		}
+
+		if _, err := p.DB.Exec(aliases.createTable()); err != nil {
+			return err
+		}
+
+		stmt := fmt.Sprintf(`INSERT INTO %v(id, lang, alias)
+		(
+			SELECT id, b.el->>'language', b.el->>'value'
+			FROM
+			(
+				SELECT id, jsonb_array_elements(v) AS el
+				FROM
+				(
+					SELECT id, t.k, t.v
+					FROM %v, jsonb_each(aliases) as t(k, v)
+				) a
+			) b
+		 )		 
+		 `, aliases.temporary, t.name)
+		if _, err := p.DB.Exec(stmt); err != nil {
+			return err
+		}
+
+		if err := p.executeTransaction(aliases.addIndices); err != nil {
+			return err
+		}
+
+		if err := p.executeTransaction(aliases.rename); err != nil {
+			return err
+		}
+
+		if _, err := p.DB.Exec(fmt.Sprintf(`ALTER TABLE %v DROP COLUMN aliases`, t.name)); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t *table) setColumns() error {
 	var err error
 
 	switch t.Type {
+	case wikidataAliasesTable:
+		t.columns = []column{
+			{"id", "text", true},
+			{"lang", "text", true},
+			{"alias", "text", true},
+		}
+	case wikidataTable:
+		t.columns = []column{
+			{"id", "text", true},
+			{"labels", "jsonb", false},
+			{"aliases", "jsonb", false},
+			{"descriptions", "jsonb", false},
+			{"claims", "jsonb", false},
+		}
 	case wikipediaTable:
 		t.columns = []column{
 			{"id", "text", true},
@@ -389,14 +456,6 @@ func (t *table) setColumns() error {
 		t.columns = []column{
 			{"title", "text", true},
 			{"definitions", "jsonb", false},
-		}
-	case wikidataTable:
-		t.columns = []column{
-			{"id", "text", true},
-			{"labels", "jsonb", false},
-			{"aliases", "jsonb", false},
-			{"descriptions", "jsonb", false},
-			{"claims", "jsonb", true},
 		}
 	default:
 		err = fmt.Errorf("unknown postgresql table type %v", t.Type)

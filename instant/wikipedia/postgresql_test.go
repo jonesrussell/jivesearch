@@ -177,6 +177,8 @@ func TestPostgreSQL_Dump(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			var testAliases bool
+
 			db, mock, err := sqlmock.New()
 			if err != nil {
 				t.Fatal(err)
@@ -249,12 +251,10 @@ func TestPostgreSQL_Dump(t *testing.T) {
 				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			case WikidataFT:
 				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			case WikiquoteFT:
 				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			case WiktionaryFT:
 				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
-
 			}
 
 			mock.ExpectCommit()
@@ -270,13 +270,36 @@ func TestPostgreSQL_Dump(t *testing.T) {
 				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			case WikidataFT:
 				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				testAliases = true
 			case WikiquoteFT:
 				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			case WiktionaryFT:
 				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
 			}
 			mock.ExpectCommit()
+
+			if testAliases {
+				mock.ExpectExec("DROP TABLE IF EXISTS").WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("CREATE TABLE").WillReturnResult(sqlmock.NewResult(1, 1))
+
+				mock.ExpectExec("INSERT INTO").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+
+				mock.ExpectBegin()
+				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("CREATE INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+
+				mock.ExpectBegin()
+				mock.ExpectExec("DROP TABLE").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("ALTER TABLE").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec("ALTER INDEX").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+
+				mock.ExpectExec("ALTER TABLE").WithArgs().WillReturnResult(sqlmock.NewResult(1, 1))
+			}
 
 			p := &PostgreSQL{
 				DB: db,

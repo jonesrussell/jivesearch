@@ -1,0 +1,70 @@
+module github.com/jivesearch/jivesearch
+
+go 1.12
+
+require (
+	github.com/Knetic/govaluate v3.0.0+incompatible
+	github.com/PuerkitoBio/goquery v1.4.0
+	github.com/abursavich/nett v0.0.0-20150117192851-f31118c7aeb9
+	github.com/andybalholm/cascadia v1.0.0
+	github.com/antchfx/htmlquery v0.0.0-20171205025447-9f7717ac9bac
+	github.com/antchfx/xmlquery v0.0.0-20180509022505-3b6128f0092a
+	github.com/antchfx/xpath v0.0.0-20180508032148-fcab9e58f09b
+	github.com/disintegration/imaging v1.3.0
+	github.com/dsnet/compress v0.0.0-20171208185109-cc9eb1d7ad76
+	github.com/dustin/go-humanize v0.0.0-20171111073723-bb3d318650d4
+	github.com/evanoberholster/timezoneLookup v0.0.0-20181028095704-4a3a5b71a424
+	github.com/fsnotify/fsnotify v1.4.7
+	github.com/garyburd/redigo v1.6.0
+	github.com/go-redis/redis v6.10.2+incompatible
+	github.com/gobwas/glob v0.2.3
+	github.com/gocolly/colly v0.0.0-20180508223847-60a9d4f10643
+	github.com/gocolly/redisstorage v0.0.0-20180413215058-681b42d3f084
+	github.com/golang/protobuf v1.1.0
+	github.com/golang/snappy v0.0.1
+	github.com/gorilla/context v0.0.0-20160226214623-1ea25387ff6f
+	github.com/gorilla/mux v1.6.1
+	github.com/gregjones/httpcache v0.0.0-20171119193500-2bcd89a1743f
+	github.com/hashicorp/hcl v0.0.0-20171017181929-23c074d0eceb
+	github.com/inconshreveable/mousetrap v1.0.0
+	github.com/jarcoal/httpmock v0.0.0-20161210151336-4442edb3db31
+	github.com/kennygrant/sanitize v1.2.3
+	github.com/lib/pq v0.0.0-20180201184707-88edab080323
+	github.com/magiconair/properties v1.7.6
+	github.com/mailru/easyjson v0.0.0-20171120080333-32fa128f234d
+	github.com/microcosm-cc/bluemonday v0.0.0-20171222152607-542fd4642604
+	github.com/mitchellh/mapstructure v0.0.0-20180220230111-00c29f56e238
+	github.com/muesli/smartcrop v0.2.0
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
+	github.com/olivere/elastic v6.1.8+incompatible
+	github.com/openprovider/ecbrates v0.0.0-20161122034436-f3782097d0a7
+	github.com/oschwald/geoip2-golang v1.2.1
+	github.com/oschwald/maxminddb-golang v1.3.0
+	github.com/oxtoacart/bpool v0.0.0-20150712133111-4e1c5567d7c2
+	github.com/pariz/gountries v0.0.0-20171019111738-adb00f6513a3
+	github.com/pelletier/go-toml v1.1.0
+	github.com/pkg/errors v0.8.0
+	github.com/rafaeljusto/redigomock v0.0.0-20170720131524-7ae0511314e9
+	github.com/rwcarlsen/goexif v0.0.0-20180110181140-17202558c8d9
+	github.com/saintfish/chardet v0.0.0-20120816061221-3af4cd4741ca
+	github.com/spf13/afero v1.0.2
+	github.com/spf13/cast v1.2.0
+	github.com/spf13/cobra v0.0.1
+	github.com/spf13/jwalterweatherman v0.0.0-20180109140146-7c0cea34c8ec
+	github.com/spf13/pflag v1.0.0
+	github.com/spf13/viper v1.0.0
+	github.com/tdewolff/minify v2.3.4+incompatible
+	github.com/tdewolff/parse v2.3.2+incompatible
+	github.com/temoto/robotstxt v0.0.0-20170603013557-9e4646fa7053
+	github.com/vmihailenco/msgpack v4.0.2+incompatible
+	go.etcd.io/bbolt v1.3.2
+	golang.org/x/image v0.0.0-20171214225156-12117c17ca67
+	golang.org/x/net v0.0.0-20180301190904-22ae77b79946
+	golang.org/x/sys v0.0.0-20180224232135-f6cff0780e54
+	golang.org/x/text v0.2.0
+	google.golang.org/appengine v1.0.0
+	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0
+	gopkg.in/yaml.v2 v2.1.1
+	willnorris.com/go/gifresize v0.0.0-20160428232521-6a222229fa06
+	willnorris.com/go/imageproxy v0.0.0-20180706151409-74c16f575efb
+)
