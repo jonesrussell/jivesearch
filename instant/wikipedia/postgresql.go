@@ -397,9 +397,11 @@ func (p *PostgreSQL) Dump(ft FileType, lang language.Tag, rows chan interface{})
 			return err
 		}
 
+		// We have to truncate the alias, otherwise we get an error that the value is too large to be indexed.
+		// 100 chars seems reasonable for an alias.
 		stmt := fmt.Sprintf(`INSERT INTO %v(id, lang, alias)
 		(
-			SELECT id, b.el->>'language', b.el->>'value'
+			SELECT id, b.el->>'language', (b.el->>'value')::varchar(100)
 			FROM
 			(
 				SELECT id, jsonb_array_elements(v) AS el
@@ -409,8 +411,7 @@ func (p *PostgreSQL) Dump(ft FileType, lang language.Tag, rows chan interface{})
 					FROM %v, jsonb_each(aliases) as t(k, v)
 				) a
 			) b
-		 )		 
-		 `, aliases.temporary, t.name)
+		)`, aliases.temporary, t.name)
 		if _, err := p.DB.Exec(stmt); err != nil {
 			return err
 		}
