@@ -173,11 +173,12 @@ func main() {
 	}
 
 	// !bangs
+	debug := v.GetBool("debug")
 	vb := viper.New()
 	vb.SetConfigType("toml")
 	vb.AddConfigPath("../bangs")
 	vb.SetConfigName("bangs") // the default !bangs config file
-	if v.GetBool("debug") {
+	if debug {
 		vb.SetConfigName("bangs.test") // a shorter file to load quicker when debugging
 	}
 
@@ -327,15 +328,12 @@ func main() {
 			HTTPClient: httpClient,
 			Key:        v.GetString("jivedata.key"),
 		},
-		WikipediaFetcher: &wikipedia.PostgreSQL{
-			DB: db,
-		},
 	}
 
 	f.ProxyClient = httpClient
 
 	// use Jive Data when debuggin to make setup easier
-	switch v.GetBool("debug") {
+	switch debug {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
 
@@ -345,6 +343,11 @@ func main() {
 		}
 
 		f.Instant.TimeZoneFetcher = &timezone.JiveData{
+			HTTPClient: httpClient,
+			Key:        v.GetString("jivedata.key"),
+		}
+
+		f.Instant.WikipediaFetcher = &wikipedia.JiveData{
 			HTTPClient: httpClient,
 			Key:        v.GetString("jivedata.key"),
 		}
@@ -368,6 +371,10 @@ func main() {
 
 		f.Instant.TimeZoneFetcher = &timezone.TZLookup{
 			TZ: tz,
+		}
+
+		f.Instant.WikipediaFetcher = &wikipedia.PostgreSQL{
+			DB: db,
 		}
 	}
 

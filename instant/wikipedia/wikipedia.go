@@ -32,7 +32,6 @@ type Wikipedia struct {
 	Title        string   `json:"title"`
 	Text         string   `json:"text"`
 	truncate     int
-	//Popularity float32 `json:"popularity_score"` // I can't seem to find any documentation for this
 }
 
 var reParen = regexp.MustCompile(`\s?\((.*?)\)`) // replace parenthesis
