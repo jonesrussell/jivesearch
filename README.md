@@ -125,6 +125,7 @@ Marked items indicate progress has been made in that category. There is much mor
         - [x] CSS/JavaScript/JSON/etc minifier and prettifier
         - [x] Converters (foreign exchange, meters to feet, mb to gb, etc...)
     - [x] Maps
+    - [x] Nutrition
     - [x] Package Tracking (UPS, FedEx, USPS, etc...)
     - [ ] Shopping
     - [x] Stack Overflow
