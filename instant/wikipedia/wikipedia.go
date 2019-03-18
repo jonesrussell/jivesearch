@@ -66,6 +66,12 @@ func (w *Wikipedia) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// NewLanguage creates a new language.Tag from a string
+func NewLanguage(t string) (language.Tag, error) {
+	l, err := language.Parse(t)
+	return l, err
+}
+
 // Languages verifies languages based on Wikipedia's supported languages.
 // An empty slice of supported languages implies you support every language available.
 func Languages(supported []language.Tag) ([]language.Tag, []language.Tag) {
