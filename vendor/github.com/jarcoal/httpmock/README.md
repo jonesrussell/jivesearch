@@ -2,27 +2,15 @@
 
 Easy mocking of http responses from external resources.
 
-**Update December 2016** Due to this library not receiving updates for more
-than a year, a new V1 branch has been created that is now the most current branch
-with the latest changes. The new changes are not compatible with older Go versions
-(1.5 and below) so the branch was created to prevent breaking projects out in
-the wild :-)
-
 ## Install
 
-Two versions are available:
-
-**V0**. (not maintained, not recommended) Supports Go 1.3 to 1.7. Uses the current `master`
-branch to prevent breaking existing projects using this library.
-
-    go get github.com/jarcoal/httpmock
-
-**V1**. (Active, recommended) Currently supports Go 1.7 but also works with
-1.6 for now. Uses gopkg to read from `v1` branch:
+Uses gopkg to read from `v1` branch:
 
     go get gopkg.in/jarcoal/httpmock.v1
 
 You can also use vendoring for the v1 branch if you feel so inclined.
+
+Currently supports Go 1.7 - 1.12. 
 
 ### Simple Example:
 ```go
@@ -32,6 +20,13 @@ func TestFetchArticles(t *testing.T) {
 
 	httpmock.RegisterResponder("GET", "https://api.mybiz.com/articles.json",
 		httpmock.NewStringResponder(200, `[{"id": 1, "name": "My Great Article"}]`))
+
+  // get count info
+  httpmock.GetTotalCallCount()
+
+  // get the amount of calls for the registered responder
+  info := httpmock.GetCallCountInfo()
+  info["GET https://api.mybiz.com/articles.json"] // number of GET calls made to https://api.mybiz.com/articles.json
 
 	// do stuff that makes a request to articles.json
 }
@@ -116,6 +111,55 @@ var _ = Describe("Articles", func() {
 			httpmock.NewStringResponder(200, `[{"id": 1, "name": "My Great Article"}]`))
 
 		// do stuff that makes a request to articles.json
+	})
+})
+```
+
+### [Ginkgo](https://onsi.github.io/ginkgo/) + [Resty](https://github.com/go-resty/resty) Example:
+```go
+// article_suite_test.go
+
+import (
+	// ...
+	"github.com/jarcoal/httpmock"
+	"github.com/go-resty/resty"
+)
+// ...
+var _ = BeforeSuite(func() {
+	// block all HTTP requests
+	httpmock.ActivateNonDefault(resty.DefaultClient.GetClient())
+})
+
+var _ = BeforeEach(func() {
+	// remove any mocks
+	httpmock.Reset()
+})
+
+var _ = AfterSuite(func() {
+	httpmock.DeactivateAndReset()
+})
+
+
+// article_test.go
+
+import (
+	// ...
+	"github.com/jarcoal/httpmock"
+	"github.com/go-resty/resty"
+)
+
+var _ = Describe("Articles", func() {
+	It("returns a list of articles", func() {
+		fixture := `{"status":{"message": "Your message", "code": 200}}`
+		responder, err := httpmock.NewJsonResponder(200, fixture)
+		fakeUrl := "https://api.mybiz.com/articles.json"
+		httpmock.RegisterResponder("GET", fakeUrl, responder)
+
+		// fetch the article into struct
+		articleObject := &models.Article{}
+		_, err := resty.R().SetResult(articleObject).Get(fakeUrl)
+		
+		// do stuff with the article object ...
 	})
 })
 ```

@@ -1,16 +1,22 @@
 package httpmock
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
+	"sort"
 	"strings"
+	"sync"
 )
 
-// Responders are callbacks that receive and http request and return a mocked response.
+// Responder is a callback that receives and http request and returns
+// a mocked response.
 type Responder func(*http.Request) (*http.Response, error)
 
 // NoResponderFound is returned when no responders are found for a given HTTP method and URL.
-var NoResponderFound = errors.New("no responder found")
+var NoResponderFound = errors.New("no responder found") // nolint: golint
 
 // ConnectionFailure is a responder that returns a connection failure.  This is the default
 // responder, and is called when no other matching responder is found.
@@ -20,15 +26,21 @@ func ConnectionFailure(*http.Request) (*http.Response, error) {
 
 // NewMockTransport creates a new *MockTransport with no responders.
 func NewMockTransport() *MockTransport {
-	return &MockTransport{make(map[string]Responder), nil}
+	return &MockTransport{
+		responders:    make(map[string]Responder),
+		callCountInfo: make(map[string]int),
+	}
 }
 
 // MockTransport implements http.RoundTripper, which fulfills single http requests issued by
 // an http.Client.  This implementation doesn't actually make the call, instead deferring to
 // the registered list of responders.
 type MockTransport struct {
-	responders  map[string]Responder
-	noResponder Responder
+	mu             sync.RWMutex
+	responders     map[string]Responder
+	noResponder    Responder
+	callCountInfo  map[string]int
+	totalCallCount int
 }
 
 // RoundTrip receives HTTP requests and routes them to the appropriate responder.  It is required to
@@ -37,57 +49,283 @@ type MockTransport struct {
 func (m *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	url := req.URL.String()
 
-	// try and get a responder that matches the method and URL
-	responder := m.responderForKey(req.Method + " " + url)
-
-	// if we weren't able to find a responder and the URL contains a querystring
-	// then we strip off the querystring and try again.
-	if responder == nil && strings.Contains(url, "?") {
-		responder = m.responderForKey(req.Method + " " + strings.Split(url, "?")[0])
+	method := req.Method
+	if method == "" {
+		// http.Request.Method is documented to default to GET:
+		method = http.MethodGet
 	}
 
+	// try and get a responder that matches the method and URL with
+	// query params untouched: http://z.tld/path?q...
+	key := method + " " + url
+	responder := m.responderForKey(key)
+
+	// if we weren't able to find a responder, try with the URL *and*
+	// sorted query params
+	if responder == nil {
+		query := sortedQuery(req.URL.Query())
+		if query != "" {
+			// Replace unsorted query params by sorted ones:
+			//   http://z.tld/path?sorted_q...
+			key = method + " " + strings.Replace(url, req.URL.RawQuery, query, 1)
+			responder = m.responderForKey(key)
+		}
+	}
+
+	// if we weren't able to find a responder, try without any query params
+	if responder == nil {
+		strippedURL := *req.URL
+		strippedURL.RawQuery = ""
+		strippedURL.Fragment = ""
+
+		// go1.6 does not handle URL.ForceQuery, so in case it is set in go>1.6,
+		// remove the "?" manually if present.
+		surl := strings.TrimSuffix(strippedURL.String(), "?")
+
+		hasQueryString := url != surl
+
+		// if the URL contains a querystring then we strip off the
+		// querystring and try again: http://z.tld/path
+		if hasQueryString {
+			key = method + " " + surl
+			responder = m.responderForKey(key)
+		}
+
+		// if we weren't able to find a responder for the full URL, try with
+		// the path part only
+		if responder == nil {
+			keyPathAlone := method + " " + req.URL.Path
+
+			// First with unsorted querystring: /path?q...
+			if hasQueryString {
+				key = keyPathAlone + strings.TrimPrefix(url, surl) // concat after-path part
+				responder = m.responderForKey(key)
+
+				// Then with sorted querystring: /path?sorted_q...
+				if responder == nil {
+					key = keyPathAlone + "?" + sortedQuery(req.URL.Query())
+					if req.URL.Fragment != "" {
+						key += "#" + req.URL.Fragment
+					}
+					responder = m.responderForKey(key)
+				}
+			}
+
+			// Then using path alone: /path
+			if responder == nil {
+				key = keyPathAlone
+				responder = m.responderForKey(key)
+			}
+		}
+	}
+
+	m.mu.Lock()
+	defer m.mu.Unlock()
 	// if we found a responder, call it
 	if responder != nil {
-		return responder(req)
+		m.callCountInfo[key]++
+		m.totalCallCount++
+		return runCancelable(responder, req)
 	}
 
 	// we didn't find a responder, so fire the 'no responder' responder
 	if m.noResponder == nil {
 		return ConnectionFailure(req)
 	}
-	return m.noResponder(req)
+	m.callCountInfo["NO_RESPONDER"]++
+	m.totalCallCount++
+	return runCancelable(m.noResponder, req)
 }
 
-// do nothing with timeout
+func runCancelable(responder Responder, req *http.Request) (*http.Response, error) {
+	// TODO: replace req.Cancel by ctx
+	if req.Cancel == nil { // nolint: staticcheck
+		return responder(req)
+	}
+
+	// Set up a goroutine that translates a close(req.Cancel) into a
+	// "request canceled" error, and another one that runs the
+	// responder. Then race them: first to the result channel wins.
+
+	type result struct {
+		response *http.Response
+		err      error
+	}
+	resultch := make(chan result, 1)
+	done := make(chan struct{}, 1)
+
+	go func() {
+		select {
+		// TODO: req.Cancel replace by ctx
+		case <-req.Cancel: // nolint: staticcheck
+			resultch <- result{
+				response: nil,
+				err:      errors.New("request canceled"),
+			}
+		case <-done:
+		}
+	}()
+
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				resultch <- result{
+					response: nil,
+					err:      fmt.Errorf("panic in responder: got %q", err),
+				}
+			}
+		}()
+
+		response, err := responder(req)
+		resultch <- result{
+			response: response,
+			err:      err,
+		}
+	}()
+
+	r := <-resultch
+
+	// if a close(req.Cancel) is never coming,
+	// we'll need to unblock the first goroutine.
+	done <- struct{}{}
+
+	return r.response, r.err
+}
+
+// CancelRequest does nothing with timeout.
 func (m *MockTransport) CancelRequest(req *http.Request) {}
 
-// responderForKey returns a responder for a given key
+// responderForKey returns a responder for a given key.
 func (m *MockTransport) responderForKey(key string) Responder {
-	for k, r := range m.responders {
-		if k != key {
-			continue
-		}
-		return r
-	}
-	return nil
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+	return m.responders[key]
 }
 
-// RegisterResponder adds a new responder, associated with a given HTTP method and URL.  When a
-// request comes in that matches, the responder will be called and the response returned to the client.
+// RegisterResponder adds a new responder, associated with a given
+// HTTP method and URL (or path).
+//
+// When a request comes in that matches, the responder will be called
+// and the response returned to the client.
+//
+// If url contains query parameters, their order matters.
 func (m *MockTransport) RegisterResponder(method, url string, responder Responder) {
-	m.responders[method+" "+url] = responder
+	key := method + " " + url
+
+	m.mu.Lock()
+	m.responders[key] = responder
+	m.callCountInfo[key] = 0
+	m.mu.Unlock()
+}
+
+// RegisterResponderWithQuery is same as RegisterResponder, but it
+// doesn't depend on query items order.
+//
+// query type can be:
+//   url.Values
+//   map[string]string
+//   string, a query string like "a=12&a=13&b=z&c" (see net/url.ParseQuery function)
+//
+// If the query type is not recognized or the string cannot be parsed
+// using net/url.ParseQuery, a panic() occurs.
+func (m *MockTransport) RegisterResponderWithQuery(method, path string, query interface{}, responder Responder) {
+	var mapQuery url.Values
+	switch q := query.(type) {
+	case url.Values:
+		mapQuery = q
+
+	case map[string]string:
+		mapQuery = make(url.Values, len(q))
+		for key, e := range q {
+			mapQuery[key] = []string{e}
+		}
+
+	case string:
+		var err error
+		mapQuery, err = url.ParseQuery(q)
+		if err != nil {
+			panic("RegisterResponderWithQuery bad query string: " + err.Error())
+		}
+
+	default:
+		panic(fmt.Sprintf("RegisterResponderWithQuery bad query type %T. Only url.Values, map[string]string and string are allowed", query))
+	}
+
+	if queryString := sortedQuery(mapQuery); queryString != "" {
+		path += "?" + queryString
+	}
+	m.RegisterResponder(method, path, responder)
+}
+
+func sortedQuery(m url.Values) string {
+	if len(m) == 0 {
+		return ""
+	}
+
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	var b bytes.Buffer
+	var values []string // nolint: prealloc
+
+	for _, k := range keys {
+		// Do not alter the passed url.Values
+		values = append(values, m[k]...)
+		sort.Strings(values)
+
+		k = url.QueryEscape(k)
+
+		for _, v := range values {
+			if b.Len() > 0 {
+				b.WriteByte('&')
+			}
+			fmt.Fprintf(&b, "%v=%v", k, url.QueryEscape(v))
+		}
+
+		values = values[:0]
+	}
+
+	return b.String()
 }
 
 // RegisterNoResponder is used to register a responder that will be called if no other responder is
 // found.  The default is ConnectionFailure.
 func (m *MockTransport) RegisterNoResponder(responder Responder) {
+	m.mu.Lock()
 	m.noResponder = responder
+	m.mu.Unlock()
 }
 
 // Reset removes all registered responders (including the no responder) from the MockTransport
 func (m *MockTransport) Reset() {
+	m.mu.Lock()
 	m.responders = make(map[string]Responder)
 	m.noResponder = nil
+	m.callCountInfo = make(map[string]int)
+	m.totalCallCount = 0
+	m.mu.Unlock()
+}
+
+// GetCallCountInfo returns callCountInfo
+func (m *MockTransport) GetCallCountInfo() map[string]int {
+	res := map[string]int{}
+	m.mu.RLock()
+	for k, v := range m.callCountInfo {
+		res[k] = v
+	}
+	m.mu.RUnlock()
+	return res
+}
+
+// GetTotalCallCount returns the totalCallCount
+func (m *MockTransport) GetTotalCallCount() int {
+	m.mu.RLock()
+	count := m.totalCallCount
+	m.mu.RUnlock()
+	return count
 }
 
 // DefaultTransport is the default mock transport used by Activate, Deactivate, Reset,
@@ -147,6 +385,19 @@ func ActivateNonDefault(client *http.Client) {
 	client.Transport = DefaultTransport
 }
 
+// GetCallCountInfo gets the info on all the calls httpmock has taken since it was activated or
+// reset. The info is returned as a map of the calling keys with the number of calls made to them
+// as their value. The key is the method, a space, and the url all concatenated together.
+func GetCallCountInfo() map[string]int {
+	return DefaultTransport.GetCallCountInfo()
+}
+
+// GetTotalCallCount gets the total number of calls httpmock has taken since it was activated or
+// reset.
+func GetTotalCallCount() int {
+	return DefaultTransport.GetTotalCallCount()
+}
+
 // Deactivate shuts down the mock environment.  Any HTTP calls made after this will use a live
 // transport.
 //
@@ -181,7 +432,7 @@ func DeactivateAndReset() {
 	Reset()
 }
 
-// RegisterResponder adds a mock that will catch requests to the given HTTP method and URL, then
+// RegisterResponder adds a mock that will catch requests to the given HTTP method and URL (or path), then
 // route them to the Responder which will generate a response to be returned to the client.
 //
 // Example:
@@ -190,13 +441,81 @@ func DeactivateAndReset() {
 // 			httpmock.DeactivateAndReset()
 //
 // 			httpmock.RegisterResponder("GET", "http://example.com/",
-// 				httpmock.NewStringResponder("hello world", 200))
+// 				httpmock.NewStringResponder(200, "hello world"))
 //
-//			// requests to http://example.com/ will now return 'hello world'
+// 			httpmock.RegisterResponder("GET", "/path/only",
+// 				httpmock.NewStringResponder("any host hello world", 200))
+//
+//			// requests to http://example.com/ will now return 'hello world' and
+//			// requests to any host with path /path/only will return 'any host hello world'
 // 		}
 func RegisterResponder(method, url string, responder Responder) {
 	DefaultTransport.RegisterResponder(method, url, responder)
 }
+
+// RegisterResponderWithQuery it is same as RegisterResponder, but
+// doesn't depends on query items order.
+//
+// query type can be:
+//   url.Values
+//   map[string]string
+//   string, a query string like "a=12&a=13&b=z&c" (see net/url.ParseQuery function)
+//
+// If the query type is not recognized or the string cannot be parsed
+// using net/url.ParseQuery, a panic() occurs.
+//
+// Example using a net/url.Values:
+// 		func TestFetchArticles(t *testing.T) {
+// 			httpmock.Activate()
+// 			httpmock.DeactivateAndReset()
+//
+// 			expectedQuery := net.Values{
+//				"a": []string{"3", "1", "8"},
+//				"b": []string{"4", "2"},
+//			}
+// 			httpmock.RegisterResponderWithQueryValues("GET", "http://example.com/", expectedQuery,
+// 				httpmock.NewStringResponder("hello world", 200))
+//
+//			// requests to http://example.com?a=1&a=3&a=8&b=2&b=4
+//			//      and to http://example.com?b=4&a=2&b=2&a=8&a=1
+//			// will now return 'hello world'
+// 		}
+//
+// or using a map[string]string:
+// 		func TestFetchArticles(t *testing.T) {
+// 			httpmock.Activate()
+// 			httpmock.DeactivateAndReset()
+//
+// 			expectedQuery := map[string]string{
+//				"a": "1",
+//				"b": "2"
+//			}
+// 			httpmock.RegisterResponderWithQuery("GET", "http://example.com/", expectedQuery,
+// 				httpmock.NewStringResponder("hello world", 200))
+//
+//			// requests to http://example.com?a=1&b=2 and http://example.com?b=2&a=1 will now return 'hello world'
+// 		}
+//
+// or using a query string:
+// 		func TestFetchArticles(t *testing.T) {
+// 			httpmock.Activate()
+// 			httpmock.DeactivateAndReset()
+//
+// 			expectedQuery := "a=3&b=4&b=2&a=1&a=8"
+// 			httpmock.RegisterResponderWithQueryValues("GET", "http://example.com/", expectedQuery,
+// 				httpmock.NewStringResponder("hello world", 200))
+//
+//			// requests to http://example.com?a=1&a=3&a=8&b=2&b=4
+//			//      and to http://example.com?b=4&a=2&b=2&a=8&a=1
+//			// will now return 'hello world'
+// 		}
+func RegisterResponderWithQuery(method, path string, query interface{}, responder Responder) {
+	DefaultTransport.RegisterResponderWithQuery(method, path, query, responder)
+}
+
+// RegisterResponderWithQueryValues it is same as RegisterResponder, but doesn't depends on query objects order.
+//
+// Example:
 
 // RegisterNoResponder adds a mock that will be called whenever a request for an unregistered URL
 // is received.  The default behavior is to return a connection error.

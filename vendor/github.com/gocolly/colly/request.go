@@ -48,14 +48,17 @@ type Request struct {
 	collector *Collector
 	abort     bool
 	baseURL   *url.URL
+	// ProxyURL is the proxy address that handles the request
+	ProxyURL string
 }
 
 type serializableRequest struct {
-	URL    string
-	Method string
-	Body   []byte
-	ID     uint32
-	Ctx    map[string]interface{}
+	URL     string
+	Method  string
+	Body    []byte
+	ID      uint32
+	Ctx     map[string]interface{}
+	Headers http.Header
 }
 
 // New creates a new request with the context of the original request
@@ -143,7 +146,7 @@ func (r *Request) Retry() error {
 
 // Do submits the request
 func (r *Request) Do() error {
-	return r.collector.scrape(r.URL.String(), r.Method, r.Depth, r.Body, r.Ctx, *r.Headers, r.collector.AllowURLRevisit)
+	return r.collector.scrape(r.URL.String(), r.Method, r.Depth, r.Body, r.Ctx, *r.Headers, !r.collector.AllowURLRevisit)
 }
 
 // Marshal serializes the Request
@@ -163,11 +166,15 @@ func (r *Request) Marshal() ([]byte, error) {
 			return nil, err
 		}
 	}
-	return json.Marshal(&serializableRequest{
+	sr := &serializableRequest{
 		URL:    r.URL.String(),
 		Method: r.Method,
 		Body:   body,
 		ID:     r.ID,
 		Ctx:    ctx,
-	})
+	}
+	if r.Headers != nil {
+		sr.Headers = *r.Headers
+	}
+	return json.Marshal(sr)
 }

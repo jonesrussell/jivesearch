@@ -9,7 +9,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/instant/discography"
 	"github.com/lib/pq"
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v2"
 )
 
 func TestFetch(t *testing.T) {

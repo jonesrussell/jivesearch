@@ -8,7 +8,7 @@ import (
 
 	"github.com/lib/pq"
 	"golang.org/x/text/language"
-	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v1"
+	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v2"
 )
 
 var shaqClaimsJSON = []byte(`{

@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )
 
@@ -50,7 +52,7 @@ const def = "default"
 // Provider is a configuration provider
 type Provider interface {
 	ReadInConfig() error
-	Unmarshal(interface{}) error
+	Unmarshal(interface{}, ...viper.DecoderConfigOption) error
 }
 
 // New creates Bangs from a config file
@@ -61,8 +63,13 @@ func New(cfg Provider) (*Bangs, error) {
 		return nil, err
 	}
 
-	err := cfg.Unmarshal(&b)
+	err := cfg.Unmarshal(&b, viperStructTag())
 	return b, err
+}
+
+func viperStructTag() viper.DecoderConfigOption {
+	return func(c *mapstructure.DecoderConfig) {
+	}
 }
 
 // Suggest is an autocomplete for !bangs
