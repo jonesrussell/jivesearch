@@ -19,8 +19,8 @@ type Fetcher interface {
 type Item struct {
 	Wikipedia
 	*Wikidata
-	Wikiquote  Wikiquote
-	Wiktionary Wiktionary
+	Wikiquote  Wikiquote  `json:"wikiquote"`
+	Wiktionary Wiktionary `json:"wiktionary"`
 }
 
 // Wikipedia holds the summary text of an article
@@ -64,12 +64,6 @@ func (w *Wikipedia) UnmarshalJSON(data []byte) error {
 	}
 
 	return nil
-}
-
-// NewLanguage creates a new language.Tag from a string
-func NewLanguage(t string) (language.Tag, error) {
-	l, err := language.Parse(t)
-	return l, err
 }
 
 // Languages verifies languages based on Wikipedia's supported languages.
