@@ -109,7 +109,7 @@ func TestPostgreSQL_Fetch(t *testing.T) {
 				tt.args.row...,
 			)
 
-			mock.ExpectQuery("SELECT").WithArgs(tt.args.query, tt.args.query, tt.args.query).WillReturnRows(rows)
+			mock.ExpectQuery("SELECT").WithArgs(tt.args.query, tt.args.query).WillReturnRows(rows)
 
 			p := &PostgreSQL{
 				DB: db,
