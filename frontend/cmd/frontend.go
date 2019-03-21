@@ -270,9 +270,6 @@ func main() {
 			Key:        v.GetString("propublica.key"),
 			HTTPClient: httpClient,
 		},
-		DiscographyFetcher: &musicbrainz.PostgreSQL{
-			DB: db,
-		},
 		FedExFetcher: &parcel.FedEx{
 			HTTPClient: httpClient,
 			Account:    v.GetString("fedex.account"),
@@ -337,6 +334,11 @@ func main() {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
 
+		f.Instant.DiscographyFetcher = &musicbrainz.JiveData{
+			HTTPClient: httpClient,
+			Key:        v.GetString("jivedata.key"),
+		}
+
 		f.Instant.LocationFetcher = &location.JiveData{
 			HTTPClient: httpClient,
 			Key:        v.GetString("jivedata.key"),
@@ -352,6 +354,10 @@ func main() {
 			Key:        v.GetString("jivedata.key"),
 		}
 	default:
+		f.Instant.DiscographyFetcher = &musicbrainz.PostgreSQL{
+			DB: db,
+		}
+
 		f.Instant.LocationFetcher = &location.MaxMind{
 			DB: v.GetString("maxmind.database"),
 		}
