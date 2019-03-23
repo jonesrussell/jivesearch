@@ -8,8 +8,6 @@ import (
 	"github.com/olivere/elastic"
 )
 
-// Elasticsearch is probably overkill for this but oh, well.
-
 const bangSuggest = "bang_suggest"
 
 // ElasticSearch holds the index name and the connection
