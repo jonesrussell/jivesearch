@@ -9,8 +9,6 @@ import (
 )
 
 // Elasticsearch is probably overkill for this but oh, well.
-// For a simple radix tree in Go, use https://github.com/armon/go-radix
-// but it doesn't support a prefix match (they instead have LongestPrefix)
 
 const bangSuggest = "bang_suggest"
 

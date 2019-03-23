@@ -10,7 +10,6 @@ require (
 	github.com/antchfx/xmlquery v1.0.0 // indirect
 	github.com/antchfx/xpath v0.0.0-20190129040759-c8489ed3251e // indirect
 	github.com/argusdusty/Ferret v0.0.0-20190219174538-14de0b6c0445
-	github.com/armon/go-radix v1.0.0 // indirect
 	github.com/disintegration/imaging v1.6.0 // indirect
 	github.com/dsnet/compress v0.0.1
 	github.com/dustin/go-humanize v1.0.0
