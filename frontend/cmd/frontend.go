@@ -143,24 +143,6 @@ func main() {
 
 	f.MapBoxKey = v.GetString("mapbox.key")
 
-	// autocomplete & phrase suggestor
-	f.Suggest = &suggest.ElasticSearch{
-		Client: client,
-		Index:  v.GetString("elasticsearch.query.index"),
-		Type:   v.GetString("elasticsearch.query.type"),
-	}
-
-	exists, err := f.Suggest.IndexExists()
-	if err != nil {
-		panic(err)
-	}
-
-	if !exists {
-		if err := f.Suggest.Setup(); err != nil {
-			panic(err)
-		}
-	}
-
 	// load naughty list
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -197,7 +179,7 @@ func main() {
 		Type:   v.GetString("elasticsearch.bangs.type"),
 	}
 
-	exists, err = f.Bangs.Suggester.IndexExists()
+	exists, err := f.Bangs.Suggester.IndexExists()
 	if err != nil {
 		panic(err)
 	}
@@ -334,6 +316,8 @@ func main() {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
 
+		f.Suggest = &suggest.Simple{}
+
 		f.Instant.DiscographyFetcher = &musicbrainz.JiveData{
 			HTTPClient: httpClient,
 			Key:        v.GetString("jivedata.key"),
@@ -354,6 +338,12 @@ func main() {
 			Key:        v.GetString("jivedata.key"),
 		}
 	default:
+		f.Suggest = &suggest.ElasticSearch{
+			Client: client,
+			Index:  v.GetString("elasticsearch.query.index"),
+			Type:   v.GetString("elasticsearch.query.type"),
+		}
+
 		f.Instant.DiscographyFetcher = &musicbrainz.PostgreSQL{
 			DB: db,
 		}
@@ -384,6 +374,19 @@ func main() {
 		}
 	}
 
+	// autocomplete & phrase suggestor
+	exists, err = f.Suggest.IndexExists()
+	if err != nil {
+		panic(err)
+	}
+
+	if !exists {
+		if err := f.Suggest.Setup(); err != nil {
+			panic(err)
+		}
+	}
+
+	// wikipedia setup
 	if err := f.Instant.WikipediaFetcher.Setup(); err != nil {
 		log.Info.Println(err)
 	}
