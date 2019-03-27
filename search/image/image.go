@@ -34,8 +34,12 @@ type Fetcher interface {
 	Fetch(q string, safe bool, number int, offset int) (*Results, error)
 }
 
+// Provider is an image source
+type Provider string
+
 // Results are the image results from a query
 type Results struct {
+	Provider   Provider
 	Count      int64    `json:"count"`
 	Page       string   `json:"page"`
 	Previous   string   `json:"previous"`

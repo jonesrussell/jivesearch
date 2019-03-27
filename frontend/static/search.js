@@ -18,7 +18,7 @@ $(document).ready(function() {
   }
 
   // this is a workaround for https://github.com/jivesearch/jivesearch/issues/66
-  if ($(".document").length === 0){
+  if (($(".document").length === 0) && (getUrlParameter('t')=="")){
     $("#empty").hide();
     fetch(1, true);
 

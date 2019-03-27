@@ -20,6 +20,7 @@ import (
 	"github.com/jivesearch/jivesearch/instant/congress"
 	"github.com/jivesearch/jivesearch/instant/whois"
 	"github.com/jivesearch/jivesearch/search"
+	"github.com/jivesearch/jivesearch/search/image"
 
 	humanize "github.com/dustin/go-humanize"
 	"github.com/jivesearch/jivesearch/instant"
@@ -39,6 +40,7 @@ var funcMap = template.FuncMap{
 	"AnswerJS":             answerJS,
 	"Commafy":              commafy,
 	"HMACKey":              hmacKey,
+	"ImagesProvider":       imagesProvider,
 	"Join":                 join,
 	"JSONMarshal":          jsonMarshal,
 	"Now":                  now,
@@ -234,6 +236,20 @@ func hmacKey(u string) string {
 	}
 
 	return base64.URLEncoding.EncodeToString(h.Sum(nil))
+}
+
+func imagesProvider(p image.Provider) string {
+	var html string
+
+	switch p {
+	case image.PixabayProvider:
+		html = `<a href="https://pixabay.com/">
+			<img src="https://pixabay.com/static/img/logo.png" alt="Pixabay" style="max-width:225px;">
+		</a>`
+	default:
+
+	}
+	return html
 }
 
 // join joins items in a slice

@@ -124,23 +124,22 @@ func main() {
 		}
 	}
 
-	f.Images.Client = &http.Client{
-		Transport: &http.Transport{
-			Dial: (&nett.Dialer{
-				Resolver: &nett.CacheResolver{TTL: 10 * time.Minute},
-				IPFilter: nett.DualStack,
-			}).Dial,
-			DisableKeepAlives: true,
-		},
-		Timeout: 1 * time.Second,
-	}
-	f.Images.Fetcher = &img.ElasticSearch{
-		Client:        client,
-		Index:         v.GetString("elasticsearch.images.index"),
-		Type:          v.GetString("elasticsearch.images.type"),
-		NSFWThreshold: .80,
+	switch v.GetString("images.provider") {
+	case "pixabay":
+		f.Images.Fetcher = &img.Pixabay{
+			HTTPClient: httpClient,
+			Key:        v.GetString("pixabay.key"),
+		}
+	default:
+		f.Images.Fetcher = &img.ElasticSearch{
+			Client:        client,
+			Index:         v.GetString("elasticsearch.images.index"),
+			Type:          v.GetString("elasticsearch.images.type"),
+			NSFWThreshold: .80,
+		}
 	}
 
+	f.Images.Client = httpClient
 	f.MapBoxKey = v.GetString("mapbox.key")
 
 	// load naughty list

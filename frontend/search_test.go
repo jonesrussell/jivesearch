@@ -359,9 +359,8 @@ func TestSearchHandler(t *testing.T) {
 						T:            "images",
 					},
 					Results: Results{
-						Instant: mockInstantAnswer,
-						Images:  mockImageResults,
-						Search:  &search.Results{},
+						Images: mockImageResults,
+						Search: &search.Results{},
 					},
 				},
 			},

@@ -178,6 +178,9 @@ func SetDefaults(cfg Provider) {
 	// OpenWeatherMap API settings
 	cfg.SetDefault("openweathermap.key", "key")
 
+	// Pixabay images API
+	cfg.SetDefault("pixabay.key", "key")
+
 	// Timezone database location
 	cfg.SetDefault("timezone.database", "/usr/share/timezone/timezone") // suffix is automatically added
 
@@ -202,6 +205,10 @@ func SetDefaults(cfg Provider) {
 	// change search provider
 	cmd.Flags().String("provider", "", "choose search provider")
 	cfg.BindPFlag("search.provider", cmd.Flags().Lookup("provider"))
+
+	// change images provider
+	cmd.Flags().String("images_provider", "", "choose images provider")
+	cfg.BindPFlag("images.provider", cmd.Flags().Lookup("images_provider"))
 
 	// Jive Data
 	cfg.SetDefault("jivedata.key", "TRIAL")

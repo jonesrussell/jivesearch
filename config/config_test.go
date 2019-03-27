@@ -158,6 +158,9 @@ func TestSetDefaults(t *testing.T) {
 		// OpenWeatherMap API settings
 		{"openweathermap.key", "key"},
 
+		// Pixabay images API
+		{"pixabay.key", "key"},
+
 		// Timezone database location
 		{"timezone.database", "/usr/share/timezone/timezone"},
 

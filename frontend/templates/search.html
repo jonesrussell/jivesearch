@@ -144,17 +144,20 @@
   {{if .Images}}
   <div class="pure-u-1">
     {{range $i, $img := .Images.Images}}
-    {{if $img.Base64}}
-    {{$key := $img.ID | HMACKey}}
-    <!--
-          Using an object tag here will hide broken images.
-          https://stackoverflow.com/questions/22051573/how-to-hide-image-broken-icon-using-only-css-html-without-js/37334582
-        -->
-    <a href="/image/225x,s{{$key}}/{{$img.ID}}">
-      <object data="data:image/jpg;base64,{{$img.Base64}}" title="{{$img.Alt}}"></object>
-    </a>
+      {{if $img.Base64}}
+      {{$key := $img.ID | HMACKey}}
+      <!--
+        Using an object tag here will hide broken images.
+        https://stackoverflow.com/questions/22051573/how-to-hide-image-broken-icon-using-only-css-html-without-js/37334582
+      -->
+      <a href="/image/225x,s{{$key}}/{{$img.ID}}">
+        <object data="data:image/jpg;base64,{{$img.Base64}}" title="{{$img.Alt}}"></object>
+      </a>
+      {{end}}
     {{end}}
-    {{end}}
+    <div id="image_provider">
+      {{.Images.Provider | ImagesProvider | SafeHTML}}
+    </div>
   </div>
   {{else}}
   {{if .Search.Count}}
