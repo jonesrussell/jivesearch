@@ -475,7 +475,7 @@ func (f *Frontend) fetchImage(i *img.Image) (*img.Image, error) {
 
 	// go through image proxy to resize and cache the image
 	key := hmacKey(i.ID)
-	u := fmt.Sprintf("%v/image/225x,s%v/%v", f.Host, key, i.ID)
+	u := fmt.Sprintf("%v/image/225x,s%v/%v", f.Host, key, strings.Replace(i.ID, "://", ":/", 1))
 
 	resp, err := f.Images.Client.Get(u)
 	if err != nil {
