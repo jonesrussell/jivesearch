@@ -316,7 +316,10 @@ func (p *PostgreSQL) executeTransaction(t transaction) (err error) {
 
 	defer func() {
 		if err != nil {
-			tx.Rollback()
+			if e := tx.Rollback(); e != nil {
+				err = e
+				return
+			}
 			return
 		}
 
@@ -346,7 +349,9 @@ func (p *PostgreSQL) Dump(ft FileType, lang language.Tag, rows chan interface{})
 			name:      wikidataAliasesTable,
 			temporary: wikidataAliasesTable + "_tmp",
 		}
-		aliases.setColumns()
+		if err := aliases.setColumns(); err != nil {
+			return err
+		}
 	case WikipediaFT:
 		t.Type = wikipediaTable
 		n := strings.Replace(lang.String(), "-", "_", -1)

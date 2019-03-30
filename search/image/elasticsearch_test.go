@@ -119,7 +119,9 @@ func TestFetch(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -188,7 +190,9 @@ func TestUpsert(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -196,7 +200,9 @@ func TestUpsert(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			e.Upsert(c.img)
+			if err := e.Upsert(c.img); err != nil {
+				t.Fatal(err)
+			}
 
 			if err := e.Bulk.Flush(); err != nil {
 				t.Fatal(err)
@@ -329,7 +335,9 @@ func TestUncrawled(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -370,7 +378,9 @@ func TestSetup(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)

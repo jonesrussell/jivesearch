@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
+	github.com/FiloSottile/vendorcheck v0.0.0-20160511012517-d6d54d1b5894 // indirect
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/abursavich/nett v0.0.0-20150117192851-f31118c7aeb9
@@ -29,6 +30,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jarcoal/httpmock v1.0.0
 	github.com/kennygrant/sanitize v1.2.4 // indirect
+	github.com/kisielk/gotool v1.0.0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mailru/easyjson v0.0.0-20190312143242-1de009706dbe // indirect
 	github.com/microcosm-cc/bluemonday v1.0.2
@@ -55,10 +57,13 @@ require (
 	github.com/temoto/robotstxt v0.0.0-20180810133444-97ee4a9ee6ea
 	github.com/vmihailenco/msgpack v4.0.2+incompatible // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
+	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c // indirect
 	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067 // indirect
-	golang.org/x/net v0.0.0-20190313220215-9f648a60d977
+	golang.org/x/lint v0.0.0-20190313153728-d0100b6bd8b3 // indirect
+	golang.org/x/net v0.0.0-20190328230028-74de082e2cca
+	golang.org/x/sys v0.0.0-20190329044733-9eb1bfa1ce65 // indirect
 	golang.org/x/text v0.3.0
-	golang.org/x/tools v0.0.0-20190330163440-a68386b9fffe // indirect
+	golang.org/x/tools v0.0.0-20190330180304-aef51cc3777c // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v2 v2.0.0-20180914054222-c19298f520d0
 	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect

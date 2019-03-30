@@ -138,17 +138,25 @@ func TestFile_Parse(t *testing.T) {
 				if err != nil {
 					t.Fatal(err)
 				}
-				bz2w.Write([]byte(s))
+				if _, err := bz2w.Write([]byte(s)); err != nil {
+					t.Fatal(err)
+				}
 				bz2w.Close()
 
 			default:
 				w := gzip.NewWriter(&b)
-				w.Write([]byte(s))
+				if _, err := w.Write([]byte(s)); err != nil {
+					t.Fatal(err)
+				}
 				w.Close()
 			}
 
-			fs.MkdirAll(f.Dir, 0755)
-			afero.WriteFile(mfs, f.ABS, b.Bytes(), 0644)
+			if err := fs.MkdirAll(f.Dir, 0755); err != nil {
+				t.Fatal(err)
+			}
+			if err := afero.WriteFile(mfs, f.ABS, b.Bytes(), 0644); err != nil {
+				t.Fatal(err)
+			}
 
 			if err := f.Parse(tt.args.truncate); err != nil {
 				t.Fatal(err)

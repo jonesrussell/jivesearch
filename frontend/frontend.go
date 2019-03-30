@@ -296,8 +296,13 @@ var ParseTemplates = func() {
 			),
 	)
 
+	var err error
 	t := template.New("tmp")
-	t.Parse(`{{template "answer" .}}`)
+	t, err = t.Parse(`{{template "answer" .}}`)
+	if err != nil {
+		panic(err)
+	}
+
 	templates["answer"] = template.Must(
 		t.Funcs(funcMap).
 			ParseFiles(

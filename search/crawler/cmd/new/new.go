@@ -103,11 +103,15 @@ func main() {
 		colly.MaxBodySize(v.GetInt("crawler.max.bytes")),
 	)
 
-	c.Limit(&colly.LimitRule{
+	err = c.Limit(&colly.LimitRule{
 		DomainGlob:  "*",
 		Parallelism: v.GetInt("crawler.workers"), // Parallelism of 1 will give us only 1 worker for ALL domains...
 	},
 	)
+
+	if err != nil {
+		panic(err)
+	}
 
 	storage := &redisstorage.Storage{
 		Address: fmt.Sprintf("%v:%v", v.GetString("redis.host"), v.GetString("redis.port")),
@@ -216,7 +220,10 @@ func main() {
 	})
 
 	for _, lnk := range v.GetStringSlice("crawler.seeds") {
-		q.AddURL(lnk)
+		if err := q.AddURL(lnk); err != nil {
+			log.Debug.Println(fmt.Sprintf("%q %v", lnk, err))
+			return
+		}
 	}
 
 	go linkHandler(q, links, errs)
@@ -236,7 +243,11 @@ func main() {
 		os.Exit(1)
 	}()
 
-	q.Run(c)
+	if err := q.Run(c); err != nil {
+		log.Info.Println(err)
+		os.Exit(1)
+		return
+	}
 }
 
 func linkHandler(q *queue.Queue, links chan string, errs chan error) {

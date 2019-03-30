@@ -124,6 +124,7 @@ func TestAnswerHandler(t *testing.T) {
 			*/
 
 			if !reflect.DeepEqual(got, c.want) {
+				//fmt.Println(got.data, c.want.data)
 				t.Fatalf("got %+v; want %+v", got, c.want)
 			}
 		})

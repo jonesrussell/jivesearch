@@ -30,12 +30,12 @@ type AnswerResponse struct {
 }
 
 func (f *Frontend) answerHandler(w http.ResponseWriter, r *http.Request) *response {
-	d := f.getData(r)
+	d, err := f.getData(r)
 
 	resp := &response{
 		status:   http.StatusOK,
 		template: "jsonp",
-		err:      nil,
+		err:      err,
 	}
 
 	ic := make(chan instant.Data)

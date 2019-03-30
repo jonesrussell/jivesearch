@@ -21,7 +21,9 @@ func createMockFile(f string) error {
 	wrds := []string{"# a comment that should be skipped", "this is a bad phrase", "naughty", "really bad", "bad phrase"}
 
 	for _, wrd := range wrds {
-		io.WriteString(fh, wrd+"\n")
+		if _, err := io.WriteString(fh, wrd+"\n"); err != nil {
+			return err
+		}
 	}
 
 	fh.Close()

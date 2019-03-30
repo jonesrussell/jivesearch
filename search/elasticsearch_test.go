@@ -173,7 +173,9 @@ func TestFetch(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)

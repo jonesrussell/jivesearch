@@ -169,8 +169,11 @@ func (f *Frontend) addQuery(q string) error {
 	return f.Suggest.Increment(q)
 }
 
-func (f *Frontend) getData(r *http.Request) data {
-	r.ParseForm() // for POST requests
+func (f *Frontend) getData(r *http.Request) (data, error) {
+	err := r.ParseForm() // for POST requests
+	if err != nil {
+		return data{}, err
+	}
 
 	d := data{
 		Brand:     f.Brand,
@@ -200,7 +203,7 @@ func (f *Frontend) getData(r *http.Request) data {
 	}
 
 	if d.Context.Q == "" {
-		return d
+		return d, err
 	}
 
 	d.Context.D = strings.TrimSpace(r.FormValue("d"))
@@ -220,7 +223,6 @@ func (f *Frontend) getData(r *http.Request) data {
 	d.Context.lang, _, _ = f.Document.Matcher.Match(d.Context.Preferred...) // will use first supported tag in case of error
 	d.Context.Region = f.detectRegion(d.Context.lang, r)
 
-	var err error
 	d.Context.Page, err = strconv.Atoi(strings.TrimSpace(r.FormValue("p")))
 	if err != nil || d.Context.Page < 1 {
 		d.Context.Page = 1
@@ -232,17 +234,17 @@ func (f *Frontend) getData(r *http.Request) data {
 		d.Context.Number = 25
 	}
 
-	return d
+	return d, nil
 }
 
 func (f *Frontend) searchHandler(w http.ResponseWriter, r *http.Request) *response {
-	d := f.getData(r)
+	d, err := f.getData(r)
 
 	resp := &response{
 		status:   http.StatusOK,
 		data:     d,
 		template: "search",
-		err:      nil,
+		err:      err,
 	}
 
 	// render start page if no query

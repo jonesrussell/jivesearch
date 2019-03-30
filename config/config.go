@@ -191,53 +191,83 @@ func SetDefaults(cfg Provider) {
 	// command flags
 	cmd := cobra.Command{}
 	cmd.Flags().Int("workers", workers, "number of workers")
-	cfg.BindPFlag("crawler.workers", cmd.Flags().Lookup("workers"))
+	if err := cfg.BindPFlag("crawler.workers", cmd.Flags().Lookup("workers")); err != nil {
+		panic(err)
+	}
 	cmd.Flags().Duration("time", tme, "duration the crawler should run")
-	cfg.BindPFlag("crawler.time", cmd.Flags().Lookup("time"))
+	if err := cfg.BindPFlag("crawler.time", cmd.Flags().Lookup("time")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Int("port", port, "server port")
-	cfg.BindPFlag("frontend.port", cmd.Flags().Lookup("port"))
+	if err := cfg.BindPFlag("frontend.port", cmd.Flags().Lookup("port")); err != nil {
+		panic(err)
+	}
 
 	// control debug output
 	cmd.Flags().Bool("debug", false, "turn on debug output")
-	cfg.BindPFlag("debug", cmd.Flags().Lookup("debug"))
+	if err := cfg.BindPFlag("debug", cmd.Flags().Lookup("debug")); err != nil {
+		panic(err)
+	}
 
 	// change search provider
 	cmd.Flags().String("provider", "", "choose search provider")
-	cfg.BindPFlag("search.provider", cmd.Flags().Lookup("provider"))
+	if err := cfg.BindPFlag("search.provider", cmd.Flags().Lookup("provider")); err != nil {
+		panic(err)
+	}
 
 	// change images provider
 	cmd.Flags().String("images_provider", "", "choose images provider")
-	cfg.BindPFlag("images.provider", cmd.Flags().Lookup("images_provider"))
+	if err := cfg.BindPFlag("images.provider", cmd.Flags().Lookup("images_provider")); err != nil {
+		panic(err)
+	}
 
 	// Jive Data
 	cfg.SetDefault("jivedata.key", "TRIAL")
 	cmd.Flags().Bool("jivedata", false, "use jivedata")
-	cfg.BindPFlag("jivedata", cmd.Flags().Lookup("jivedata"))
+	if err := cfg.BindPFlag("jivedata", cmd.Flags().Lookup("jivedata")); err != nil {
+		panic(err)
+	}
 
 	// wikipedia dump file settings
 	cmd.Flags().String("dir", "", "path to save wiki dump files")
-	cfg.BindPFlag("wikipedia.dir", cmd.Flags().Lookup("dir"))
+	if err := cfg.BindPFlag("wikipedia.dir", cmd.Flags().Lookup("dir")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Bool("wikidata", true, "include wikidata")
-	cfg.BindPFlag("wikipedia.wikidata", cmd.Flags().Lookup("wikidata"))
+	if err := cfg.BindPFlag("wikipedia.wikidata", cmd.Flags().Lookup("wikidata")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Bool("wikipedia", true, "include wikipedia")
-	cfg.BindPFlag("wikipedia.wikipedia", cmd.Flags().Lookup("wikipedia"))
+	if err := cfg.BindPFlag("wikipedia.wikipedia", cmd.Flags().Lookup("wikipedia")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Bool("wikiquote", true, "include wikiquote")
-	cfg.BindPFlag("wikipedia.wikiquote", cmd.Flags().Lookup("wikiquote"))
+	if err := cfg.BindPFlag("wikipedia.wikiquote", cmd.Flags().Lookup("wikiquote")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Bool("wiktionary", true, "include wiktionary")
-	cfg.BindPFlag("wikipedia.wiktionary", cmd.Flags().Lookup("wiktionary"))
+	if err := cfg.BindPFlag("wikipedia.wiktionary", cmd.Flags().Lookup("wiktionary")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Int("truncate", truncate, "number of characters to extract from text")
-	cfg.BindPFlag("wikipedia.truncate", cmd.Flags().Lookup("truncate"))
+	if err := cfg.BindPFlag("wikipedia.truncate", cmd.Flags().Lookup("truncate")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Bool("delete", true, "delete file after parsed")
-	cfg.BindPFlag("wikipedia.delete", cmd.Flags().Lookup("delete"))
+	if err := cfg.BindPFlag("wikipedia.delete", cmd.Flags().Lookup("delete")); err != nil {
+		panic(err)
+	}
 
-	cfg.BindPFlag("wikipedia.workers", cmd.Flags().Lookup("workers"))
+	if err := cfg.BindPFlag("wikipedia.workers", cmd.Flags().Lookup("workers")); err != nil {
+		panic(err)
+	}
 
 	if err := cmd.Execute(); err != nil {
 		panic(err)

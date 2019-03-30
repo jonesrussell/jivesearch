@@ -16,15 +16,12 @@ matrix:
 install:
   - go get golang.org/x/lint/golint
   - go get honnef.co/go/tools/cmd/staticcheck 
-  - go get github.com/FiloSottile/vendorcheck
-  - go get github.com/alecthomas/gometalinter
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.15.0
 
 script:
   - go vet ./...
   - staticcheck ./...
-  - gometalinter --install
-  - gometalinter --disable-all -E vet -E gofmt -E misspell -E ineffassign -E goimports -E deadcode --tests --vendor ./...
-  - vendorcheck ./...
+  - golangci-lint run --disable=structcheck
   - go test -race ./...
   - golint -set_exit_status $(go list ./...) # exclude vendor directory
 

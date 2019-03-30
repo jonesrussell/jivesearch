@@ -350,12 +350,15 @@ func validSignature(key []byte, u *url.URL, signature string) bool {
 
 	got, err := base64.URLEncoding.DecodeString(signature)
 	if err != nil {
-		log.Debug.Printf("error base64 decoding signature %q", signature)
+		log.Debug.Printf("error base64 decoding signature %q\n", signature)
 		return false
 	}
 
 	mac := hmac.New(sha256.New, key)
-	mac.Write([]byte(u.String()))
+	if _, err := mac.Write([]byte(u.String())); err != nil {
+		log.Debug.Println(err)
+		return false
+	}
 	want := mac.Sum(nil)
 
 	return hmac.Equal(got, want)

@@ -60,7 +60,9 @@ func TestUpsert(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -68,7 +70,9 @@ func TestUpsert(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			e.Upsert(c.doc)
+			if err := e.Upsert(c.doc); err != nil {
+				t.Fatal(err)
+			}
 
 			if err := e.Bulk.Flush(); err != nil {
 				t.Fatal(err)
@@ -270,7 +274,9 @@ func TestCrawledAndCount(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}))
 
 			defer ts.Close()
