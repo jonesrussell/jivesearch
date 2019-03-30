@@ -147,7 +147,7 @@ func (f *Frontend) detectRegion(lang language.Tag, r *http.Request) language.Reg
 	return reg.Canonicalize()
 }
 
-var errIsNaughty = fmt.Errorf("Naughty word")
+var errIsNaughty = fmt.Errorf("naughty word")
 
 func (f *Frontend) addQuery(q string) error {
 	exists, err := f.Suggest.Exists(q)

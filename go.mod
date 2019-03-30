@@ -3,6 +3,7 @@ module github.com/jivesearch/jivesearch
 go 1.12
 
 require (
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/abursavich/nett v0.0.0-20150117192851-f31118c7aeb9
@@ -53,8 +54,10 @@ require (
 	golang.org/x/image v0.0.0-20190227222117-0694c2d4d067 // indirect
 	golang.org/x/net v0.0.0-20190313220215-9f648a60d977
 	golang.org/x/text v0.3.0
+	golang.org/x/tools v0.0.0-20190330163440-a68386b9fffe // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v2 v2.0.0-20180914054222-c19298f520d0
+	honnef.co/go/tools v0.0.0-20190319011948-d116c56a00f3 // indirect
 	willnorris.com/go/gifresize v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.7.0
 )
