@@ -7,6 +7,8 @@ require (
 	github.com/Knetic/govaluate v3.0.0+incompatible
 	github.com/PuerkitoBio/goquery v1.5.0
 	github.com/abursavich/nett v0.0.0-20150117192851-f31118c7aeb9
+	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/antchfx/htmlquery v1.0.0 // indirect
 	github.com/antchfx/xmlquery v1.0.0 // indirect
 	github.com/antchfx/xpath v0.0.0-20190129040759-c8489ed3251e // indirect
@@ -21,6 +23,7 @@ require (
 	github.com/gocolly/colly v1.2.0
 	github.com/gocolly/redisstorage v0.0.0-20180819125329-cc8d514304a2
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/shlex v0.0.0-20181106134648-c34317bd91bf // indirect
 	github.com/gorilla/mux v1.7.0
 	github.com/gregjones/httpcache v0.0.0-20190212212710-3befbb6ad0cc // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -32,6 +35,7 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/muesli/smartcrop v0.2.0 // indirect
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 // indirect
+	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/olivere/elastic v6.2.16+incompatible
 	github.com/openprovider/ecbrates v0.0.0-20161122034436-f3782097d0a7
 	github.com/oschwald/geoip2-golang v1.2.1
@@ -57,6 +61,7 @@ require (
 	golang.org/x/tools v0.0.0-20190330163440-a68386b9fffe // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/DATA-DOG/go-sqlmock.v2 v2.0.0-20180914054222-c19298f520d0
+	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 	honnef.co/go/tools v0.0.0-20190319011948-d116c56a00f3 // indirect
 	willnorris.com/go/gifresize v1.0.0 // indirect
 	willnorris.com/go/imageproxy v0.7.0
