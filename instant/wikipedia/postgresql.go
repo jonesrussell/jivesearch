@@ -454,7 +454,7 @@ func (t *table) setColumns() error {
 			{"labels", "jsonb", false},
 			{"aliases", "jsonb", false},
 			{"descriptions", "jsonb", false},
-			{"claims", "jsonb", false},
+			{"claims", "jsonb", true},
 		}
 	case wikipediaTable:
 		t.columns = []column{
