@@ -14,7 +14,7 @@ Jive Search is the open source search engine that doesn't track you. Search priv
 <br>
 
 <p align="center">
-   <a href="https://github.com/jivesearch/jivesearch"><img src="https://img.shields.io/badge/go-1.10.2-blue.svg"></a>
+   <a href="https://github.com/jivesearch/jivesearch"><img src="https://img.shields.io/badge/go-1.12.1-blue.svg"></a>
    <a href="https://travis-ci.org/jivesearch/jivesearch"><img src="https://travis-ci.org/jivesearch/jivesearch.svg?branch=master"></a>
   <a href="https://github.com/jivesearch/jivesearch/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-Apache-brightgreen.svg"></a>
 </p>
