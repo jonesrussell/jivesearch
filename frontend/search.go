@@ -460,6 +460,7 @@ func (f *Frontend) searchResults(d data, lang language.Tag, region language.Regi
 	sr, err := f.Search.Fetch(d.Context.Q, d.Context.F, lang, region, d.Context.Number, offset)
 	if err != nil {
 		log.Info.Println(err)
+		return &search.Results{}
 	}
 
 	sr = sr.AddPagination(d.Context.Number, d.Context.Page) // move this to javascript??? (Wouldn't be available in API....)
