@@ -47,7 +47,7 @@ vm.max_map_count=262144
 For systemd settings (replace "myuser" below and edit env variables as needed):
 ```bash
 sudo curl -o /etc/systemd/system/frontend.service 
-https://gist.githubusercontent.com/brentadamson/7b8117347909cc38384fed589a3d785d/raw/26b835df771b63349d656419848128cb13e8c29f/frontend
+https://gist.githubusercontent.com/brentadamson/7b8117347909cc38384fed589a3d785d/raw/94d25b0751767554b3f898ee492f3e03577d0e5f/frontend
 ```
 ```bash
 sudo curl -o /etc/systemd/system/images.service https://gist.githubusercontent.com/brentadamson/daafa09f8d06eb401e0eb72c2b992261/raw/357e66de29d56739ae41d61cbe227d36819e0df4/images
