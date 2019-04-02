@@ -27,7 +27,7 @@ go get -u github.com/jivesearch/jivesearch
 cd ~/go/src/github.com/jivesearch/jivesearch/frontend && go run ./cmd/frontend.go --debug=true --provider=yandex --images_provider=pixabay
 ```
 
-For production please refer to https://github.com/jivesearch/jivesearch/blob/bcf9c1e6e52cd2bc9fe7e97982509fe8288b41dc/README.md
+For production usage see https://github.com/jivesearch/jivesearch/blob/bcf9c1e6e52cd2bc9fe7e97982509fe8288b41dc/README.md
 
 <br>
 
