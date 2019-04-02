@@ -22,76 +22,12 @@ Jive Search is the open source search engine that doesn't track you. Search priv
 <br>
 
 ## 💾 Installation
-The below will build and run a Docker Compose file for Elasticsearch, OpenResty (Nginx), PostgreSQL, Redis, and a NSFW/image classification server. The OpenResty build assumes you have a domain name as well as a Let's Encrypt SSL certificate. However, in order for the nginx.conf file to dynamically load your SSL certificate you will need to create a symlink to a generic "domain" folder (replace "example.com" with your domain). For local development you can skip this step.
-
 ```bash
-$ ln -s /etc/letsencrypt/live/example.com /etc/letsencrypt/live/domain
+go get -u github.com/jivesearch/jivesearch
+cd ~/go/src/github.com/jivesearch/jivesearch/frontend && go run ./cmd/frontend.go --debug=true --provider=yandex --images_provider=pixabay
 ```
 
-Install and run
-
-```bash
-$ go get -u github.com/jivesearch/jivesearch
-$ cd $GOPATH/src/github.com/jivesearch/jivesearch/docker
-$ domain=example.com && onion=myonion.onion && data_directory=/path/to/data && sudo mkdir -p $data_directory/elasticsearch && sudo chown 1000:1000 $data_directory/elasticsearch && sudo DATA_DIRECTORY=$data_directory REDIS_PORT=6379 ES_HEAP=2g NGINX_DOMAIN=$domain ONION=$onion docker-compose build --no-cache && sudo DATA_DIRECTORY=$data_directory REDIS_PORT=6379 ES_HEAP=2g NGINX_DOMAIN=$domain ONION=$onion docker-compose up -d
-```
-
-**For local development you don't need a Let's Encrypt certificate. You can simply access http://127.0.0.1:8000 directly by running ```cd ~/go/src/github.com/jivesearch/jivesearch/frontend && go run ./cmd/frontend.go --debug=true --provider=yandex --images_provider=pixabay```** 
-
-Elasticsearch may give you an error about max virtual memory areas. In that case:
-```bash
-# Add the following to the bottom of /etc/sysctl.conf (requires restart):
-vm.max_map_count=262144
-```
-
-For systemd settings (replace "myuser" below and edit env variables as needed):
-```bash
-sudo curl -o /etc/systemd/system/frontend.service 
-https://gist.githubusercontent.com/brentadamson/7b8117347909cc38384fed589a3d785d/raw/94d25b0751767554b3f898ee492f3e03577d0e5f/frontend
-```
-```bash
-sudo curl -o /etc/systemd/system/images.service https://gist.githubusercontent.com/brentadamson/daafa09f8d06eb401e0eb72c2b992261/raw/357e66de29d56739ae41d61cbe227d36819e0df4/images
-```
-```bash
-sudo curl -o /etc/systemd/system/crawler.service https://gist.githubusercontent.com/brentadamson/0880ef548130f69c2537049a550be8e8/raw/42269dfcba6d86aba49bc56ffa7e60a9eb7ebdf3/crawler
-```
-(The crawler is only necessary if you don't use a third-party search provider like Yandex.)
-
-
-##### Wikipedia Dump File
-```bash
-$ cd $GOPATH/src/github.com/jivesearch/jivesearch/instant/wikipedia/cmd/dumper && go run dumper.go --workers=2 --dir=/path/to/dump/files --wikipedia=true --wikidata=true --wikiquote=true --wiktionary=true --truncate=400 --delete=true
-```
-##### Location Data
-Location data is not logged but is used for local weather
-
-```bash
-$ sudo add-apt-repository ppa:maxmind/ppa
-$ sudo apt update && sudo apt install geoipupdate
-$ sudo nano /usr/local/etc/GeoIP.conf
-  AccountID 0
-  LicenseKey 000000000000
-  EditionIDs GeoLite2-City GeoLite2-Country
-$ sudo crontab -e
-  56 3 * * 4 /usr/bin/geoipupdate
-```
-
-##### Timezone
-A timezone database is used to get the timezone from a lat/lon for our clock instant answer
-```bash
-$ go get -u github.com/evanoberholster/timezoneLookup
-$ go install $GOPATH/src/github.com/evanoberholster/timezoneLookup/cmd/timezone.go
-$ rm -Rf ~/timezone && mkdir ~/timezone && cd ~/timezone
-$ cd ~/timezone && wget https://github.com/evansiroky/timezone-boundary-builder/releases/download/2018i/timezones.geojson.zip
-$ cd ~/timezone && unzip ~/timezone/timezones.geojson.zip
-$ cd ~/timezone/dist && timezone -json "combined.json" -db=timezone -type=memory
-$ sudo rm -Rf /usr/share/timezone
-$ sudo mkdir /usr/share/timezone
-$ sudo mv timezone.snap.json /usr/share/timezone
-```
-
-##### MusicBrainz
-Instructions for MusicBrainz (to show the album discography instant answer) can be found [here](https://gist.github.com/brentadamson/b711d5c9c4d974d6999876004f8bc1cd).
+For production please refer to https://github.com/jivesearch/jivesearch/blob/bcf9c1e6e52cd2bc9fe7e97982509fe8288b41dc/README.md
 
 <br>
 
