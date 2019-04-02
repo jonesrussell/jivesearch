@@ -120,21 +120,24 @@ func (m *MockTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 
 	m.mu.Lock()
-	defer m.mu.Unlock()
 	// if we found a responder, call it
 	if responder != nil {
 		m.callCountInfo[key]++
 		m.totalCallCount++
-		return runCancelable(responder, req)
+	} else {
+		// we didn't find a responder, so fire the 'no responder' responder
+		if m.noResponder != nil {
+			m.callCountInfo["NO_RESPONDER"]++
+			m.totalCallCount++
+			responder = m.noResponder
+		}
 	}
+	m.mu.Unlock()
 
-	// we didn't find a responder, so fire the 'no responder' responder
-	if m.noResponder == nil {
+	if responder == nil {
 		return ConnectionFailure(req)
 	}
-	m.callCountInfo["NO_RESPONDER"]++
-	m.totalCallCount++
-	return runCancelable(m.noResponder, req)
+	return runCancelable(responder, req)
 }
 
 func runCancelable(responder Responder, req *http.Request) (*http.Response, error) {
@@ -337,8 +340,7 @@ var DefaultTransport = NewMockTransport()
 var InitialTransport = http.DefaultTransport
 
 // Used to handle custom http clients (i.e clients other than http.DefaultClient)
-var oldTransport http.RoundTripper
-var oldClient *http.Client
+var oldClients = map[*http.Client]http.RoundTripper{}
 
 // Activate starts the mock environment.  This should be called before your tests run.  Under the
 // hood this replaces the Transport on the http.DefaultClient with DefaultTransport.
@@ -380,8 +382,9 @@ func ActivateNonDefault(client *http.Client) {
 	}
 
 	// save the custom client & it's RoundTripper
-	oldTransport = client.Transport
-	oldClient = client
+	if _, ok := oldClients[client]; !ok {
+		oldClients[client] = client.Transport
+	}
 	client.Transport = DefaultTransport
 }
 
@@ -414,9 +417,10 @@ func Deactivate() {
 	}
 	http.DefaultTransport = InitialTransport
 
-	// reset the custom client to use it's original RoundTripper
-	if oldClient != nil {
+	// reset the custom clients to use their original RoundTripper
+	for oldClient, oldTransport := range oldClients {
 		oldClient.Transport = oldTransport
+		delete(oldClients, oldClient)
 	}
 }
 
