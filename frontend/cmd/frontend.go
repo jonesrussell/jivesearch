@@ -86,15 +86,8 @@ func main() {
 	v := viper.New()
 	s := setup(v)
 
-	// Set the backend for our core search results
-	client, err := elastic.NewClient(
-		elastic.SetURL(v.GetString("elasticsearch.url")),
-		elastic.SetSniff(false),
-	)
-
-	if err != nil {
-		panic(err)
-	}
+	var client *elastic.Client
+	var err error
 
 	httpClient := &http.Client{
 		Transport: &http.Transport{
@@ -117,7 +110,7 @@ func main() {
 	default:
 		f.Search = &search.ElasticSearch{
 			ElasticSearch: &document.ElasticSearch{
-				Client: client,
+				Client: esClient(v, client),
 				Index:  v.GetString("elasticsearch.search.index"),
 				Type:   v.GetString("elasticsearch.search.type"),
 			},
@@ -132,7 +125,7 @@ func main() {
 		}
 	default:
 		f.Images.Fetcher = &img.ElasticSearch{
-			Client:        client,
+			Client:        esClient(v, client),
 			Index:         v.GetString("elasticsearch.images.index"),
 			Type:          v.GetString("elasticsearch.images.type"),
 			NSFWThreshold: .80,
@@ -169,27 +162,6 @@ func main() {
 	}
 
 	if err := f.Bangs.CreateFunctions(); err != nil {
-		panic(err)
-	}
-
-	f.Bangs.Suggester = &bangs.ElasticSearch{
-		Client: client,
-		Index:  v.GetString("elasticsearch.bangs.index"),
-		Type:   v.GetString("elasticsearch.bangs.type"),
-	}
-
-	exists, err := f.Bangs.Suggester.IndexExists()
-	if err != nil {
-		panic(err)
-	}
-
-	if exists { // always want to recreate to add any changes/new !bangs
-		if err := f.Bangs.Suggester.DeleteIndex(); err != nil {
-			panic(err)
-		}
-	}
-
-	if err := f.Bangs.Suggester.Setup(f.Bangs.Bangs); err != nil {
 		panic(err)
 	}
 
@@ -314,6 +286,7 @@ func main() {
 	switch debug {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
+		f.Bangs.Suggester = &bangs.Simple{}
 
 		f.Suggest = &suggest.Simple{}
 
@@ -337,8 +310,14 @@ func main() {
 			Key:        v.GetString("jivedata.key"),
 		}
 	default:
+		f.Bangs.Suggester = &bangs.ElasticSearch{
+			Client: esClient(v, client),
+			Index:  v.GetString("elasticsearch.bangs.index"),
+			Type:   v.GetString("elasticsearch.bangs.type"),
+		}
+
 		f.Suggest = &suggest.ElasticSearch{
-			Client: client,
+			Client: esClient(v, client),
 			Index:  v.GetString("elasticsearch.query.index"),
 			Type:   v.GetString("elasticsearch.query.type"),
 		}
@@ -373,6 +352,22 @@ func main() {
 		}
 	}
 
+	// setup !bangs suggester
+	exists, err := f.Bangs.Suggester.IndexExists()
+	if err != nil {
+		panic(err)
+	}
+
+	if exists { // always want to recreate to add any changes/new !bangs
+		if err := f.Bangs.Suggester.DeleteIndex(); err != nil {
+			panic(err)
+		}
+	}
+
+	if err := f.Bangs.Suggester.Setup(f.Bangs.Bangs); err != nil {
+		panic(err)
+	}
+
 	// autocomplete & phrase suggestor
 	exists, err = f.Suggest.IndexExists()
 	if err != nil {
@@ -404,6 +399,22 @@ func main() {
 
 	log.Info.Printf("Listening at http://127.0.0.1%v", s.Addr)
 	log.Info.Fatal(s.ListenAndServe())
+}
+
+func esClient(v *viper.Viper, client *elastic.Client) *elastic.Client {
+	if client == nil {
+		var err error
+		client, err = elastic.NewClient(
+			elastic.SetURL(v.GetString("elasticsearch.url")),
+			elastic.SetSniff(false),
+		)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return client
 }
 
 func languages(cfg config.Provider) ([]language.Tag, []language.Tag) {
