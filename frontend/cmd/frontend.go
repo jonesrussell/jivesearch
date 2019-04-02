@@ -165,29 +165,6 @@ func main() {
 		panic(err)
 	}
 
-	// cache
-	rds := &cache.Redis{
-		RedisPool: &redis.Pool{
-			MaxIdle:     1,
-			MaxActive:   1,
-			IdleTimeout: 10 * time.Second,
-			Wait:        true,
-			Dial: func() (redis.Conn, error) {
-				cl, err := redis.Dial("tcp", fmt.Sprintf("%v:%v", v.GetString("redis.host"), v.GetString("redis.port")))
-				if err != nil {
-					return nil, err
-				}
-				return cl, err
-			},
-		},
-	}
-
-	defer rds.RedisPool.Close()
-
-	f.Cache.Cacher = rds
-	if err != nil {
-		panic(err)
-	}
 	f.Cache.Instant = v.GetDuration("cache.instant")
 	f.Cache.Search = v.GetDuration("cache.search")
 
@@ -286,6 +263,10 @@ func main() {
 	switch debug {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
+		f.Cache.Cacher = &cache.Simple{
+			M: make(map[string]interface{}),
+		}
+
 		f.Bangs.Suggester = &bangs.Simple{}
 
 		f.Suggest = &suggest.Simple{}
@@ -310,6 +291,27 @@ func main() {
 			Key:        v.GetString("jivedata.key"),
 		}
 	default:
+		// cache
+		rds := &cache.Redis{
+			RedisPool: &redis.Pool{
+				MaxIdle:     1,
+				MaxActive:   1,
+				IdleTimeout: 10 * time.Second,
+				Wait:        true,
+				Dial: func() (redis.Conn, error) {
+					cl, err := redis.Dial("tcp", fmt.Sprintf("%v:%v", v.GetString("redis.host"), v.GetString("redis.port")))
+					if err != nil {
+						return nil, err
+					}
+					return cl, err
+				},
+			},
+		}
+
+		defer rds.RedisPool.Close()
+
+		f.Cache.Cacher = rds
+
 		f.Bangs.Suggester = &bangs.ElasticSearch{
 			Client: esClient(v, client),
 			Index:  v.GetString("elasticsearch.bangs.index"),
