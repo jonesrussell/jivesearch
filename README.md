@@ -24,8 +24,15 @@ Jive Search is the open source search engine that doesn't track you. Search priv
 ## 💾 Installation
 ```bash
 go get -u github.com/jivesearch/jivesearch
+JIVESEARCH_YANDEX_USER="" && JIVESEARCH_YANDEX_KEY="" && JIVESEARCH_PIXABAY_KEY=""
 cd ~/go/src/github.com/jivesearch/jivesearch/frontend && go run ./cmd/frontend.go --debug=true --provider=yandex --images_provider=pixabay
 ```
+
+A Yandex user/API key can be obtained here: https://tech.yandex.com/xml/
+
+A Pixabay API key can be obtained here: https://pixabay.com/api/docs/
+
+Other API keys and settings can likewise be set via environment variables: https://github.com/jivesearch/jivesearch/blob/master/config/config.go
 
 For production usage see https://github.com/jivesearch/jivesearch/blob/bcf9c1e6e52cd2bc9fe7e97982509fe8288b41dc/README.md
 
