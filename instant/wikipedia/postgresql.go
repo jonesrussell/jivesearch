@@ -198,7 +198,6 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 				LEFT JOIN %vwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id			
 				WHERE LOWER(w.title) = LOWER($1)
-				/* A UNION seems to be faster than OR here...hold off until we optimize this more 
 				UNION
 				SELECT
 				w."id", w."title", w."text", w."outgoing_link", wq."quotes", 
@@ -209,7 +208,6 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 				LEFT JOIN wikidata_aliases wa ON w.id = wa.id		
 				WHERE LOWER(wa.alias) = LOWER($2)
 				AND wa.lang = '%v'
-				*/
 				LIMIT 1
 			) w
 			FULL OUTER JOIN (
