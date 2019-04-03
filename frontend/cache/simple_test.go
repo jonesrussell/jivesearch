@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"encoding/json"
 	"reflect"
 	"testing"
 	"time"
@@ -12,26 +11,30 @@ func TestSimpleCache(t *testing.T) {
 		key   string
 		value string
 		ttl   time.Duration
+		want  interface{}
 	}{
 		{
-			"first", "some string", 1 * time.Minute,
+			"expired", "some string", 1 * time.Minute, nil,
 		},
 		{
-			"second", "some other string", 10 * time.Minute,
+			"cached", "some other string", 10 * time.Minute, []byte(`"some other string"`),
 		},
 	} {
 		t.Run(c.key, func(t *testing.T) {
 			r := &Simple{
-				M: make(map[string]interface{}),
+				M: make(map[string]Value),
+			}
+
+			now = func() time.Time {
+				return time.Date(2018, 02, 06, 11, 0, 0, 0, time.UTC)
 			}
 
 			if err := r.Put(c.key, c.value, c.ttl); err != nil {
 				t.Fatal(err)
 			}
 
-			j, err := json.Marshal(c.value)
-			if err != nil {
-				t.Fatal(err)
+			now = func() time.Time {
+				return time.Date(2018, 02, 06, 11, 9, 0, 0, time.UTC)
 			}
 
 			got, err := r.Get(c.key)
@@ -39,8 +42,8 @@ func TestSimpleCache(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			if !reflect.DeepEqual(got, j) {
-				t.Fatalf("got %v; want: %v", got, c.value)
+			if !reflect.DeepEqual(got, c.want) {
+				t.Fatalf("got %v; want: %v", got, c.want)
 			}
 		})
 	}

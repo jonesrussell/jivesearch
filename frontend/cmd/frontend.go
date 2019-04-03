@@ -264,7 +264,7 @@ func main() {
 	case true:
 		log.Debug.SetOutput(os.Stdout)
 		f.Cache.Cacher = &cache.Simple{
-			M: make(map[string]interface{}),
+			M: make(map[string]cache.Value),
 		}
 
 		f.Bangs.Suggester = &bangs.Simple{}
