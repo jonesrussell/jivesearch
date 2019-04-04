@@ -274,6 +274,7 @@ func (w *Wikipedia) setRegex() Answerer {
 		clock, currentTime, timeIn, wTime,
 		quote, quotes,
 		define, definition,
+		"wiki", "wikipedia",
 	}
 
 	t := strings.Join(triggers, "|")
