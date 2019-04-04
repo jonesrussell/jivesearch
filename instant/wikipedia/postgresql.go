@@ -192,22 +192,23 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 			SELECT *
 			FROM (
 				SELECT 
-				w."id", w."title", w."text", w."outgoing_link", wq."quotes", 
-				wd."labels", wd."descriptions", wd."claims" 
+				w."id", w."title", w."text", w."outgoing_link", w."popularity_score",
+				wq."quotes", wd."labels", wd."descriptions", wd."claims" 
 				FROM %vwikipedia w
 				LEFT JOIN %vwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id			
 				WHERE LOWER(w.title) = LOWER($1)
 				UNION
 				SELECT
-				w."id", w."title", w."text", w."outgoing_link", wq."quotes", 
-				wd."labels", wd."descriptions", wd."claims" 
+				w."id", w."title", w."text", w."outgoing_link", w."popularity_score",
+				wq."quotes", wd."labels", wd."descriptions", wd."claims" 
 				FROM enwikipedia w
 				LEFT JOIN enwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id
 				LEFT JOIN wikidata_aliases wa ON w.id = wa.id		
 				WHERE LOWER(wa.alias) = LOWER($2)
 				AND wa.lang = '%v'
+				ORDER BY popularity_score DESC
 				LIMIT 1
 			) w
 			FULL OUTER JOIN (
@@ -226,8 +227,6 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 	`, item.Wikipedia.Language, item.Wiktionary.Language, item.Wikipedia.Language, item.Wiktionary.Language,
 		strings.Join(stmts, ", "), strings.Join(objects, " || "), strings.Join(tags, ", "),
 	)
-
-	//log.Info.Println(sql)
 
 	var definitions string
 
