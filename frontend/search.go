@@ -463,6 +463,10 @@ func (f *Frontend) searchResults(d data, lang language.Tag, region language.Regi
 		return &search.Results{}
 	}
 
+	if sr.Err != nil {
+		log.Info.Println(sr.Err)
+	}
+
 	sr = sr.AddPagination(d.Context.Number, d.Context.Page) // move this to javascript??? (Wouldn't be available in API....)
 
 	if err := f.Cache.Put(key, sr, f.Cache.Search); err != nil {

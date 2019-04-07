@@ -54,8 +54,14 @@ func (y *Yandex) Fetch(q string, filter search.Filter, lang language.Tag, region
 		return nil, err
 	}
 
+	var ye error
+	if yr.Response.Error != nil {
+		ye = fmt.Errorf("yandex API error (%v): %q", yr.Response.Error.Code, yr.Response.Error.Text)
+	}
+
 	res := &search.Results{
 		Provider: YandexProvider,
+		Err:      ye,
 	}
 
 	for _, r := range yr.Response.Results.Grouping.Group {
@@ -150,7 +156,11 @@ type Response struct {
 	} `xml:"found,omitempty" json:"found,omitempty"`
 	FoundHuman string `xml:"found-human,omitempty" json:"found-human,omitempty"`
 	Reqid      string `xml:"reqid,omitempty" json:"reqid,omitempty"`
-	Results    struct {
+	Error      *struct {
+		Text string `xml:",chardata"`
+		Code string `xml:"code,attr"`
+	} `xml:"error"`
+	Results struct {
 		Grouping struct {
 			Attrattr                 string `xml:"attr,attr"  json:",omitempty"`
 			Attrcurcateg             string `xml:"curcateg,attr"  json:",omitempty"`

@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"testing"
@@ -86,6 +87,8 @@ var YandexHendrixResponse = `<?xml version="1.0" encoding="utf-8"?>
     </response>
 </yandexsearch>`
 
+var YandexErrResponse = `<?xml version="1.0" encoding="utf-8"?><yandexsearch version="1.0"><response date="20190406T212117"><error code="33"> 90210.1.1.1 is not in this user&#x27;s list of permitted IP addresses</error><reqid>1</reqid></response></yandexsearch>`
+
 func TestYandexFetch(t *testing.T) {
 	type args struct {
 		q      string
@@ -159,6 +162,17 @@ func TestYandexFetch(t *testing.T) {
 				Documents: []*document.Document{
 					doc1, doc2,
 				},
+			},
+		},
+		{
+			name:  "error",
+			args:  args{"jimi hendrix", search.Off, language.English, language.MustParseRegion("US"), 25, 1},
+			u:     `https://yandex.com/search/xml?filter=off&groupby=attr%3Dd.mode%3Ddeep.groups-on-page%3D25.docs-in-group%3D1&key=key&l10n=en&page=0&query=jimi+hendrix&showmecaptcha=no&user=user`,
+			yresp: YandexErrResponse,
+			want: &search.Results{
+				Provider: YandexProvider,
+				Count:    0,
+				Err:      fmt.Errorf(`yandex API error (33): " 90210.1.1.1 is not in this user's list of permitted IP addresses"`),
 			},
 		},
 	} {

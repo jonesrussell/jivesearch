@@ -39,6 +39,7 @@ type Results struct {
 	Last       string               `json:"-"`
 	Pagination []string             `json:"-"`
 	Documents  []*document.Document `json:"documents"`
+	Err        error
 }
 
 // AddPagination adds pagination to the search results
