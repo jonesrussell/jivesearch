@@ -236,7 +236,10 @@
             <div class="pure-u-1" style="font-size:14px;margin-bottom:4px;">
               {{range $j, $q := $quotes}}
                 {{if le $j 2}}
-                <i style="font-size:14px;">{{$q | SafeHTML}}</i><br><br>
+                {{$qq := Truncate $q 200 true}}
+                <i style="font-size:14px;">{{$qq | SafeHTML}}</i>
+                <a href="https://{{$wikipedia.Wikipedia.Language}}.wikiquote.org/wiki/{{$wikipedia.Wikipedia.Title|WikiCanonical}}">Wikiquote</a>
+                <br><br>
                 {{end}}
               {{end}}
             </div>

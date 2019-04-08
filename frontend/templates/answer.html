@@ -715,7 +715,10 @@
     <div style="margin:15px;margin-bottom:0px;">
       {{range $i, $q := .Instant.Solution}}
       {{if le $i 3}}
-      <p><span style="font-size:14px;font-style:italic;">{{$q|SafeHTML}}</span></p>
+      <p>
+        {{$qq := Truncate $q 200 true}}
+        <span style="font-size:14px;font-style:italic;">{{$qq|SafeHTML}}</span>
+      </p>
       {{end}}
       {{end}}
     </div>
