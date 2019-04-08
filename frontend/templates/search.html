@@ -155,9 +155,22 @@
       </a>
       {{end}}
     {{end}}
+    {{if .Images.Images}}
     <div id="image_provider">
       {{.Images.Provider | ImagesProvider | SafeHTML}}
     </div>
+    {{else}}
+    <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
+    <div id="empty" class="pure-u-1 pure-u-xl-22-24">
+      {{template "did_you_mean" .}}
+      <p style="padding-top:5px;">No results for <strong>{{.Context.Q}}</strong></p>
+      <p>Suggestions:</p>
+      <ul>
+        <li>Please check your spelling.</li>
+        <li>Try a more general query.</li>
+      </ul>
+    </div>
+    {{end}}
   </div>
   {{else}}
   {{if .Search.Count}}
