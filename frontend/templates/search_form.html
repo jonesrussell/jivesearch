@@ -72,15 +72,15 @@
       <span id="next_page" class="pagination" data-page="{{if .Search.Next}}{{.Search.Next}}{{end}}" style="margin-left:35px;cursor:pointer;">Next</span>
     </div>
   </div>
-  {{if eq .Search.Provider "Yandex"}}
-  <div class="pure-u-1" style="display:table-cell;vertical-align:middle;">
-    <span class="image" style="margin-left:5px;">
-      <img src="/static/providers/yandex-for-white-background.png"/>
-      <span style="display:table-cell;font-size:16px;color:#444;">has found {{.Search.Count|Commafy}} answers</span>
-    </span>        
-  </div>
-  {{end}}
   {{if .Search.Documents}}
+    {{if eq .Search.Provider "Yandex"}}
+    <div class="pure-u-1" style="display:table-cell;vertical-align:middle;">
+      <span class="image" style="margin-left:5px;">
+        <img src="/static/providers/yandex-for-white-background.png"/>
+        <span style="display:table-cell;font-size:16px;color:#444;">has found {{.Search.Count|Commafy}} answers</span>
+      </span>        
+    </div>
+    {{end}}
   {{else}}
   <div id="empty" class="pure-u-1">
     {{template "did_you_mean" .}}
