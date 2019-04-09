@@ -304,7 +304,7 @@ func (f *Frontend) searchHandler(w http.ResponseWriter, r *http.Request) *respon
 
 	strt := time.Now() // we already have total response time in nginx...we want the breakdown
 
-	if d.Context.Page == 1 && d.Context.T == "" {
+	if d.Context.Page == 1 && (d.Context.T == "" || d.Context.T == "maps") {
 		channels++
 		ac = make(chan error)
 		go func(q string, ch chan error) {
