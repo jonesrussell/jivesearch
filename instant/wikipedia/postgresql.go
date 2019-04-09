@@ -198,6 +198,8 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 				LEFT JOIN %vwikiquote wq ON w.id = wq.id
 				LEFT JOIN wikidata wd ON w.id = wd.id			
 				WHERE LOWER(w.title) = LOWER($1)
+				/* 'the mailman' or 'shaq' works but 'queen' lags as there are MANY aliases to union */
+				/*
 				UNION
 				SELECT
 				w."id", w."title", w."text", w."outgoing_link", w."popularity_score",
@@ -208,6 +210,7 @@ func (p *PostgreSQL) Fetch(query string, lang language.Tag) ([]*Item, error) {
 				LEFT JOIN wikidata_aliases wa ON w.id = wa.id		
 				WHERE LOWER(wa.alias) = LOWER($2)
 				AND wa.lang = '%v'
+				*/
 				ORDER BY popularity_score DESC
 				LIMIT 1
 			) w
