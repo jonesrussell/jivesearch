@@ -209,7 +209,8 @@ func main() {
 		},
 		Currency: instant.Currency{
 			CryptoFetcher: &currency.CryptoCompare{
-				Client: httpClient,
+				Client:    httpClient,
+				UserAgent: v.GetString("useragent"),
 			},
 			FXFetcher: &currency.ECB{},
 		},

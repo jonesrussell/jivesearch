@@ -304,18 +304,20 @@
       // get from currency and to currency
       var from = [
         {{- $from := index $fx.History $fx.From.Short -}}
-      { { $n:= len $from -} }
-      { { range $i, $v := $from -} }
-      { "date": { { $v.DateTime.Format "2006-01-02T00:00:00Z" } }, "rate": { { $v.Rate } } } { { if eq(Add $i 1) $n -} } { {else } }, { { end -} }
-      { { end -} }
-        ];
+        {{ $n := len $from -}}
+        {{ range $i, $v := $from -}}
+          {{$a := Add $i 1}}
+          {"date": {{ $v.DateTime.Format "2006-01-02T00:00:00Z" }}, "rate": {{ $v.Rate }} } {{ if eq $a $n -}} {{else}}, {{end -}}
+        {{ end -}}
+      ];
       var to = [
         {{- $to := index $fx.History $fx.To.Short -}}
-      { { $n:= len $to -} }
-      { { range $i, $v := $to -} }
-      { "date": { { $v.DateTime.Format "2006-01-02T00:00:00Z" } }, "rate": { { $v.Rate } } } { { if eq(Add $i 1) $n -} } { {else } }, { { end -} }
-      { { end -} }
-        ];
+        {{ $n := len $to -}}
+        {{ range $i, $v := $to -}}
+          {{$a := Add $i 1}}
+          {"date": {{ $v.DateTime.Format "2006-01-02T00:00:00Z" }}, "rate": {{ $v.Rate }} } {{ if eq $a $n -}} {{else }}, {{end -}}
+        {{ end -}}
+      ];
     </script>
     {{template "source" .}}
   </div>

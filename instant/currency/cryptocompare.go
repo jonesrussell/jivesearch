@@ -15,6 +15,7 @@ var CryptoCompareProvider provider = "CryptoCompare"
 // CryptoCompare allows 8K historical requests/hr (133/minute).
 type CryptoCompare struct {
 	*http.Client
+	UserAgent string
 }
 
 // CryptoCompareResponse is the raw CryptoCompare response
@@ -112,7 +113,7 @@ func (c *CryptoCompare) buildURL(from, to Currency) (*url.URL, error) {
 	q.Add("fsym", from.Short)
 	q.Add("tsym", to.Short)
 	q.Add("limit", "90")
-	q.Add("extraParams", "")
+	q.Add("extraParams", c.UserAgent)
 	u.RawQuery = q.Encode()
 
 	return u, err
