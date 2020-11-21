@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	prefix = "jivesearch"
+	Prefix = "jivesearch"
 )
 
 // Redis implements the Cacher interface
@@ -17,7 +17,7 @@ type Redis struct {
 }
 
 func (r *Redis) prefixKey(key string) string {
-	return prefix + "::" + key // jivesearch::key
+	return Prefix + "::" + key // jivesearch::key
 }
 
 // grab connection from pool and do the redis cmd
