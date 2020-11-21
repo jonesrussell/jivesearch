@@ -7,17 +7,14 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-const (
-	Prefix = "jivesearch"
-)
-
 // Redis implements the Cacher interface
 type Redis struct {
 	RedisPool *redis.Pool
+	Prefix "jivesearch"
 }
 
 func (r *Redis) prefixKey(key string) string {
-	return Prefix + "::" + key // jivesearch::key
+	return r.Prefix + "::" + key // jivesearch::key
 }
 
 // grab connection from pool and do the redis cmd
