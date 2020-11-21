@@ -10,10 +10,13 @@ import (
 // Redis implements the Cacher interface
 type Redis struct {
 	RedisPool *redis.Pool
-	Prefix "jivesearch"
+	Prefix    string
 }
 
 func (r *Redis) prefixKey(key string) string {
+	if r.Prefix == ""{
+		r.Prefix = "jivesearch"	
+	}
 	return r.Prefix + "::" + key // jivesearch::key
 }
 
