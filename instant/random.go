@@ -1,13 +1,18 @@
 package instant
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// RandomType is an answer Type
+const RandomType Type = "random"
 
 // Random is an instant answer
 type Random struct {
@@ -16,44 +21,38 @@ type Random struct {
 
 var reRandom *regexp.Regexp
 
-func (r *Random) setQuery(req *http.Request) answerer {
-	r.Answer.setQuery(req)
+func (r *Random) setQuery(req *http.Request, qv string) Answerer {
+	r.Answer.setQuery(req, qv)
 	return r
 }
 
-func (r *Random) setUserAgent(req *http.Request) answerer {
+func (r *Random) setUserAgent(req *http.Request) Answerer {
 	return r
 }
 
-func (r *Random) setType() answerer {
-	r.Type = "random"
+func (r *Random) setLanguage(lang language.Tag) Answerer {
+	r.language = lang
 	return r
 }
 
-func (r *Random) setContributors() answerer {
-	r.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (r *Random) setType() Answerer {
+	r.Type = RandomType
 	return r
 }
 
-func (r *Random) setTriggers() answerer {
-	r.triggers = []string{
+func (r *Random) setRegex() Answerer {
+	triggers := []string{
 		"random number", "random number between",
 	}
+
+	t := strings.Join(triggers, "|")
+	r.regex = append(r.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	r.regex = append(r.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+
 	return r
 }
 
-func (r *Random) setTriggerFuncs() answerer {
-	r.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
-	return r
-}
-
-func (r *Random) setSolution() answerer {
+func (r *Random) solve(req *http.Request) Answerer {
 	matches := make(map[string]int)
 	matches["min"], matches["max"] = 1, 100 // if no range specified
 
@@ -73,34 +72,23 @@ func (r *Random) setSolution() answerer {
 		}
 	}
 
-	r.Text = strconv.Itoa(rand.Intn(matches["max"]+1-matches["min"]) + matches["min"])
+	r.Solution = strconv.Itoa(rand.Intn(matches["max"]+1-matches["min"]) + matches["min"])
 
-	return r
-}
-
-func (r *Random) setCache() answerer {
-	r.Cache = false
 	return r
 }
 
 func (r *Random) tests() []test {
-	typ := "random"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{}
 
-	solutions := func(choices []string) []Solution {
-		sol := []Solution{}
+	solutions := func(choices []string) []Data {
+		sol := []Data{}
 
 		for _, c := range choices {
 			sol = append(sol,
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         c,
-					Cache:        false,
+				Data{
+					Type:      RandomType,
+					Triggered: true,
+					Solution:  c,
 				},
 			)
 		}

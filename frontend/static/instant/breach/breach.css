@@ -1,0 +1,66 @@
+.carousel-wrap {
+    margin: 0px auto;
+    padding: 0;
+    width: 100%;
+    position: relative;
+}
+/* fix blank or flashing items on carousel */
+.owl-carousel .item {
+    position: relative;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; 
+} /* end fix */
+.owl-nav > div {
+    margin-top: -26px;
+    position: absolute;
+    top: 50%;
+}
+.owl-nav i {
+    font-size: 60px;
+    color:#333;
+    cursor: pointer;
+    background-color: #fff;
+}
+.owl-nav i:hover{
+    color: #fff;
+    background-color: #333;
+    width: 100px;
+    height: 100px;
+    outline: none;  
+}
+.owl-prev:focus,.owl-next:focus{
+    outline: none;
+}
+.owl-prev,.owl-next {
+    position: absolute;
+    top: 40%;
+    margin-top: -10px; 
+}
+.owl-nav .owl-prev {
+    left: 0px;
+}
+.owl-nav .owl-next {
+    right: 0px;
+}
+.owl-carousel .owl-item img {
+    width: auto;
+}
+.owl-dots{
+    height:0px;
+}
+.breach{
+    vertical-align: middle;
+    display:inline-block;
+    box-shadow:rgba(0,0,0,.25) 0 1px 2px 0;
+    text-align:left;
+    width:175px;
+    height:175px;
+    padding:2px 7px;
+    margin-bottom:1px;
+    margin-top:5px;
+}
+.breach_link:hover{
+    text-decoration: none;
+    cursor:pointer;
+}
+

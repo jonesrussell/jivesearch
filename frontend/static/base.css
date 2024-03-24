@@ -1,0 +1,153 @@
+.pure-g [class *= "pure-u"],
+button,
+html,
+input,
+select,
+textarea {
+    font-family: arial,sans-serif;
+    font-size: 14px;
+}
+body {
+    padding: 0 7px;
+}
+em {
+    font-style: normal;
+    font-weight: bold;
+}
+a {
+    text-decoration: none;
+    color: #1a0dab;
+}
+a:hover {
+    text-decoration: underline;
+}
+a:visited {
+    color: #609;
+}
+ul {
+    list-style-type: none;
+}
+li {
+    list-style-type: none;
+}
+#container {
+    margin-top: 100px;
+}
+
+@media screen 
+and (min-width: 80em) { /* .pure-u-xl-*, >=1280px */
+    #container {
+        margin-top: 225px;
+    }
+}
+
+#tagline {
+    font-family: 'Open Sans',sans-serif;
+    font-size: 16px;
+    color: #666;
+}
+#about_us > a{
+    font-family: 'Open Sans',sans-serif;
+    font-size: 16px;
+    color: #4285f4;
+}
+#about_us > a:hover{
+    text-decoration: underline;
+}
+#search_container {
+    height: 38px;
+    width: auto;
+    max-width: 635px;
+    padding: 10px 0 15px;
+    margin: auto;
+    width: auto;
+}
+#form {
+    height: 38px;
+    position: relative;
+    background: #fff;
+    width: 100%;
+}
+#query {
+    padding: 0 40px 0 10px;
+    box-sizing: border-box;
+    color: #333;
+    display: block;
+    height: 38px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+    background: #fff;
+    border: 1px solid #d9d9d9;
+    border-radius: 0;
+    outline: #333 none 0;
+}
+#query:focus {
+    border: 1px solid #4d90fe;
+}
+#search_submit {
+    bottom: 0;
+    right: 0;
+    background: transparent;
+    cursor: pointer;
+    display: block;
+    position: absolute;
+    white-space: pre;
+    z-index: 2;
+    align-items: flex-start;
+    background-size: 22px 22px;
+    border: 0;
+    outline: 0;
+    height: 38px;
+    width: 38px;
+    color: #4285f4;
+    font-size: 22px;
+    padding: 0;
+}
+
+.ui-autocomplete,
+.ui-autocomplete > li {
+    /* autocomplete */
+    list-style-type: none;
+    padding-left: 5px;
+    padding-bottom: 2px;
+    padding-top: 2px;
+    margin: 0;
+}
+.ui-autocomplete > li > a {
+    line-height: 22px;
+    font-style: normal;
+    color: #222;
+    cursor: default;
+}
+.ui-autocomplete {
+    cursor: default;
+    max-height: 350px;
+    font-size: 16px;
+    box-shadow: rgba(0,0,0,.25) 0 1px 3px 0;
+    background-color: #fff;
+    font-weight: bold;
+    z-index:1;
+}
+.ui-state-focus {
+    background: #f3f3f3;
+    outline: none;
+}
+.ui-helper-hidden-accessible { /* this is for accessibility purposes...we can hide it */
+    display: none;
+}
+
+/* ipad landscape add some padding */
+@media screen 
+and (min-device-width: 48.063em) /* 769px */
+and (max-device-width: 89.938em) /* 1439px */
+and (orientation: landscape) { 
+    body {
+        padding-left: 100px;
+        padding-right: 100px;
+    }
+}
+
+.instructions{
+    line-height: 1.5;
+}

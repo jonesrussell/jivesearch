@@ -2,6 +2,7 @@
 package config
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -19,11 +20,56 @@ type Provider interface {
 	GetStringSlice(key string) []string
 }
 
+var now = func() time.Time { return time.Now().UTC() }
+
 // SetDefaults configures some default values
 func SetDefaults(cfg Provider) {
 	cfg.SetTypeByDefaultValue(true)
 
 	cfg.SetDefault("hmac.secret", "")
+
+	// Brand
+	cfg.SetDefault("brand.name", "Jive Search")
+	cfg.SetDefault("brand.tagline", "A search engine that doesn't track you.")
+	cfg.SetDefault("brand.logo",
+		`<svg width="205" height="65" style="cursor:pointer;">
+			<defs>
+				<style>
+					#logo {
+						font-size: 36px;
+						font-family: 'Open Sans',sans-serif;
+						-webkit-touch-callout: none;
+						-webkit-user-select: none;
+						-khtml-user-select: none;
+						-moz-user-select: none;
+						-ms-user-select: none;
+						user-select: none;
+					}            
+				</style>
+			</defs>            
+			<g><text id="logo" x="7" y="35" fill="#000">Jive Search</text></g>
+		</svg>`)
+	cfg.SetDefault("brand.small_logo",
+		`<svg xmlns="http://www.w3.org/2000/svg" width="115px" height="48px">
+			<defs>
+				<style>
+					#logo{
+						font-size:20px;
+					}            
+				</style>
+			</defs>
+			<g>
+				<text id="logo" x="0" y="37" fill="#000">Jive Search</text>
+			</g>
+		</svg>`)
+
+	// Server
+	port := 8000
+	cfg.SetDefault("server.host", fmt.Sprintf("http://127.0.0.1:%d", port))
+
+	// Frontend Cache
+	cfg.SetDefault("cache.instant", 1*time.Second)
+	cfg.SetDefault("cache.search", 1*time.Second)
 
 	// languages are in the order of preference
 	// empty slice = all languages
@@ -35,23 +81,26 @@ func SetDefaults(cfg Provider) {
 	cfg.SetDefault("elasticsearch.url", "http://127.0.0.1:9200")
 	cfg.SetDefault("elasticsearch.search.index", "test-search")
 	cfg.SetDefault("elasticsearch.search.type", "document")
+
+	cfg.SetDefault("elasticsearch.bangs.index", "test-bangs")
+	cfg.SetDefault("elasticsearch.bangs.type", "bang")
+
+	cfg.SetDefault("elasticsearch.image.index", "test-images")
+	cfg.SetDefault("elasticsearch.image.type", "image")
+
 	cfg.SetDefault("elasticsearch.query.index", "test-queries")
 	cfg.SetDefault("elasticsearch.query.type", "query")
 
 	cfg.SetDefault("elasticsearch.robots.index", "test-robots")
 	cfg.SetDefault("elasticsearch.robots.type", "robots")
 
-	cfg.SetDefault("elasticsearch.votes.index", "test-votes")
-	cfg.SetDefault("elasticsearch.votes.type", "vote")
-
 	// PostgreSQL
 	// Note: there is a security concern if postgres password is stored in env variable
 	// but setting it as an env var w/in systemd nullifies this.
 	cfg.SetDefault("postgresql.host", "localhost")
-	cfg.SetDefault("postgresql.user", "postgres")
-	cfg.SetDefault("postgresql.password", "password")
+	cfg.SetDefault("postgresql.user", "jivesearch")
+	cfg.SetDefault("postgresql.password", "mypassword")
 	cfg.SetDefault("postgresql.database", "jivesearch")
-	cfg.SetDefault("postgresql.votes.table", "votes")
 
 	// Redis
 	cfg.SetDefault("redis.host", "")
@@ -81,8 +130,59 @@ func SetDefaults(cfg Provider) {
 	cfg.SetDefault("crawler.truncate.keywords", 25)
 	cfg.SetDefault("crawler.truncate.description", 250)
 
+	// image nsfw scoring and metadata
+	cfg.SetDefault("nsfw.host", "http://127.0.0.1:8080")
+	cfg.SetDefault("nsfw.workers", 10)
+	cfg.SetDefault("nsfw.since", now().AddDate(0, -1, 0))
+
+	// Tor
+	cfg.SetDefault("onion", "jivexx2rbi6llz37jq37n4uqff4kdipqbqd24c437c56om6uxbzhtdid.onion")
+
+	// ProPublica API
+	cfg.SetDefault("propublica.key", "my_key")
+
 	// useragent for fetching api's, images, etc.
 	cfg.SetDefault("useragent", "https://github.com/jivesearch/jivesearch")
+
+	// stackoverflow API settings
+	cfg.SetDefault("stackoverflow.key", "app key") // https://stackapps.com/apps/oauth/
+
+	// FedEx package tracking API settings
+	cfg.SetDefault("fedex.account", "account")
+	cfg.SetDefault("fedex.password", "password")
+	cfg.SetDefault("fedex.key", "key")
+	cfg.SetDefault("fedex.meter", "meter")
+
+	// Maps
+	cfg.SetDefault("mapbox.key", "key")
+
+	// MaxMind geolocation DB
+	cfg.SetDefault("maxmind.database", "/usr/share/GeoIP/GeoLite2-City.mmdb")
+
+	// Search Providers
+	cfg.SetDefault("yandex.key", "key")
+	cfg.SetDefault("yandex.user", "user")
+
+	// UPS package tracking API settings
+	cfg.SetDefault("ups.user", "user")
+	cfg.SetDefault("ups.password", "password")
+	cfg.SetDefault("ups.key", "key")
+
+	// USDA National Nutrient Database
+	cfg.SetDefault("usda.key", "DEMO_KEY")
+
+	// USPS package tracking API settings
+	cfg.SetDefault("usps.user", "user")
+	cfg.SetDefault("usps.password", "password")
+
+	// OpenWeatherMap API settings
+	cfg.SetDefault("openweathermap.key", "key")
+
+	// Pixabay images API
+	cfg.SetDefault("pixabay.key", "key")
+
+	// Timezone database location
+	cfg.SetDefault("timezone.database", "/usr/share/timezone/timezone") // suffix is automatically added
 
 	// wikipedia settings
 	truncate := 250
@@ -91,31 +191,83 @@ func SetDefaults(cfg Provider) {
 	// command flags
 	cmd := cobra.Command{}
 	cmd.Flags().Int("workers", workers, "number of workers")
-	cfg.BindPFlag("crawler.workers", cmd.Flags().Lookup("workers"))
+	if err := cfg.BindPFlag("crawler.workers", cmd.Flags().Lookup("workers")); err != nil {
+		panic(err)
+	}
 	cmd.Flags().Duration("time", tme, "duration the crawler should run")
-	cfg.BindPFlag("crawler.time", cmd.Flags().Lookup("time"))
+	if err := cfg.BindPFlag("crawler.time", cmd.Flags().Lookup("time")); err != nil {
+		panic(err)
+	}
 
-	cmd.Flags().Int("port", 8000, "server port")
-	cfg.BindPFlag("frontend.port", cmd.Flags().Lookup("port"))
+	cmd.Flags().Int("port", port, "server port")
+	if err := cfg.BindPFlag("frontend.port", cmd.Flags().Lookup("port")); err != nil {
+		panic(err)
+	}
 
 	// control debug output
 	cmd.Flags().Bool("debug", false, "turn on debug output")
-	cfg.BindPFlag("debug", cmd.Flags().Lookup("debug"))
+	if err := cfg.BindPFlag("debug", cmd.Flags().Lookup("debug")); err != nil {
+		panic(err)
+	}
+
+	// change search provider
+	cmd.Flags().String("provider", "", "choose search provider")
+	if err := cfg.BindPFlag("search.provider", cmd.Flags().Lookup("provider")); err != nil {
+		panic(err)
+	}
+
+	// change images provider
+	cmd.Flags().String("images_provider", "", "choose images provider")
+	if err := cfg.BindPFlag("images.provider", cmd.Flags().Lookup("images_provider")); err != nil {
+		panic(err)
+	}
+
+	// Jive Data
+	cfg.SetDefault("jivedata.key", "TRIAL")
+	cmd.Flags().Bool("jivedata", false, "use jivedata")
+	if err := cfg.BindPFlag("jivedata", cmd.Flags().Lookup("jivedata")); err != nil {
+		panic(err)
+	}
 
 	// wikipedia dump file settings
 	cmd.Flags().String("dir", "", "path to save wiki dump files")
-	cfg.BindPFlag("wikipedia.dir", cmd.Flags().Lookup("dir"))
+	if err := cfg.BindPFlag("wikipedia.dir", cmd.Flags().Lookup("dir")); err != nil {
+		panic(err)
+	}
 
-	cmd.Flags().Bool("data", true, "include wikidata")
-	cfg.BindPFlag("wikipedia.data", cmd.Flags().Lookup("data"))
+	cmd.Flags().Bool("wikidata", true, "include wikidata")
+	if err := cfg.BindPFlag("wikipedia.wikidata", cmd.Flags().Lookup("wikidata")); err != nil {
+		panic(err)
+	}
 
-	cmd.Flags().Bool("text", true, "include wikipedia")
-	cfg.BindPFlag("wikipedia.text", cmd.Flags().Lookup("text"))
+	cmd.Flags().Bool("wikipedia", true, "include wikipedia")
+	if err := cfg.BindPFlag("wikipedia.wikipedia", cmd.Flags().Lookup("wikipedia")); err != nil {
+		panic(err)
+	}
+
+	cmd.Flags().Bool("wikiquote", true, "include wikiquote")
+	if err := cfg.BindPFlag("wikipedia.wikiquote", cmd.Flags().Lookup("wikiquote")); err != nil {
+		panic(err)
+	}
+
+	cmd.Flags().Bool("wiktionary", true, "include wiktionary")
+	if err := cfg.BindPFlag("wikipedia.wiktionary", cmd.Flags().Lookup("wiktionary")); err != nil {
+		panic(err)
+	}
 
 	cmd.Flags().Int("truncate", truncate, "number of characters to extract from text")
-	cfg.BindPFlag("wikipedia.truncate", cmd.Flags().Lookup("truncate"))
+	if err := cfg.BindPFlag("wikipedia.truncate", cmd.Flags().Lookup("truncate")); err != nil {
+		panic(err)
+	}
 
-	cfg.BindPFlag("wikipedia.workers", cmd.Flags().Lookup("workers"))
+	cmd.Flags().Bool("delete", true, "delete file after parsed")
+	if err := cfg.BindPFlag("wikipedia.delete", cmd.Flags().Lookup("delete")); err != nil {
+		panic(err)
+	}
+
+	if err := cfg.BindPFlag("wikipedia.workers", cmd.Flags().Lookup("workers")); err != nil {
+		panic(err)
+	}
 
 	if err := cmd.Execute(); err != nil {
 		panic(err)

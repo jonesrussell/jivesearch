@@ -3,11 +3,9 @@ package search
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/jivesearch/jivesearch/search/document"
-	"github.com/jivesearch/jivesearch/search/vote"
 	"github.com/olivere/elastic"
 	"golang.org/x/text/language"
 )
@@ -28,7 +26,7 @@ type ElasticSearch struct {
 // https://www.elastic.co/guide/en/elasticsearch/guide/current/shingles.html
 // Note: "It is not useful to mix not_analyzed fields with analyzed fields in multi_match queries."
 // TODO: A better domain name method...we could use regex ('.*hendrix'), prefix query, etc.
-func (e *ElasticSearch) Fetch(q string, lang language.Tag, region language.Region, number int, offset int, votes []vote.Result) (*Results, error) {
+func (e *ElasticSearch) Fetch(q string, filter Filter, lang language.Tag, region language.Region, number int, offset int) (*Results, error) {
 	res := &Results{}
 
 	qu := elastic.NewBoolQuery().
@@ -65,30 +63,7 @@ func (e *ElasticSearch) Fetch(q string, lang language.Tag, region language.Regio
 
 	idx := e.IndexName(a)
 
-	o := e.Client.Search().Index(idx).Type(e.Type).Query(qu).From(offset).Size(number)
-
-	// sort by votes
-	if len(votes) > 0 {
-		var script string
-
-		for i, v := range votes {
-			e := "if"
-			if i > 0 {
-				e = "else if"
-			}
-
-			script += fmt.Sprintf(`%v (doc['id'].value.equals('%v')) return %d;`, e, v.URL, v.Votes)
-		}
-
-		script += fmt.Sprintf("else return 0;")
-
-		sort := elastic.NewScriptSort(
-			elastic.NewScript(script).Lang("painless"), "number",
-		).Order(false).Type("number")
-		o = o.SortBy(sort)
-	}
-
-	out, err := o.Do(context.TODO())
+	out, err := e.Client.Search().Index(idx).Type(e.Type).Query(qu).From(offset).Size(number).Do(context.TODO())
 	if err != nil {
 		return res, err
 	}

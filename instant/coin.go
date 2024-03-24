@@ -1,90 +1,77 @@
 package instant
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
+	"regexp"
+	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// CoinTossType is an answer Type
+const CoinTossType Type = "coin toss"
 
 // Coin is an instant answer
 type Coin struct {
 	Answer
 }
 
-func (c *Coin) setQuery(r *http.Request) answerer {
-	c.Answer.setQuery(r)
+func (c *Coin) setQuery(r *http.Request, qv string) Answerer {
+	c.Answer.setQuery(r, qv)
 	return c
 }
 
-func (c *Coin) setUserAgent(r *http.Request) answerer {
+func (c *Coin) setUserAgent(r *http.Request) Answerer {
 	return c
 }
 
-func (c *Coin) setType() answerer {
-	c.Type = "coin toss"
+func (c *Coin) setLanguage(lang language.Tag) Answerer {
+	c.language = lang
 	return c
 }
 
-func (c *Coin) setContributors() answerer {
-	c.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (c *Coin) setType() Answerer {
+	c.Type = CoinTossType
 	return c
 }
 
-func (c *Coin) setTriggers() answerer {
-	c.triggers = []string{
+func (c *Coin) setRegex() Answerer {
+	triggers := []string{
 		"flip a coin", "heads or tails", "coin toss",
 	}
-	return c
-}
 
-func (c *Coin) setTriggerFuncs() answerer {
-	c.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
+	t := strings.Join(triggers, "|")
+	c.regex = append(c.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s)$`, t)))
 
 	return c
 }
 
-func (c *Coin) setSolution() answerer {
+func (c *Coin) solve(r *http.Request) Answerer {
 	choices := []string{"Heads", "Tails"}
 
-	c.Text = choices[rand.Intn(2)]
+	c.Solution = choices[rand.Intn(2)]
 
-	return c
-}
-
-func (c *Coin) setCache() answerer {
-	c.Cache = false
 	return c
 }
 
 func (c *Coin) tests() []test {
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{}
 
 	for _, q := range []string{"flip a coin", "heads or tails", "Coin Toss"} {
 		tst := test{
 			query: q,
-			expected: []Solution{
-				Solution{
-					Type:         "coin toss",
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Heads",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      CoinTossType,
+					Triggered: true,
+					Solution:  "Heads",
 				},
-				Solution{
-					Type:         "coin toss",
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Tails",
-					Cache:        false,
+				{
+					Type:      CoinTossType,
+					Triggered: true,
+					Solution:  "Tails",
 				},
 			},
 		}

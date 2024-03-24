@@ -1,55 +1,54 @@
 package instant
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// ReverseType is an answer Type
+const ReverseType Type = "reverse"
 
 // Reverse is an instant answer
 type Reverse struct {
 	Answer
 }
 
-func (r *Reverse) setQuery(req *http.Request) answerer {
-	r.Answer.setQuery(req)
+func (r *Reverse) setQuery(req *http.Request, qv string) Answerer {
+	r.Answer.setQuery(req, qv)
 	return r
 }
 
-func (r *Reverse) setUserAgent(req *http.Request) answerer {
+func (r *Reverse) setUserAgent(req *http.Request) Answerer {
 	return r
 }
 
-func (r *Reverse) setType() answerer {
-	r.Type = "reverse"
+func (r *Reverse) setLanguage(lang language.Tag) Answerer {
+	r.language = lang
 	return r
 }
 
-func (r *Reverse) setContributors() answerer {
-	r.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (r *Reverse) setType() Answerer {
+	r.Type = ReverseType
 	return r
 }
 
-func (r *Reverse) setTriggers() answerer {
-	r.triggers = []string{
+func (r *Reverse) setRegex() Answerer {
+	triggers := []string{
 		"reverse",
 	}
+
+	t := strings.Join(triggers, "|")
+	r.regex = append(r.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	r.regex = append(r.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+
 	return r
 }
 
-func (r *Reverse) setTriggerFuncs() answerer {
-	r.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
-	return r
-}
-
-func (r *Reverse) setSolution() answerer {
+func (r *Reverse) solve(req *http.Request) Answerer {
 	for _, c := range []string{`"`, `'`} {
 		r.remainder = strings.TrimPrefix(r.remainder, c)
 		r.remainder = strings.TrimSuffix(r.remainder, c)
@@ -68,55 +67,40 @@ func (r *Reverse) setSolution() answerer {
 		rune[i], rune[j] = rune[j], rune[i]
 	}
 
-	r.Text = string(rune)
+	r.Solution = string(rune)
 
-	return r
-}
-
-func (r *Reverse) setCache() answerer {
-	r.Cache = true
 	return r
 }
 
 func (r *Reverse) tests() []test {
-	typ := "reverse"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
-		test{
+		{
 			query: "reverse ahh lights....ahh see 'em",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "me' ees hha....sthgil hha",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      ReverseType,
+					Triggered: true,
+					Solution:  "me' ees hha....sthgil hha",
 				},
 			},
 		},
-		test{
+		{
 			query: "reverse 私日本語は話せません",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "んせませ話は語本日私",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      ReverseType,
+					Triggered: true,
+					Solution:  "んせませ話は語本日私",
 				},
 			},
 		},
-		test{
+		{
 			query: `reverse "ahh yeah"`,
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "haey hha",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      ReverseType,
+					Triggered: true,
+					Solution:  "haey hha",
 				},
 			},
 		},

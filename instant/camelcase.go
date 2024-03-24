@@ -1,110 +1,94 @@
 package instant
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// CamelCaseType is an answer Type
+const CamelCaseType Type = "camelcase"
 
 // CamelCase is an instant answer
 type CamelCase struct {
 	Answer
 }
 
-func (c *CamelCase) setQuery(r *http.Request) answerer {
-	c.Answer.setQuery(r)
+func (c *CamelCase) setQuery(r *http.Request, qv string) Answerer {
+	c.Answer.setQuery(r, qv)
 	return c
 }
 
-func (c *CamelCase) setUserAgent(r *http.Request) answerer {
+func (c *CamelCase) setUserAgent(r *http.Request) Answerer {
 	return c
 }
 
-func (c *CamelCase) setType() answerer {
-	c.Type = "camelcase"
+func (c *CamelCase) setLanguage(lang language.Tag) Answerer {
+	c.language = lang
 	return c
 }
 
-func (c *CamelCase) setContributors() answerer {
-	c.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (c *CamelCase) setType() Answerer {
+	c.Type = CamelCaseType
 	return c
 }
 
-func (c *CamelCase) setTriggers() answerer {
-	c.triggers = []string{
+func (c *CamelCase) setRegex() Answerer {
+	triggers := []string{
 		"camelcase",
 		"camel case",
 	}
+
+	t := strings.Join(triggers, "|")
+	c.regex = append(c.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	c.regex = append(c.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+
 	return c
 }
 
-func (c *CamelCase) setTriggerFuncs() answerer {
-	c.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
-	return c
-}
-
-func (c *CamelCase) setSolution() answerer {
+func (c *CamelCase) solve(r *http.Request) Answerer {
 	titled := []string{}
 	for _, w := range strings.Fields(c.remainder) {
 		titled = append(titled, strings.Title(w))
 	}
 
-	c.Text = strings.Join(titled, "")
+	c.Solution = strings.Join(titled, "")
 
-	return c
-}
-
-func (c *CamelCase) setCache() answerer {
-	c.Cache = true
 	return c
 }
 
 func (c *CamelCase) tests() []test {
-	typ := "camelcase"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
-		test{
+		{
 			query: "camelcase metallica rocks",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "MetallicaRocks",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      CamelCaseType,
+					Triggered: true,
+					Solution:  "MetallicaRocks",
 				},
 			},
 		},
-		test{
+		{
 			query: "aliCE in chAins Is better camel case",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "AliceInChainsIsBetter",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      CamelCaseType,
+					Triggered: true,
+					Solution:  "AliceInChainsIsBetter",
 				},
 			},
 		},
-		test{
+		{
 			query: "camel case O'doyle ruLES",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "O'DoyleRules",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      CamelCaseType,
+					Triggered: true,
+					Solution:  "O'DoyleRules",
 				},
 			},
 		},

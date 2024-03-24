@@ -6,24 +6,40 @@ import (
 	"strconv"
 
 	"github.com/jivesearch/jivesearch/search/document"
-	"github.com/jivesearch/jivesearch/search/vote"
 	"golang.org/x/text/language"
 )
 
 // Fetcher outlines the methods used to retrieve the core search results
 type Fetcher interface {
-	Fetch(q string, lang language.Tag, region language.Region, number int, page int, votes []vote.Result) (*Results, error)
+	Fetch(q string, s Filter, lang language.Tag, region language.Region, number int, offset int) (*Results, error)
 }
+
+// Provider is a search provider
+type Provider string
+
+// Filter is the safe search settings
+type Filter string
+
+// Strict indicates the strongest safe search settings
+var Strict Filter = "strict"
+
+// Off indicates the weakest safe search settings
+var Off Filter = "off"
+
+// Moderate indicates a moderate safe search setting
+var Moderate Filter = "moderate"
 
 // Results are the core search results from a query
 type Results struct {
-	Count      int64                `json:"count"`
-	Page       string               `json:"page"`
-	Previous   string               `json:"previous"`
+	Provider   Provider             `json:"-"`
+	Count      int64                `json:"-"`
+	Page       string               `json:"-"`
+	Previous   string               `json:"-"`
 	Next       string               `json:"next"`
-	Last       string               `json:"last"`
+	Last       string               `json:"-"`
 	Pagination []string             `json:"-"`
-	Documents  []*document.Document `json:"links"`
+	Documents  []*document.Document `json:"documents"`
+	Err        error
 }
 
 // AddPagination adds pagination to the search results

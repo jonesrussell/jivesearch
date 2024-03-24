@@ -1,0 +1,4 @@
+*.snap.json
+*.snap.db
+*.db
+*.json

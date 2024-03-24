@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/jivesearch/jivesearch/search/document"
-	"github.com/jivesearch/jivesearch/search/vote"
 	"github.com/olivere/elastic"
 	"golang.org/x/text/language"
 )
@@ -21,11 +20,11 @@ func TestFetch(t *testing.T) {
 	for _, c := range []struct {
 		name   string
 		query  string
+		filter Filter
 		lang   language.Tag
 		region language.Region
 		number int
 		page   int
-		votes  []vote.Result
 		status int
 		resp   string
 		want
@@ -33,6 +32,7 @@ func TestFetch(t *testing.T) {
 		{
 			name:   "basic",
 			query:  "Bob Dylan",
+			filter: Moderate,
 			lang:   language.English,
 			region: language.MustParseRegion("US"),
 			number: 25,
@@ -77,14 +77,14 @@ func TestFetch(t *testing.T) {
 				&Results{
 					Count: 2,
 					Documents: []*document.Document{
-						&document.Document{
+						{
 							ID: "http://example.com/articles/is-bob-dylan-literature-1476401068",
 							Content: document.Content{
 								Title:       "Is Bob Dylan Literature? - WSJ",
 								Description: "The Nobel committee says ‘Yes’ to Bob Dylan.",
 							},
 						},
-						&document.Document{
+						{
 							ID: "http://www.example.com/book-search/author/DYLAN",
 							Content: document.Content{
 								Title:       "Dylan, Bob - example",
@@ -99,6 +99,7 @@ func TestFetch(t *testing.T) {
 		{
 			name:   "language",
 			query:  "jimi hendrix",
+			filter: Strict,
 			lang:   language.BrazilianPortuguese,
 			region: language.MustParseRegion("BR"),
 			number: 2500,
@@ -143,14 +144,14 @@ func TestFetch(t *testing.T) {
 				&Results{
 					Count: 2500,
 					Documents: []*document.Document{
-						&document.Document{
+						{
 							ID: "http://example.com.br/articles/is-bob-dylan-literature-1476401068",
 							Content: document.Content{
 								Title:       "Is Bob Dylan Literature? - WSJ",
 								Description: "The Nobel committee says ‘Yes’ to Bob Dylan.",
 							},
 						},
-						&document.Document{
+						{
 							ID: "http://www.example.com.br/book-search/author/DYLAN",
 							Content: document.Content{
 								Title:       "Dylan, Bob - example",
@@ -172,7 +173,9 @@ func TestFetch(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -180,7 +183,7 @@ func TestFetch(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			got, err := e.Fetch(c.query, c.lang, c.region, c.number, c.page, c.votes)
+			got, err := e.Fetch(c.query, c.filter, c.lang, c.region, c.number, c.page)
 			if err != c.want.err {
 				t.Fatalf("got err %q; want %q", err, c.want.err)
 			}

@@ -1,63 +1,60 @@
 package instant
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"strconv"
+	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// FrequencyType is an answer Type
+const FrequencyType Type = "frequency"
+
+var reFrequency *regexp.Regexp
 
 // Frequency is an instant answer
 type Frequency struct {
 	Answer
 }
 
-var reFrequency *regexp.Regexp
-
-func (f *Frequency) setQuery(r *http.Request) answerer {
-	f.Answer.setQuery(r)
+func (f *Frequency) setQuery(r *http.Request, qv string) Answerer {
+	f.Answer.setQuery(r, qv)
 	return f
 }
 
-func (f *Frequency) setUserAgent(r *http.Request) answerer {
+func (f *Frequency) setUserAgent(r *http.Request) Answerer {
 	return f
 }
 
-func (f *Frequency) setType() answerer {
-	f.Type = "frequency"
+func (f *Frequency) setLanguage(lang language.Tag) Answerer {
+	f.language = lang
 	return f
 }
 
-func (f *Frequency) setContributors() answerer {
-	f.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (f *Frequency) setType() Answerer {
+	f.Type = FrequencyType
 	return f
 }
 
-func (f *Frequency) setTriggers() answerer {
-	f.triggers = []string{
+func (f *Frequency) setRegex() Answerer {
+	triggers := []string{
 		"frequency of",
 	}
+
+	t := strings.Join(triggers, "|")
+	f.regex = append(f.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	f.regex = append(f.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t))) // not implemented yet
 	return f
 }
 
-func (f *Frequency) setTriggerFuncs() answerer {
-	f.triggerFuncs = []triggerFunc{
-		startsWith,
-		// endsWith, // not implemented yet
-	}
-	return f
-}
-
-func (f *Frequency) setSolution() answerer {
+func (f *Frequency) solve(r *http.Request) Answerer {
 	var char string
 	var wrd string
 
-	matches := reFrequency.FindStringSubmatch(f.query)
+	matches := reFrequency.FindStringSubmatch(f.remainder)
 	if len(matches) == 3 {
 		char = matches[1]
 		wrd = matches[2]
@@ -70,86 +67,61 @@ func (f *Frequency) setSolution() answerer {
 				cnt++
 			}
 		}
-		f.Text = strconv.Itoa(cnt)
+		f.Solution = strconv.Itoa(cnt)
 	}
 
 	return f
 }
 
-func (f *Frequency) setCache() answerer {
-	f.Cache = true
-	return f
-}
-
 func (f *Frequency) tests() []test {
-	typ := "frequency"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
-		test{
+		{
 			query: "a in abracadabra frequency of",
-			expected: []Solution{
-				Solution{},
-			},
-		},
-		test{
-			query: "frequency of",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      FrequencyType,
+					Triggered: true,
+					Solution:  "5",
 				},
 			},
 		},
-		test{
+		{
 			query: "frequency of a in abracadabra",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "5",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      FrequencyType,
+					Triggered: true,
+					Solution:  "5",
 				},
 			},
 		},
-		test{
+		{
 			query: "frequency of o in cooler",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "2",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      FrequencyType,
+					Triggered: true,
+					Solution:  "2",
 				},
 			},
 		},
-		test{
+		{
 			query: "frequency of s in jimi hendrix",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "0",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      FrequencyType,
+					Triggered: true,
+					Solution:  "0",
 				},
 			},
 		},
-		test{
+		{
 			query: "frequency of e in fred astaire",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "2",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      FrequencyType,
+					Triggered: true,
+					Solution:  "2",
 				},
 			},
 		},
@@ -160,5 +132,5 @@ func (f *Frequency) tests() []test {
 }
 
 func init() {
-	reFrequency = regexp.MustCompile(`^frequency of (.*?) in (.+)`)
+	reFrequency = regexp.MustCompile(`^(.*?) in (.+)`)
 }

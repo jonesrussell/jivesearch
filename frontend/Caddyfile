@@ -1,0 +1,18 @@
+jivesearch.com, www.jivesearch.com {
+  header / {
+    # Enable HSTS. Remember, this means ONLY secure connections will be allowed.
+    Strict-Transport-Security "max-age=31536000;"
+    # Specify our Content Security Policy (CSP): disable inline code and require HTTPS.
+    Content-Security-Policy "default-src https:"
+    # Prevent MIME-sniffing
+    X-Content-Type-Options "nosniff"
+    # Prevent rendering in a frame
+    X-Frame-Options "DENY"
+    # Turn on the cross-site filter (XSS)
+    X-XSS-Protection "1; mode=block"
+  }
+  proxy / localhost:8000 {
+    transparent
+  }
+  gzip
+}

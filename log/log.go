@@ -15,7 +15,7 @@ var (
 )
 
 func setDefaults() {
-	Info = log.New(os.Stdout, "INFO ", log.Ldate|log.Ltime|log.Llongfile)
+	Info = log.New(os.Stdout, "INFO ", log.Ldate|log.Ltime|log.Lshortfile)
 	Debug = log.New(ioutil.Discard, "DEBUG ", log.Ldate|log.Ltime|log.Llongfile)
 }
 

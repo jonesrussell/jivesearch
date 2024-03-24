@@ -126,7 +126,6 @@ func TestCompletion(t *testing.T) {
 				}
 			}`,
 			want: Results{
-				RawQuery:    `{"completion_suggest":{"text":"b","completion":{"field":"completion_suggest","size":10}}}`,
 				Suggestions: []string{"brad", "bros", "bob", "blondie", "brad pitt", "buster"},
 			},
 		},
@@ -213,7 +212,6 @@ func TestCompletion(t *testing.T) {
 				}
 			}`,
 			want: Results{
-				RawQuery:    `{"completion_suggest":{"text":"ji","completion":{"field":"completion_suggest","size":7}}}`,
 				Suggestions: []string{"jiffy", "jill", "jim", "jimi"},
 			},
 		},
@@ -227,7 +225,9 @@ func TestCompletion(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -277,7 +277,9 @@ func TestExists(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -324,7 +326,9 @@ func TestInsert(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -366,7 +370,9 @@ func TestIncrement(t *testing.T) {
 			defer ts.Close()
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -441,7 +447,9 @@ func TestSetup(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -461,5 +469,5 @@ func MockService(url string) (*ElasticSearch, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ElasticSearch{Client: client, Index: "queries", Type: "query"}, nil
+	return &ElasticSearch{Client: client, Index: "test-queries", Type: "query"}, nil
 }

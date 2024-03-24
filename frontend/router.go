@@ -17,19 +17,31 @@ func (f *Frontend) Router(cfg config.Provider) *mux.Router {
 	router.NewRoute().Name("search").Methods("GET").Path("/").Handler(
 		f.middleware(appHandler(f.searchHandler)),
 	)
+	router.NewRoute().Name("answer").Methods("GET").Path("/answer").Handler(
+		f.middleware(appHandler(f.answerHandler)),
+	)
+	router.NewRoute().Name("about").Methods("GET").Path("/about").Handler(
+		f.middleware(appHandler(f.aboutHandler)),
+	)
 	router.NewRoute().Name("autocomplete").Methods("GET").Path("/autocomplete").Handler(
 		f.middleware(appHandler(f.autocompleteHandler)),
-	)
-	router.NewRoute().Name("vote").Methods("POST").Path("/vote").Handler(
-		f.middleware(appHandler(f.voteHandler)),
 	)
 	router.NewRoute().Name("favicon").Methods("GET").Path("/favicon.ico").Handler(
 		http.FileServer(http.Dir("static")),
 	)
+	router.NewRoute().Name("opensearch").Methods("GET").Path("/opensearch.xml").Handler(
+		f.middleware(appHandler(f.openSearchHandler)),
+	)
+	router.NewRoute().Name("proxy").Methods("GET").Path("/proxy").Handler(
+		f.middleware(appHandler(f.proxyHandler)),
+	)
+	router.NewRoute().Name("proxy_header").Methods("GET").Path("/proxy_header").Handler(
+		f.middleware(appHandler(f.proxyHeaderHandler)),
+	)
 
 	// How do we exclude viewing the entire static directory of /static path?
 	router.NewRoute().Name("static").Methods("GET").PathPrefix("/static/").Handler(
-		http.StripPrefix("/static/", http.FileServer(http.Dir("static"))),
+		corsHeaders(http.StripPrefix("/static/", http.FileServer(http.Dir("static")))),
 	)
 
 	// make hmac key available to our templates
@@ -53,4 +65,13 @@ func (f *Frontend) Router(cfg config.Provider) *mux.Router {
 	*/
 
 	return router
+}
+
+// for fonticons for Wikipedia widget
+func corsHeaders(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+		h.ServeHTTP(w, r)
+	})
 }

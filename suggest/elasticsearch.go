@@ -2,7 +2,6 @@ package suggest
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/olivere/elastic"
@@ -28,20 +27,6 @@ func (e *ElasticSearch) Completion(term string, size int) (Results, error) {
 		Field(completionSuggest).
 		Size(size)
 
-	// there's gotta be a nicer way to inspect raw query than this
-	// eg we Marshal src everytime whether we need to or not
-	src, err := s.Source(true)
-	if err != nil {
-		return res, err
-	}
-
-	d, err := json.Marshal(src)
-	if err != nil {
-		return res, err
-	}
-
-	res.RawQuery = string(d)
-
 	result, err := e.Client.
 		Search().
 		Index(e.Index).
@@ -49,17 +34,19 @@ func (e *ElasticSearch) Completion(term string, size int) (Results, error) {
 		Suggester(s).
 		Do(context.TODO())
 
-	if err == nil {
-		if item, ok := result.Suggest[completionSuggest]; ok {
-			for _, sug := range item {
-				for _, opt := range sug.Options {
-					res.Suggestions = append(res.Suggestions, opt.Text)
-				}
+	if err != nil {
+		return res, err
+	}
+
+	if item, ok := result.Suggest[completionSuggest]; ok {
+		for _, sug := range item {
+			for _, opt := range sug.Options {
+				res.Suggestions = append(res.Suggestions, opt.Text)
 			}
 		}
 	}
 
-	return res, err
+	return res, nil
 }
 
 // Exists checks if a term is already in our index
@@ -105,7 +92,7 @@ func (e *ElasticSearch) Increment(term string) error {
 func (e *ElasticSearch) mapping() string {
 	return fmt.Sprintf(`{
 		"mappings": {
-			"query": {
+			"%v": {
 				"dynamic": "strict",
 				"properties": {
 					"%v": {
@@ -119,7 +106,7 @@ func (e *ElasticSearch) mapping() string {
 				}
 			}
 		}
-	}`, completionSuggest)
+	}`, e.Type, completionSuggest)
 }
 
 // Setup creates a completion index

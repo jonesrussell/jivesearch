@@ -1,28 +1,66 @@
-# httpmock [![Build Status](https://travis-ci.org/jarcoal/httpmock.png?branch=master)](https://travis-ci.org/jarcoal/httpmock)
+# httpmock [![Build Status](https://travis-ci.org/jarcoal/httpmock.png?branch=v1)](https://travis-ci.org/jarcoal/httpmock) [![Coverage Status](https://coveralls.io/repos/github/jarcoal/httpmock/badge.svg?branch=v1)](https://coveralls.io/github/jarcoal/httpmock?branch=v1) [![GoDoc](https://godoc.org/github.com/jarcoal/httpmock?status.svg)](https://godoc.org/github.com/jarcoal/httpmock) [![Version](https://img.shields.io/github/tag/jarcoal/httpmock.svg)](https://github.com/jarcoal/httpmock/releases)
 
 Easy mocking of http responses from external resources.
 
-**Update December 2016** Due to this library not receiving updates for more
-than a year, a new V1 branch has been created that is now the most current branch
-with the latest changes. The new changes are not compatible with older Go versions
-(1.5 and below) so the branch was created to prevent breaking projects out in
-the wild :-)
-
 ## Install
 
-Two versions are available:
+Currently supports Go 1.7 - 1.12.
 
-**V0**. (not maintained, not recommended) Supports Go 1.3 to 1.7. Uses the current `master`
-branch to prevent breaking existing projects using this library.
+`v1` branch has to be used instead of `master`.
 
-    go get github.com/jarcoal/httpmock
 
-**V1**. (Active, recommended) Currently supports Go 1.7 but also works with
-1.6 for now. Uses gopkg to read from `v1` branch:
+### Using go modules (aka. `go mod`)
 
-    go get gopkg.in/jarcoal/httpmock.v1
+In your go files, simply use:
+```go
+import "github.com/jarcoal/httpmock"
+```
 
-You can also use vendoring for the v1 branch if you feel so inclined.
+Then next `go mod tidy` or `go test` invocation will automatically
+populate your `go.mod` with the last httpmock release, now
+[![Version](https://img.shields.io/github/tag/jarcoal/httpmock.svg)](https://github.com/jarcoal/httpmock/releases).
+
+Note you can use `go mod vendor` to vendor your dependencies.
+
+
+### Using `$GOPATH`
+
+`v1` branch is configured as the default branch in github, so:
+```
+go get github.com/jarcoal/httpmock
+```
+
+automatically downloads the `v1` branch in `$GOPATH/src`. Then in your
+go files use:
+```go
+import "github.com/jarcoal/httpmock"
+```
+
+
+### Vendoring, using [`govendor`](https://github.com/kardianos/govendor) for example
+
+When vendoring is used, `v1` branch has to be specified. Two choices here:
+
+- preferred way:
+  ```
+  govendor fetch github.com/jarcoal/httpmock@v1
+  ```
+  then in go files:
+  ```go
+  import "github.com/jarcoal/httpmock"
+  ```
+- old way (before `v1` was set as default branch), use gopkg to read from
+  `v1` branch:
+  ```
+  govendor fetch gopkg.in/jarcoal/httpmock.v1
+  ```
+  then in go files:
+  ```go
+  import "gopkg.in/jarcoal/httpmock.v1"
+  ```
+
+
+## Usage
 
 ### Simple Example:
 ```go
@@ -32,6 +70,13 @@ func TestFetchArticles(t *testing.T) {
 
 	httpmock.RegisterResponder("GET", "https://api.mybiz.com/articles.json",
 		httpmock.NewStringResponder(200, `[{"id": 1, "name": "My Great Article"}]`))
+
+	// get count info
+	httpmock.GetTotalCallCount()
+
+	// get the amount of calls for the registered responder
+	info := httpmock.GetCallCountInfo()
+	info["GET https://api.mybiz.com/articles.json"] // number of GET calls made to https://api.mybiz.com/articles.json
 
 	// do stuff that makes a request to articles.json
 }
@@ -116,6 +161,55 @@ var _ = Describe("Articles", func() {
 			httpmock.NewStringResponder(200, `[{"id": 1, "name": "My Great Article"}]`))
 
 		// do stuff that makes a request to articles.json
+	})
+})
+```
+
+### [Ginkgo](https://onsi.github.io/ginkgo/) + [Resty](https://github.com/go-resty/resty) Example:
+```go
+// article_suite_test.go
+
+import (
+	// ...
+	"github.com/jarcoal/httpmock"
+	"github.com/go-resty/resty"
+)
+// ...
+var _ = BeforeSuite(func() {
+	// block all HTTP requests
+	httpmock.ActivateNonDefault(resty.DefaultClient.GetClient())
+})
+
+var _ = BeforeEach(func() {
+	// remove any mocks
+	httpmock.Reset()
+})
+
+var _ = AfterSuite(func() {
+	httpmock.DeactivateAndReset()
+})
+
+
+// article_test.go
+
+import (
+	// ...
+	"github.com/jarcoal/httpmock"
+	"github.com/go-resty/resty"
+)
+
+var _ = Describe("Articles", func() {
+	It("returns a list of articles", func() {
+		fixture := `{"status":{"message": "Your message", "code": 200}}`
+		responder, err := httpmock.NewJsonResponder(200, fixture)
+		fakeUrl := "https://api.mybiz.com/articles.json"
+		httpmock.RegisterResponder("GET", fakeUrl, responder)
+
+		// fetch the article into struct
+		articleObject := &models.Article{}
+		_, err := resty.R().SetResult(articleObject).Get(fakeUrl)
+
+		// do stuff with the article object ...
 	})
 })
 ```

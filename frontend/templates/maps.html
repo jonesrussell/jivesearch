@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  {{if and (ne .Instant.Type "maps") (ne .Instant.Type "wikipedia")}}
+  <!--eg if user manually changes q param while looking at a map-->
+  <body>
+    <script src="/static/jquery-1.12.2.min.js"></script>
+    <script src="/static/base.js"></script>
+    <script>
+      $(document).ready(function() {
+        params = changeParam("t", "");
+        redirect(params);
+      });
+    </script>
+  </body>
+  {{else}}
+    <head>
+      <meta charset="utf-8" />
+      <title>{{if .Context.Q}}{{.Context.Q}} - {{end}}{{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}</title>
+      <link href="/static/icons/favicon.ico" rel="shortcut icon">
+      <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+      <link href="/static/instant/maps/mapbox.css" rel="stylesheet" />
+      <link href="/static/instant/maps/mapbox_directions.css" rel="stylesheet" />
+      <style>
+        body {
+          margin: 0px;
+          padding: 0px;
+        } 
+        #container {
+          position: absolute;
+          top: 0px;
+          bottom: 0px;
+          left: 0px;
+          right: 0px;
+        }
+        #map {
+          position: absolute;
+          top: 0px;
+          bottom: 0px;
+          left: 0px;
+          right: 0px;
+        }
+        img#preview {
+          position: absolute;
+          bottom: 35px;
+          left: 10px;
+          cursor: pointer;
+        }
+      </style>
+    </head>
+    <body>
+      <div id="container">
+        <div id="map"></div>
+        <img id="preview" />
+      </div>
+      <script src="/static/instant/maps/mapbox.js"></script>
+      <script src="/static/instant/maps/mapbox_directions.js"></script>
+      <script src="/static/instant/maps/geo-viewport.js"></script>      
+      <script>
+        mapboxgl.accessToken = "{{.MapBoxKey}}";
+        var styles = ["streets-v9", "satellite-v9"];
+        var map = new mapboxgl.Map({
+          container: "map",
+          style: "mapbox://styles/mapbox/" + styles[0],
+          zoom: 10
+        });
+        
+        var directions = new MapboxDirections({
+          accessToken: mapboxgl.accessToken
+        });
+        map.addControl(directions, 'top-left');
+      
+        {{if eq .Instant.Type "maps"}}
+          if ({{.Instant.Solution.Directions}}){ // so it shows the path
+            directions.setOrigin({{.Instant.Solution.Origin}});
+            directions.setDestination({{.Instant.Solution.Destination}});
+          } else {
+            map.setCenter([{{.Instant.Solution.Longitude}}, {{.Instant.Solution.Latitude}}]);
+          }
+        {{else if eq .Instant.Type "wikipedia"}}
+          {{$preferred := .Context.Preferred}}
+          {{$wikipedias := .Instant|WikipediaItem}}
+          {{range $i, $wikipedia := $wikipedias}}
+            {{if $wikipedia.Claims.Coordinate}}
+              {{$labels := $wikipedia.Labels}}
+              {{$coordinate := index $wikipedia.Claims.Coordinate 0}}
+              directions.setDestination({{WikiLabel $labels $preferred}});
+              map.setCenter([{{index $coordinate.Longitude 0}}, {{index $coordinate.Latitude 0}}]);
+            {{else}}
+              $(document).ready(function() {
+                params = changeParam("t", "");
+                redirect(params);
+              });
+          {{end}}
+          {{end}}
+        {{end}}
+
+        var previewUpdate;
+        map.on("render", function() {
+          clearTimeout(previewUpdate)
+          previewUpdate = setTimeout(setMapPreview, 100)
+        });
+
+        document.getElementById("preview").addEventListener("click", function () {
+          styles.push(styles.shift())
+          map.setStyle("mapbox://styles/mapbox/" + styles[0])
+        })
+
+        function setMapPreview() {
+          var bounds = map.getBounds().toArray();
+            bounds = [bounds[0][0], bounds[0][1], bounds[1][0], bounds[1][1]];
+          var size = [125, 125];
+          var vp = geoViewport.viewport(bounds, size, 0, 24, 512);
+
+          document.getElementById("preview").src =
+            "https://api.mapbox.com/styles/v1/mapbox/" + styles[1] + "/static/" +
+            vp.center.join(",") + "," + vp.zoom + "," + map.getBearing() + "," + map.getPitch() + "/" +
+            size.join("x") + "?" + "attribution=false&logo=false&access_token=" + mapboxgl.accessToken;
+        }
+      </script>
+    </body>
+  {{end}}
+</html>

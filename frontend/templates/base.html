@@ -1,10 +1,11 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>{{if .Context.Q}}{{.Context.Q}} - {{end}}Jive Search</title>
+    <title>{{template "title" .}}</title>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta name="referrer" content="origin"><!--Don't send search query when clicking on a link-->
-    <meta name="description" content="The little search engine that could">
+    <meta name="description" content="{{.Brand.TagLine}}">
+    <meta name="google" content="notranslate" />
     <link href="/static/icons/favicon.ico" rel="shortcut icon">
     <link rel="stylesheet" href="/static/pure-min.css">
     {{"<!--[if lte IE 8]>" | SafeHTML}}
@@ -15,6 +16,10 @@
     {{"<!--<![endif]-->" | SafeHTML}}
     <link rel="stylesheet" href="/static/fonts/css/fonts.css">
     <link rel="stylesheet" href="/static/fontello/css/fontello.css">
+    <link rel="stylesheet" href="/static/base.css">
+    {{template "css" .}}
+    <!--Themes overwrite ALL css-->
+    {{if eq .Context.Theme ""}}{{else}}<link rel="stylesheet" href="/static/themes/{{.Context.Theme}}.css">{{end}}
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!--https://developer.apple.com/library/content/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html-->
@@ -22,15 +27,62 @@
     <link rel="apple-touch-icon" sizes="152x152" href="/static/icons/152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/167x167.png">
     <link rel="apple-touch-icon" sizes="167x167" href="/static/icons/180x180.png">
-
-    <style>
-      {{template "css" .}}
-    </style>
+    {{if eq .Context.Q ""}}
+    <!--OpenSearch....for setting default search engine in Chrome, Firefox, etc-->
+    <link rel="search" title="{{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}" type="application/opensearchdescription+xml" href="/opensearch.xml" />
+    {{end}}
   </head>
   <body>
     {{template "content" .}}
+    <script>
+    {{if .Brand.Name}}var brand="{{.Brand.Name}}"{{else}}var brand="Jive Search"{{end}}
+    </script>
     <script src="/static/jquery-1.12.2.min.js"></script>
     <script src="/static/jqueryui-1.11.4.min.js"></script>
-    <script src="/static/main.js"></script>
+    <script src="/static/base.js"></script>
+    {{template "javascript" .}}
   </body>
 </html>
+
+{{define "instructions"}}
+<div class="pure-u-1">
+  <button id="add_to_browser" class="pure-button pure-button-primary" style="font-size:18px;border-radius:4px;text-shadow:0 1px 1px rgba(0, 0, 0, 0.2);cursor:pointer;">
+    <span>Protect your privacy!</span>
+    <span id="add_me"></span>
+  </button>
+</div>
+<div id="instructions" class="pure-u-6-24" style="text-align:left;font-size:16px;padding:15px;box-shadow:rgba(0,0,0,.25) 0 1px 2px 0;display:none;">
+  <div id="chrome_instructions" style="display:none;">
+    <div class="instructions">1. Right click on the address bar.</div>
+    <div class="instructions">2. Select <em>Edit search engines...</em> in the dropdown menu.</div>
+    <div class="instructions">3. Click on the three-dot menu next to "{{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}".</div>
+    <div class="instructions">4. Click <em>Make default</em>.</div>
+  </div>
+  <div id="edge_instructions" style="display:none;">
+    <div class="instructions">1. Click the <em>...</em> icon in the top right.</div>
+    <div class="instructions">2. Select <em>Settings</em> at the bottom.</div>
+    <div class="instructions">3. Select <em>View advanced settings</em> towards the bottom.</div>
+    <div class="instructions">4. Select <em>Change search engine.</em></div>
+    <div class="instructions">3. Find "{{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}" and click <em>Set as default</em>.</div>
+  </div>
+  <div id="firefox_instructions" style="display:none;">
+    <!--Add-on instructions-->
+    <!--
+    <div class="instructions">1. <span id="load_ff_addon" style="cursor:pointer;text-decoration:underline;"><em>Click here</em></span> to add the {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} add-on to Firefox.</div>
+    <div class="instructions">2. Click <em>Allow,</em> then <em>Add.</em></div>
+    -->
+    <div class="instructions">1. <span id="load_ff_addon" style="cursor:pointer;text-decoration:underline;"><em>Click here</em></span> to add {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} to your list of search engines.</div>
+    <div class="instructions">2. Check the box in the pop-up then click <em>Add.</em></div>
+  </div>
+  <div id="safari_instructions" style="display:none;">
+    <div class="instructions">1. Install the <a href="https://safari-extensions.apple.com/details/?id=com.matt-swain.anysearch-6M853ET88Q">AnySearch extension</a>.</div>
+    <div class="instructions">2. In Safari select <em>Safari > Preferences > Extensions > AnySearch</em></div>
+    <div class="instructions">3. Select <em>Custom</em> in the dropdown and type in "{{if .Brand.Host}}{{.Brand.Host}}{{else}}https://jivesearch.com/{{end}}?d=true&q=@@@"</div>
+  </div>
+  <div id="vivaldi_instructions" style="display:none;">
+    <div class="instructions">1. Right click on the {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} search field.</div>
+    <div class="instructions">2. Select <em>Add as Search Engine...</em> in the dropdown menu.</div>
+    <div class="instructions">3. Check <em>Set as Default Search</em> then click <em>Add</em>.</div>
+  </div>
+</div>
+{{end}}

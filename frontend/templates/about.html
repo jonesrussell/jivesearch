@@ -1,0 +1,147 @@
+{{define "title"}}About {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="/static/search.css">
+<style>
+  img{
+    box-sizing:border-box;
+    border: 0px;
+    border-radius:3px;
+  }
+  .social_media{
+    font-size:16px;
+    color:#111;
+    padding-top:10px;
+  }
+  .social_media:hover {
+    text-decoration: underline;
+  }
+  /* Github corner */
+  .github-corner:hover .octo-arm {
+    animation: octocat-wave 560ms ease-in-out;
+  }
+  @keyframes octocat-wave {
+    0%, 100% {
+      transform: rotate(0);
+    }
+    20%, 60% {
+      transform: rotate(-25deg);
+    }
+    40%, 80% {
+      transform: rotate(10deg);
+    }
+  }
+  @media (max-width:500px) {
+    .github-corner:hover .octo-arm {
+      animation: none;
+    }
+    .github-corner .octo-arm {
+      animation: octocat-wave 560ms ease-in-out;
+    }
+  }
+</style>
+{{end}}
+
+{{define "javascript"}}
+<script>
+$(document).ready(function() {
+  $("#instructions").removeClass("pure-u-6-24").addClass("pure-u-16-24");
+});
+</script>
+
+<!--Github stars button-->
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+{{end}}
+
+{{define "content"}}
+<div id="container" class="pure-g">
+  <a href="https://github.com/jivesearch/jivesearch" class="github-corner" aria-label="View source on Github">
+    <svg width="80" height="80" viewBox="0 0 250 250" style="fill:#70B7FD; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true">
+      <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+      <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+      <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path>
+    </svg>
+  </a>
+  <div class="pure-u-1 pure-u-xl-2-24 spacer" style="text-align:center;">
+    <a href="/">{{template "small_logo" .}}</a>
+  </div>
+  <div class="pure-u-1 pure-u-xl-22-24">
+  {{template "search_form" .}}
+  </div>
+  <div class="pure-u-1 pure-u-xl-2-24 spacer"></div>
+  <div id="about" class="pure-u-1 pure-u-xl-22-24" style="max-width:635px;">
+    <div class="pure-u-1" >
+      <div class="pure-u-19-24">
+        <h1>About {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}</h1>
+      </div>
+      <div class="pure-u-5-24" style="float:right;">
+        <h1>
+          <a href="https://twitter.com/JiveSearch" style="text-decoration:none !important;">
+            <i class="icon-twitter" aria-hidden="true" style="color:#1DA1F2;text-shadow:1px 1px 1px #ccc;font-size:26px;"></i>
+            <span class="social_media">Contact Us</span>
+          </a>
+        </h1>
+      </div>
+    </div>
+    <h2>How we protect your privacy</h2>
+    <div class="pure-u-1" style="font-size:18px; text-align:justify; text-justify:inter-word;">
+      {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} is a search engine that doesn't track you. We don't 
+      store your personal information; that means we don't store your search terms, ip address nor information about your browser. <em>Your 
+      search queries are your business and only your business!</em> Unlike other search engines, we don't pass your search term to the  
+      links you click on and we don't follow you around the web with targeted ads. Because of this, you can break 
+      out of the filter bubble and get the search results you need, and not the search results someone else wants you to see.
+      <h4 style="color:#333;">Open Source means greater privacy!</h4>
+      {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} is 100% open source, meaning you can view our code and even run it yourself. 
+      Any search engine can claim they don't track their users, but how do you really know? Our commitment to open source sets us apart from 
+      other major search engines. <em>If your current search engine is not open source, ask yourself, "What are they hiding?".</em>
+      <h4 style="color:#333;">{{.Brand.Name}} is available on Tor!</h4>
+      We are committed to protecting your privacy and have made our service <a href="http://{{.Onion}}">available on the Tor network</a>. 
+      Please note that you will need to use the <a href="https://www.torproject.org/projects/torbrowser.html.en" target="_blank">Tor Browser</a> to 
+      access our .onion address.
+    </div>
+    <h2>!Bangs</h2>
+    <div class="pure-u-1" style="font-size:18px; text-align:justify; text-justify:inter-word;">
+      {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} gives you thousands of !bangs, a feature that lets you directly access a website. 
+      Simply type in "!" to see a list of !bangs. Set {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} as your default search engine to 
+      take full advantage of this feature from your browser's address bar.  
+    </div>
+    <h2>Instant Answers</h2>
+    <div class="pure-u-1" style="font-size:18px; text-align:justify; text-justify:inter-word;">
+      {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} quickly gives you the information you need via instant answers. No need to search the 
+      web endlessly for weather, stock and cryptocurrency quotes, among many other answers. New answers are added regularly!  
+    </div><br><br>
+    <div class="pure-u-1" style="font-size:18px; text-align:justify; text-justify:inter-word;">
+      To take full advantage of all that we have to offer, set {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}} 
+      as your default search engine below!
+    </div>
+    <br><br>
+    <div class="pure-u-1" style="text-align:center;">
+      {{template "instructions" .}}
+    </div>
+    <br><br>
+    <div class="pure-u-1">
+      <div class="pure-u-20-24">
+        <h2>Contributors</h2>
+      </div>
+      <div class="pure-u-4-24" style="float:right;">
+        <h2>
+          <a class="github-button" href="https://github.com/jivesearch/jivesearch" data-size="large" data-show-count="true" aria-label="Star jivesearch/jivesearch on GitHub">Star</a>
+        </h2>
+      </div> 
+    </div> 
+    <div class="pure-u-1">
+      <span style="font-size:18px;">
+        {{range $contributor := .Contributors}}
+        <div class="pure-u-6-24">
+          {{$key := $contributor.AvatarURL | HMACKey}}
+          <a href="{{$contributor.HTMLURL}}">
+            <img src="/image/100x,s{{$key}}/{{$contributor.AvatarURL}}" title="{{$contributor.Login}}" alt="{{$contributor.Login}}" border="0" alt="{{$contributor.Login}}" height="100" width="100"/><br>
+            <span class="social_media">{{$contributor.Login}}</span>
+          </a>
+        </div>
+        {{end}}
+      </span>
+    </div>
+  </div>
+</div>
+{{end}}

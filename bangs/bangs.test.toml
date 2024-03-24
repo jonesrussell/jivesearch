@@ -1,0 +1,10 @@
+# the following is a short .toml file that loads quicker when in debug mode
+[[bang]]
+    name = "Google"
+    favicon = "https://www.google.com/favicon.ico"
+    triggers = ["g", "google"]
+    [bang.regions]
+        default = "https://encrypted.google.com/search?hl={{{lang}}}&q={{{term}}}"
+        ca = "https://www.google.ca/search?q={{{term}}}"
+		fr = "https://www.google.fr/search?hl={{{lang}}}&q={{{term}}}"
+		ru = "https://www.google.ru/search?hl={{{lang}}}&q={{{term}}}"

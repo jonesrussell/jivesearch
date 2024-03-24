@@ -1,0 +1,30 @@
+{{define "title"}}{{.Brand.Name}} Proxy{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="/static/search.css">
+<style>
+body{
+  padding: 0;
+}
+@media screen 
+and (max-device-width: 89.938em) /* 1439px */
+{ 
+  #proxy_header {
+    height:125px;
+  }
+}
+</style>
+{{end}}
+
+{{define "javascript"}}{{end}}
+
+{{define "content"}}
+<div id="container" class="pure-g">
+  <div class="pure-u-1">
+    <iframe id="proxy_header" scrolling="no" style="margin:0px;z-index:9999;position:fixed;top:0px;width:1px;min-width:100%;" frameborder="0" src="/proxy_header?q={{.URL}}"></iframe>
+  </div>
+  <div class="pure-u-1">
+    <iframe srcdoc="{{.HTML}}" scrolling="yes" style="padding-top:60px;position:absolute;width:1px;min-width:100%;overflow:auto !important;box-sizing: border-box;" frameborder="0" height="100%" width="100%"></iframe>
+  </div>
+</div>
+{{end}}

@@ -1,0 +1,31 @@
+{{define "title"}}{{.Brand.Name}} Proxy{{end}}
+
+{{define "css"}}
+<link rel="stylesheet" href="/static/search.css">
+<style>
+  body{
+    padding: 0;
+  }
+</style>
+{{end}}
+
+{{define "javascript"}}{{end}}
+
+{{define "content"}}
+<div class="pure-u-1" style="background-color:#efefef;padding:0 7px;"><!--add back the body padding-->
+  <div class="pure-u-1 pure-u-xl-2-24 spacer" style="text-align:center;">
+    <a href="/" target="_top">{{template "small_logo" .}}</a>
+  </div>
+  <div class="pure-u-1 pure-u-xl-22-24">
+    <div class="pure-u-10-24">{{template "search_form" .}} </div>
+    <div class="pure-u-10-24" style="margin-top:7px;margin-left:7px;">
+      <div style="max-width:400px;">
+        <span style="color:red;">Note:</span> Some features of this page may not work because JavaScript and forms are disabled for privacy and security reasons.
+      </div>
+    </div>
+    <div class="pure-u-3-24" style="font-size:18px;text-align:right;margin-top:19px;">
+      <a href="{{.URL}}" target="_top" style="color:#333;">Unproxy</a>
+    </div>
+  </div>
+</div>
+{{end}}

@@ -66,7 +66,9 @@ func TestGet(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -133,7 +135,9 @@ func TestPut(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)
@@ -221,7 +225,9 @@ func TestSetup(t *testing.T) {
 
 			handler = func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(c.status)
-				w.Write([]byte(c.resp))
+				if _, err := w.Write([]byte(c.resp)); err != nil {
+					t.Fatal(err)
+				}
 			}
 
 			e, err := MockService(ts.URL)

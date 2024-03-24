@@ -1,0 +1,9 @@
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
+                       xmlns:moz="http://www.mozilla.org/2006/browser/search/">
+  <ShortName>{{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}</ShortName>
+  <Description>Search {{if .Brand.Name}}{{.Brand.Name}}{{else}}Jive Search{{end}}</Description>
+  <InputEncoding>UTF-8</InputEncoding>
+  <Image width="16" height="16" type="image/x-icon">{{.Brand.Host}}/static/icons/favicon.ico</Image>
+  <Url type="text/html" method="get" template="{{.Brand.Host}}?q={searchTerms}&amp;d=true"/>
+  <moz:SearchForm>{{.Brand.Host}}</moz:SearchForm>
+</OpenSearchDescription>

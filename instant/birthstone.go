@@ -1,239 +1,206 @@
 package instant
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// BirthStoneType is an answer Type
+const BirthStoneType Type = "birthstone"
 
 // BirthStone is an instant answer
 type BirthStone struct {
 	Answer
 }
 
-func (b *BirthStone) setQuery(r *http.Request) answerer {
-	b.Answer.setQuery(r)
+func (b *BirthStone) setQuery(r *http.Request, qv string) Answerer {
+	b.Answer.setQuery(r, qv)
 	return b
 }
 
-func (b *BirthStone) setUserAgent(r *http.Request) answerer {
+func (b *BirthStone) setUserAgent(r *http.Request) Answerer {
 	return b
 }
 
-func (b *BirthStone) setType() answerer {
-	b.Type = "birthstone"
+func (b *BirthStone) setLanguage(lang language.Tag) Answerer {
+	b.language = lang
 	return b
 }
 
-func (b *BirthStone) setContributors() answerer {
-	b.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (b *BirthStone) setType() Answerer {
+	b.Type = BirthStoneType
 	return b
 }
 
-func (b *BirthStone) setTriggers() answerer {
-	b.triggers = []string{
+func (b *BirthStone) setRegex() Answerer {
+	triggers := []string{
 		"birthstones",
 		"birth stones",
 		"birthstone",
 		"birth stone",
 	}
+
+	t := strings.Join(triggers, "|")
+	b.regex = append(b.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	b.regex = append(b.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+
 	return b
 }
 
-func (b *BirthStone) setTriggerFuncs() answerer {
-	b.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
-	return b
-}
-
-func (b *BirthStone) setSolution() answerer {
+func (b *BirthStone) solve(r *http.Request) Answerer {
 	switch b.remainder {
 	case "january":
-		b.Text = "Garnet"
+		b.Solution = "Garnet"
 	case "february":
-		b.Text = "Amethyst"
+		b.Solution = "Amethyst"
 	case "march":
-		b.Text = "Aquamarine, Bloodstone"
+		b.Solution = "Aquamarine, Bloodstone"
 	case "april":
-		b.Text = "Diamond"
+		b.Solution = "Diamond"
 	case "may":
-		b.Text = "Emerald"
+		b.Solution = "Emerald"
 	case "june":
-		b.Text = "Pearl, Moonstone, Alexandrite"
+		b.Solution = "Pearl, Moonstone, Alexandrite"
 	case "july":
-		b.Text = "Ruby"
+		b.Solution = "Ruby"
 	case "august":
-		b.Text = "Peridot, Spinel"
+		b.Solution = "Peridot, Spinel"
 	case "september":
-		b.Text = "Sapphire"
+		b.Solution = "Sapphire"
 	case "october":
-		b.Text = "Opal, Tourmaline"
+		b.Solution = "Opal, Tourmaline"
 	case "november":
-		b.Text = "Topaz, Citrine"
+		b.Solution = "Topaz, Citrine"
 	case "december":
-		b.Text = "Turquoise, Zircon, Tanzanite"
+		b.Solution = "Turquoise, Zircon, Tanzanite"
 	}
 
-	return b
-}
-
-func (b *BirthStone) setCache() answerer {
-	b.Cache = true
 	return b
 }
 
 func (b *BirthStone) tests() []test {
-	typ := "birthstone"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
 		{
 			query: "January birthstone",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Garnet",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Garnet",
 				},
 			},
 		},
 		{
 			query: "birthstone february",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Amethyst",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Amethyst",
 				},
 			},
 		},
 		{
 			query: "march birth stone",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Aquamarine, Bloodstone",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Aquamarine, Bloodstone",
 				},
 			},
 		},
 		{
 			query: "birth stone April",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Diamond",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Diamond",
 				},
 			},
 		},
 		{
 			query: "birth stones may",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Emerald",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Emerald",
 				},
 			},
 		},
 		{
 			query: "birthstones June",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Pearl, Moonstone, Alexandrite",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Pearl, Moonstone, Alexandrite",
 				},
 			},
 		},
 		{
 			query: "July Birth Stones",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Ruby",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Ruby",
 				},
 			},
 		},
 		{
 			query: "birthstones August",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Peridot, Spinel",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Peridot, Spinel",
 				},
 			},
 		},
 		{
 			query: "september birthstones",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Sapphire",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Sapphire",
 				},
 			},
 		},
 		{
 			query: "October birthstone",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Opal, Tourmaline",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Opal, Tourmaline",
 				},
 			},
 		},
 		{
 			query: "birthstone November",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Topaz, Citrine",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Topaz, Citrine",
 				},
 			},
 		},
 		{
 			query: "December birthstone",
-			expected: []Solution{
+			expected: []Data{
 				{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Turquoise, Zircon, Tanzanite",
-					Cache:        true,
+					Type:      BirthStoneType,
+					Triggered: true,
+					Solution:  "Turquoise, Zircon, Tanzanite",
 				},
 			},
 		},

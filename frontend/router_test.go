@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
+	"github.com/spf13/pflag"
 )
 
 func TestRouter(t *testing.T) {
@@ -15,30 +16,50 @@ func TestRouter(t *testing.T) {
 	}
 
 	for _, c := range []*route{
-		&route{
+		{
 			name:   "search",
 			method: "GET",
 			url:    "https://www.example.com/?q=search+term",
 		},
-		&route{
+		{
+			name:   "answer",
+			method: "GET",
+			url:    "https://www.example.com/answer/?q=search+term",
+		},
+		{
+			name:   "about",
+			method: "GET",
+			url:    "http://localhost/about",
+		},
+		{
 			name:   "autocomplete",
 			method: "GET",
 			url:    "http://127.0.0.1/autocomplete",
 		},
-		&route{
-			name:   "vote",
-			method: "POST",
-			url:    "http://localhost/vote",
-		},
-		&route{
+		{
 			name:   "favicon",
 			method: "GET",
 			url:    "http://example.com/favicon.ico",
 		},
-		&route{
+		{
 			name:   "static",
 			method: "GET",
 			url:    "https://example.com/static/main.js",
+		},
+		{
+			name:   "opensearch",
+			method: "GET",
+			url:    "http://localhost/opensearch.xml",
+		},
+		{
+			name:   "proxy",
+			method: "GET",
+			url:    "http://localhost/proxy/?u=https://example.com",
+		},
+		{
+			name:   "proxy_header",
+			method: "GET",
+			url:    "http://localhost/proxy_header",
 		},
 	} {
 		t.Run(c.name, func(t *testing.T) {
@@ -66,4 +87,28 @@ func TestRouter(t *testing.T) {
 			}
 		})
 	}
+}
+
+type mockProvider struct {
+	m map[string]interface{}
+}
+
+func (p *mockProvider) SetDefault(key string, value interface{}) {
+	p.m[key] = value
+}
+func (p *mockProvider) SetTypeByDefaultValue(bool) {}
+func (p *mockProvider) BindPFlag(key string, flg *pflag.Flag) error {
+	return nil
+}
+func (p *mockProvider) Get(key string) interface{} {
+	return p.m[key]
+}
+func (p *mockProvider) GetString(key string) string {
+	return p.m[key].(string)
+}
+func (p *mockProvider) GetInt(key string) int {
+	return p.m[key].(int)
+}
+func (p *mockProvider) GetStringSlice(key string) []string {
+	return p.m[key].([]string)
 }

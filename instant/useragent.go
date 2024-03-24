@@ -1,43 +1,44 @@
 package instant
 
 import (
+	"fmt"
 	"net/http"
+	"regexp"
+	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// UserAgentType is an answer Type
+const UserAgentType Type = "user agent"
 
 // UserAgent is an instant answer
 type UserAgent struct {
 	Answer
 }
 
-func (u *UserAgent) setQuery(r *http.Request) answerer {
-	u.Answer.setQuery(r)
+func (u *UserAgent) setQuery(r *http.Request, qv string) Answerer {
+	u.Answer.setQuery(r, qv)
 	return u
 }
 
-func (u *UserAgent) setUserAgent(r *http.Request) answerer {
+func (u *UserAgent) setUserAgent(r *http.Request) Answerer {
 	u.Answer.userAgent = r.UserAgent()
 	return u
 }
 
-func (u *UserAgent) setType() answerer {
-	u.Type = "user agent"
+func (u *UserAgent) setLanguage(lang language.Tag) Answerer {
+	u.language = lang
 	return u
 }
 
-func (u *UserAgent) setContributors() answerer {
-	u.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
-
+func (u *UserAgent) setType() Answerer {
+	u.Type = UserAgentType
 	return u
 }
 
-func (u *UserAgent) setTriggers() answerer {
-	u.triggers = []string{
+func (u *UserAgent) setRegex() Answerer {
+	triggers := []string{
 		"user agent", "user agent?",
 		"useragent", "useragent?",
 		"my user agent", "my user agent?",
@@ -48,97 +49,71 @@ func (u *UserAgent) setTriggers() answerer {
 		"what is my useragent", "what is my useragent?",
 	}
 
-	return u
-}
-
-func (u *UserAgent) setTriggerFuncs() answerer {
-	u.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
+	t := strings.Join(triggers, "|")
+	u.regex = append(u.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s)$`, t)))
 
 	return u
 }
 
-func (u *UserAgent) setSolution() answerer {
-	u.Text = u.userAgent
-
-	return u
-}
-
-func (u *UserAgent) setCache() answerer {
-	// caching would cache the query but the browser could change
-	u.Cache = false
+func (u *UserAgent) solve(r *http.Request) Answerer {
+	u.Solution = u.userAgent
 	return u
 }
 
 func (u *UserAgent) tests() []test {
-	typ := "user agent"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
-		test{
+		{
 			query:     "user agent",
 			userAgent: "firefox",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "firefox",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      UserAgentType,
+					Triggered: true,
+					Solution:  "firefox",
 				},
 			},
 		},
-		test{
+		{
 			query:     "useragent?",
 			userAgent: "opera",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "opera",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      UserAgentType,
+					Triggered: true,
+					Solution:  "opera",
 				},
 			},
 		},
-		test{
+		{
 			query:     "my user agent",
 			userAgent: "some random ua",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "some random ua",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      UserAgentType,
+					Triggered: true,
+					Solution:  "some random ua",
 				},
 			},
 		},
-		test{
+		{
 			query:     "what's my user agent?",
 			userAgent: "chrome",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "chrome",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      UserAgentType,
+					Triggered: true,
+					Solution:  "chrome",
 				},
 			},
 		},
-		test{
+		{
 			query:     "what is my useragent?",
 			userAgent: "internet explorer",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "internet explorer",
-					Cache:        false,
+			expected: []Data{
+				{
+					Type:      UserAgentType,
+					Triggered: true,
+					Solution:  "internet explorer",
 				},
 			},
 		},

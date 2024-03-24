@@ -1,131 +1,102 @@
-// Package bangs detects when queries should be redirected to 3rd party sites
+// Package bangs provides functionality to query other websites
 package bangs
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
-	"sync"
+
+	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/viper"
+	"golang.org/x/text/language"
 )
 
 // Bangs holds a map of !bangs
 type Bangs struct {
-	sync.Mutex
-	M map[string]map[string]string
+	Bangs []Bang `mapstructure:"bang"`
+	Suggester
 }
 
 // Bang holds a single !bang
 type Bang struct {
-	Triggers []string
-	Name     string
-	Category string
-	Regions  []Region
+	Name      string            `json:"name"`
+	FavIcon   string            `json:"favicon"`
+	Triggers  []string          `json:"triggers"`
+	Regions   map[string]string `json:"regions"`
+	Functions []string          `json:"-"`
+	Funcs     []fn              `json:"-"`
 }
 
-// Region holds the regional information and url of a !bang
-type Region struct {
-	Region   string
-	Location string
+// Suggester is a !bangs suggester/autocomplete
+type Suggester interface {
+	IndexExists() (bool, error)
+	DeleteIndex() error
+	Setup([]Bang) error
+	SuggestResults(term string, size int) (Results, error)
 }
 
-var def = "default"
+// Results are the results of an autocomplete query
+type Results struct { // remember top-level arrays = no-no in javascript/json
+	Suggestions []Suggestion `json:"suggestions"`
+}
 
-// New creates a pointer with the default !bangs.
-// Use default url unless a region is provided.
-// Region: US, Language: French !a ---> Amazon.com
-// Region: France, Language: English !a ---> Amazon.fr
-// !afr ---> Amazon.fr
-// Note: Some !bangs don't respect the language passed in or
-// may not support it (eg they may support pt but not pt-BR)
-//
-// TODO: Allow overrides...perhaps add a method or use a config.
-// Note: If we end up using viper for this don't use "SetDefault"
-// as overriding one !bang will replace ALL !bangs. Instead, use "Set".
-func New() *Bangs {
-	// Not sure about the structure here...slice of Bangs makes it easy to add bangs
-	// Would like to add autocomplete feature so that people can find !bangs easier.
-	b := &Bangs{
-		M: make(map[string]map[string]string),
+// Suggestion is an individual !bang autocomplete suggestion
+type Suggestion struct {
+	Trigger string `json:"trigger"`
+	Name    string `json:"name"`
+	FavIcon string `json:"favicon"`
+}
+
+const def = "default"
+
+// Provider is a configuration provider
+type Provider interface {
+	ReadInConfig() error
+	Unmarshal(interface{}, ...viper.DecoderConfigOption) error
+}
+
+// New creates Bangs from a config file
+func New(cfg Provider) (*Bangs, error) {
+	var b = &Bangs{}
+
+	if err := cfg.ReadInConfig(); err != nil {
+		return nil, err
 	}
 
-	bngs := []Bang{
-		{
-			[]string{"a", "amazon"},
-			"Amazon", "shopping",
-			[]Region{
-				{def, "https://www.amazon.com/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{{term}}}"},
-				{"ca", "https://www.amazon.ca/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{{term}}}"},
-				{"fr", "https://www.amazon.fr/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{{term}}}"},
-				{"uk", "https://www.amazon.co.uk/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords={{{term}}}"},
-			},
-		},
-		{
-			[]string{"b", "bing"},
-			"Bing", "search",
-			[]Region{
-				{def, "https://www.bing.com/search?q={{{term}}}"},
-			},
-		},
-		{
-			[]string{"gh", "github"},
-			"Github", "programming",
-			[]Region{
-				{def, "https://github.com/search?q={{{term}}}&type=Everything&repo=&langOverride=&start_value=1"},
-			},
-		},
-		{
-			[]string{"g", "google"},
-			"Google", "search",
-			[]Region{
-				{def, "https://encrypted.google.com/search?hl={{{lang}}}&q={{{term}}}"},
-				{"ca", "https://www.google.ca/search?q={{{term}}}"},
-				{"fr", "https://www.google.fr/search?hl={{{lang}}}&q={{{term}}}"},
-				{"ru", "https://www.google.ru/search?hl={{{lang}}}&q={{{term}}}"},
-			},
-		},
-		{
-			[]string{"gfr", "googlefr"},
-			"Google France", "search",
-			[]Region{
-				{def, "https://www.google.fr/search?hl={{{lang}}}&q={{{term}}}"},
-			},
-		},
-		{
-			[]string{"gru", "googleru"},
-			"Google Russia", "search",
-			[]Region{
-				{def, "https://www.google.ru/search?hl={{{lang}}}&q={{{term}}}"},
-			},
-		},
-		{
-			[]string{"reddit"},
-			"Reddit", "social media",
-			[]Region{
-				{def, "https://www.reddit.com/search?q={{{term}}}&restrict_sr=&sort=relevance&t=all"},
-			},
-		},
+	err := cfg.Unmarshal(&b, viperStructTag())
+	return b, err
+}
+
+func viperStructTag() viper.DecoderConfigOption {
+	return func(c *mapstructure.DecoderConfig) {
+	}
+}
+
+// Suggest is an autocomplete for !bangs
+func (b *Bangs) Suggest(term string, size int) (Results, error) {
+	res, err := b.Suggester.SuggestResults(term, size)
+	if err != nil {
+		return res, err
 	}
 
-	// create a map for faster lookups
-	for _, bng := range bngs {
-		for _, t := range bng.Triggers {
-			if _, ok := b.M[t]; ok {
-				panic(fmt.Sprintf("duplicate trigger found %v", t))
-			}
-			b.M[t] = make(map[string]string)
-			for _, r := range bng.Regions {
-				b.M[t][r.Region] = r.Location
+	// fill in the rest of the suggestion
+	for i, s := range res.Suggestions {
+		for _, bng := range b.Bangs {
+			for _, trigger := range bng.Triggers {
+				if trigger == s.Trigger {
+					s.Name = bng.Name
+					s.FavIcon = bng.FavIcon
+					res.Suggestions[i] = s
+				}
 			}
 		}
 	}
 
-	return b
+	return res, err
 }
 
 // Detect lets us know if we have a !bang match.
-func (b *Bangs) Detect(q, region, language string) (string, bool) {
-	b.Lock()
-	defer b.Unlock()
-
+func (b *Bangs) Detect(q string, region language.Region, l language.Tag) (Bang, string, bool) {
 	fields := strings.Fields(q)
 
 	for i, field := range fields {
@@ -133,15 +104,62 @@ func (b *Bangs) Detect(q, region, language string) (string, bool) {
 			continue
 		}
 
-		if bng, ok := b.M[strings.ToLower(strings.Trim(field, "!"))]; ok { // find the bang
-			for _, reg := range []string{strings.ToLower(region), def} { // use default region if no region specified
-				if u, ok := bng[reg]; ok {
-					remainder := strings.Join(append(fields[:i], fields[i+1:]...), " ")
-					u = strings.Replace(u, "{{{term}}}", remainder, -1)
-					return strings.Replace(u, "{{{lang}}}", language, -1), true
+		k := strings.ToLower(strings.Trim(field, "!"))
+		for _, bng := range b.Bangs {
+			if triggered := trigger(k, bng.Triggers); !triggered {
+				continue
+			}
+
+			remainder := strings.Join(append(fields[:i], fields[i+1:]...), " ")
+
+			for _, f := range bng.Funcs {
+				remainder = f(remainder)
+			}
+
+			for _, reg := range []string{strings.ToLower(region.String()), def} { // use default region if no region specified
+				if u, ok := bng.Regions[reg]; ok {
+					u = strings.Replace(u, "{{{term}}}", url.QueryEscape(remainder), -1)
+					return bng, strings.Replace(u, "{{{lang}}}", l.String(), -1), true
 				}
 			}
 		}
 	}
-	return "", false
+	return Bang{}, "", false
+}
+
+type fn func(string) string
+
+// Returns the canonical version of a Wikipedia title.
+// "bob maRLey" -> "Bob_Marley"
+// Some regional queries will be incorrect: https://es.wikipedia.org/wiki/De_la_Tierra_a_la_Luna
+var wikipediaCanonical = func(q string) string {
+	return strings.Replace(strings.Title(strings.ToLower(q)), " ", "_", -1)
+}
+
+func trigger(k string, triggers []string) bool {
+	for _, trigger := range triggers {
+		if k == trigger {
+			return true
+		}
+	}
+	return false
+}
+
+// CreateFunctions creates []Funcs from []Functions.
+// Is a workaround since I couldn't find a way to map a function type in a config file.
+func (b *Bangs) CreateFunctions() error {
+	for i, bng := range b.Bangs {
+		for _, f := range bng.Functions {
+			var ff fn
+
+			switch f {
+			case "wikipediaCanonical":
+				ff = wikipediaCanonical
+			default:
+				return fmt.Errorf("unknown function string %v", f)
+			}
+			b.Bangs[i].Funcs = append(b.Bangs[i].Funcs, ff)
+		}
+	}
+	return nil
 }

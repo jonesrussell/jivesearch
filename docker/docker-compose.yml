@@ -1,0 +1,70 @@
+﻿version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.4
+    container_name: elasticsearch
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms${ES_HEAP} -Xmx${ES_HEAP}"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - ${DATA_DIRECTORY}/elasticsearch:/usr/share/elasticsearch/data
+      - ${DATA_DIRECTORY}/elasticsearch/backup:/usr/share/elasticsearch/backup
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    ports:
+      - 9200:9200
+    networks:
+      - esnet
+    restart: on-failure:5
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    environment:
+      NGINX_DOMAIN: jivesearch.com
+      ONION: jivexx2rbi6llz37jq37n4uqff4kdipqbqd24c437c56om6uxbzhtdid.onion
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ${DATA_DIRECTORY}/nginx:/var/log/nginx
+      - /etc/letsencrypt:/etc/letsencrypt
+    restart: on-failure:5
+    network_mode: host
+
+  nsfw:
+    build: ./nsfw
+    container_name: nsfw
+    ports:
+     - 8080:8080
+    restart: on-failure:5
+
+  # NOTE: If you change your POSTGRES_USER then run "sudo docker-compose rm"
+  # https://github.com/docker-library/postgres/issues/41#issuecomment-167603905
+  # To access psql -> docker exec -ti postgres psql -U jivesearch
+  postgres:
+    image: postgres:9.6-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: jivesearch
+      POSTGRES_DB: jivesearch
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - 5432:5432
+    volumes:
+      - ${DATA_DIRECTORY}/postgresql:/var/lib/postgresql/data
+    restart: on-failure:5
+  
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - ${REDIS_PORT}:6379
+    restart: on-failure:5
+
+networks:
+  esnet:

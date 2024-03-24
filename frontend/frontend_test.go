@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/jivesearch/jivesearch/bangs"
 	"github.com/jivesearch/jivesearch/suggest"
-	"github.com/spf13/pflag"
 )
 
 func TestMiddleware(t *testing.T) {
@@ -27,6 +27,9 @@ func TestMiddleware(t *testing.T) {
 	}{
 		{"json", "json", "application/json", "28", "",
 			want{http.StatusOK, "{\"response\":\"hello world!\"}\n"},
+		},
+		{"jsonp", "jsonp", "application/javascript", "48", "",
+			want{http.StatusOK, "jivesearchcallback({\"response\":\"hello world!\"}\n)"},
 		},
 		{"wrong template", "", "text/plain; charset=utf-8", "22", "nosniff",
 			want{http.StatusInternalServerError, "Internal Server Error\n"},
@@ -109,11 +112,46 @@ func TestAutocompleteHandler(t *testing.T) {
 				},
 			},
 		},
+		{"default !bangs", "!",
+			&response{
+				status:   http.StatusOK,
+				template: "json",
+				data: bangs.Results{
+					Suggestions: []bangs.Suggestion{
+						{Trigger: "g", Name: "Google", FavIcon: "/image/32x,sOidINN3lLWugS3iyX9NlOZNNR9KlRs1eUcqSReZpZ1Y=/https://www.google.com/favicon.ico"},
+						{Trigger: "a", Name: "Amazon", FavIcon: "/image/32x,sOqZY1UB3EmwsX6xESH_XgeJzQhOfB30yMNC9aaN1oCA=/https://www.amazon.com/favicon.ico"},
+						{Trigger: "b", Name: "Bing", FavIcon: "/image/32x,sLccmz7JmNIZUI-FIfjAwI5ginz62zIQhX_ffuA6DoSQ=/https://www.bing.com/favicon.ico"},
+						{Trigger: "reddit", Name: "Reddit", FavIcon: "/image/32x,saRNw35pHUMLQF5-Z8OFhQ1kHz-RioJ7a_S5ZFyTGJF0=/https://www.reddit.com/favicon.ico"},
+						{Trigger: "w", Name: "Wikipedia", FavIcon: "/image/32x,szl9NPdfHe0jt93aiLlox2zOB1DX2ThfpEHiI3AZWUpQ=/https://en.wikipedia.org/favicon.ico"},
+					},
+				},
+			},
+		},
+		{"g !bangs", "!g",
+			&response{
+				status:   http.StatusOK,
+				template: "json",
+				data: bangs.Results{
+					Suggestions: []bangs.Suggestion{
+						{Trigger: "g", Name: "Google", FavIcon: "/image/32x,sOidINN3lLWugS3iyX9NlOZNNR9KlRs1eUcqSReZpZ1Y=/https://www.google.com/favicon.ico"},
+						{Trigger: "gh", Name: "GitHub", FavIcon: "/image/32x,stnNTL-BiRf_CwEuaKJfpgC1xRR8is9PqSW-qLgt3J-s=/https://github.com/favicon.ico"},
+					},
+				},
+			},
+		},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			f := &Frontend{
 				Suggest: &mockSuggester{},
 			}
+
+			var err error
+
+			f.Bangs, err = bangsFromConfig()
+			if err != nil {
+				t.Fatal(err)
+			}
+			f.Bangs.Suggester = &mockBangSuggester{}
 
 			req, err := http.NewRequest("GET", "/", nil)
 			if err != nil {
@@ -133,28 +171,16 @@ func TestAutocompleteHandler(t *testing.T) {
 	}
 }
 
-type mockProvider struct {
-	m map[string]interface{}
-}
+func TestParseTemplates(t *testing.T) {
+	ParseTemplates()
 
-func (p *mockProvider) SetDefault(key string, value interface{}) {
-	p.m[key] = value
-}
-func (p *mockProvider) SetTypeByDefaultValue(bool) {}
-func (p *mockProvider) BindPFlag(key string, flg *pflag.Flag) error {
-	return nil
-}
-func (p *mockProvider) Get(key string) interface{} {
-	return p.m[key]
-}
-func (p *mockProvider) GetString(key string) string {
-	return p.m[key].(string)
-}
-func (p *mockProvider) GetInt(key string) int {
-	return p.m[key].(int)
-}
-func (p *mockProvider) GetStringSlice(key string) []string {
-	return p.m[key].([]string)
+	if _, ok := templates["search"]; !ok {
+		t.Fatal("Our search template is not in our templates map.")
+	}
+
+	if _, ok := templates["about"]; !ok {
+		t.Fatal("Our about template is not in our templates map.")
+	}
 }
 
 type mockSuggester struct {
@@ -196,10 +222,27 @@ func (ms *mockSuggester) IndexExists() (bool, error) {
 
 func (ms *mockSuggester) Setup() error { return nil }
 
-func TestParseTemplates(t *testing.T) {
-	ParseTemplates()
+type mockBangSuggester struct{}
 
-	if _, ok := templates["search"]; !ok {
-		t.Fatal("Our search template is not in our templates map.")
+func (m *mockBangSuggester) SuggestResults(term string, size int) (bangs.Results, error) {
+	res := bangs.Results{
+		Suggestions: []bangs.Suggestion{
+			{Trigger: "g", Name: "Google"},
+			{Trigger: "gh", Name: "GitHub"},
+		},
 	}
+
+	return res, nil
+}
+
+func (m *mockBangSuggester) IndexExists() (bool, error) {
+	return false, nil
+}
+
+func (m *mockBangSuggester) DeleteIndex() error {
+	return nil
+}
+
+func (m *mockBangSuggester) Setup(bangs []bangs.Bang) error {
+	return nil
 }

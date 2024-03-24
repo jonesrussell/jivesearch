@@ -1,0 +1,75 @@
+.quote-arrow{
+    font-size: 22px;
+    display: inline-block;
+    width: 0; 
+    height: 0; 
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+}
+.quote-arrow-up {
+    border-bottom: 12px solid #006D21;
+}
+.quote-arrow-down {
+    border-top: 12px solid #C80000;
+}
+#quote_time:before{
+    content:"• ";
+}
+
+/* charts */
+.line {
+    fill: #0073c528;
+    stroke: #0072c5;
+    stroke-width: 2px;
+    opacity: .6;
+    shape-rendering: geometricPrecision;
+}
+.axis line{ /* the tick marks on axis */
+    stroke: #999;
+}
+.axis path{
+    stroke: #fff;
+    stroke-width: 3px;
+}
+.axis text{
+    fill: #666;
+}
+.rightAxis line{ /* the tick marks on axis */
+    stroke: #fff;
+}
+.rightAxis path{
+    stroke: #fff;
+    stroke-width: 3px;
+}
+.rightAxis text{
+    fill: #fff;
+}
+/* tooltips */
+.overlay {
+    fill: none;
+    pointer-events: all;
+}
+.focus circle {
+    fill: #0073c528;
+    stroke: #0072c5;
+    stroke-width: 5px;
+}
+.hover-line {
+    stroke: #333;
+    stroke-width: 1px;
+    stroke-dasharray: 1,1;
+}
+.y-hover-line{ /* hide this...seems to be a bug... */
+    stroke: #fff;
+}
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 200px;
+    height: 28px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background:transparent;
+    border: 0px;
+    pointer-events: none;
+}

@@ -1,0 +1,11 @@
+#unit_converter .unit{
+    height: 60px;
+}
+#unit_converter .unit input{
+    height:45px;
+    text-align:right;
+}
+#unit_converter .unit select{
+    background-color:#f7f7f7;
+    height:35px;
+}

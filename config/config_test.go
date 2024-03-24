@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -14,7 +15,13 @@ func TestSetDefaults(t *testing.T) {
 		m: map[string]interface{}{},
 	}
 
+	now = func() time.Time {
+		return time.Date(2018, 02, 06, 20, 34, 58, 651387237, time.UTC)
+	}
+
 	SetDefaults(cfg)
+
+	port := 8000
 
 	values := []struct {
 		key   string
@@ -22,23 +29,63 @@ func TestSetDefaults(t *testing.T) {
 	}{
 		{"hmac.secret", ""},
 
+		// Brand
+		{"brand.name", "Jive Search"},
+		{"brand.tagline", "A search engine that doesn't track you."},
+		{"brand.logo",
+			`<svg width="205" height="65" style="cursor:pointer;">
+			<defs>
+				<style>
+					#logo {
+						font-size: 36px;
+						font-family: 'Open Sans',sans-serif;
+						-webkit-touch-callout: none;
+						-webkit-user-select: none;
+						-khtml-user-select: none;
+						-moz-user-select: none;
+						-ms-user-select: none;
+						user-select: none;
+					}            
+				</style>
+			</defs>            
+			<g><text id="logo" x="7" y="35" fill="#000">Jive Search</text></g>
+		</svg>`},
+
+		{"brand.small_logo",
+			`<svg xmlns="http://www.w3.org/2000/svg" width="115px" height="48px">
+			<defs>
+				<style>
+					#logo{
+						font-size:20px;
+					}            
+				</style>
+			</defs>
+			<g>
+				<text id="logo" x="0" y="37" fill="#000">Jive Search</text>
+			</g>
+		</svg>`},
+
+		// Server
+		{"server.host", fmt.Sprintf("http://127.0.0.1:%d", port)},
+
 		// Elasticsearch
 		{"elasticsearch.url", "http://127.0.0.1:9200"},
 		{"elasticsearch.search.index", "test-search"},
 		{"elasticsearch.search.type", "document"},
+		{"elasticsearch.bangs.index", "test-bangs"},
+		{"elasticsearch.bangs.type", "bang"},
+		{"elasticsearch.image.index", "test-images"},
+		{"elasticsearch.image.type", "image"},
 		{"elasticsearch.query.index", "test-queries"},
 		{"elasticsearch.query.type", "query"},
 		{"elasticsearch.robots.index", "test-robots"},
 		{"elasticsearch.robots.type", "robots"},
-		{"elasticsearch.votes.index", "test-votes"},
-		{"elasticsearch.votes.type", "vote"},
 
 		// PostgreSQL
 		{"postgresql.host", "localhost"},
-		{"postgresql.user", "postgres"},
-		{"postgresql.password", "password"},
+		{"postgresql.user", "jivesearch"},
+		{"postgresql.password", "mypassword"},
 		{"postgresql.database", "jivesearch"},
-		{"postgresql.votes.table", "votes"},
 
 		// Redis
 		{"redis.host", ""},
@@ -64,7 +111,58 @@ func TestSetDefaults(t *testing.T) {
 		{"crawler.truncate.keywords", 25},
 		{"crawler.truncate.description", 250},
 
+		// useragent for fetching api's, images, etc.
 		{"useragent", "https://github.com/jivesearch/jivesearch"},
+
+		// image nsfw scoring and metadata
+		{"nsfw.workers", 10},
+		{"nsfw.since", time.Date(2018, 01, 06, 20, 34, 58, 651387237, time.UTC)},
+
+		// Tor
+		{"onion", "jivexx2rbi6llz37jq37n4uqff4kdipqbqd24c437c56om6uxbzhtdid.onion"},
+
+		// ProPublica API
+		{"propublica.key", "my_key"},
+
+		// stackoverflow API settings
+		{"stackoverflow.key", "app key"},
+
+		// FedEx package tracking API settings
+		{"fedex.account", "account"},
+		{"fedex.password", "password"},
+		{"fedex.key", "key"},
+		{"fedex.meter", "meter"},
+
+		// Maps
+		{"mapbox.key", "key"},
+
+		// MaxMind geolocation DB
+		{"maxmind.database", "/usr/share/GeoIP/GeoLite2-City.mmdb"},
+
+		// Search Providers
+		{"yandex.key", "key"},
+		{"yandex.user", "user"},
+
+		// UPS package tracking API settings
+		{"ups.user", "user"},
+		{"ups.password", "password"},
+		{"ups.key", "key"},
+
+		// USDA National Nutrient Database
+		{"usda.key", "DEMO_KEY"},
+
+		// USPS package tracking API settings
+		{"usps.user", "user"},
+		{"usps.password", "password"},
+
+		// OpenWeatherMap API settings
+		{"openweathermap.key", "key"},
+
+		// Pixabay images API
+		{"pixabay.key", "key"},
+
+		// Timezone database location
+		{"timezone.database", "/usr/share/timezone/timezone"},
 
 		// wikipedia settings
 		{"wikipedia.truncate", 250},
@@ -84,8 +182,8 @@ type provider struct {
 
 func (p *provider) SetDefault(key string, value interface{}) {
 	p.m[key] = value
-	return
 }
+
 func (p *provider) SetTypeByDefaultValue(bool) {}
 
 func (p *provider) BindPFlag(key string, flg *pflag.Flag) error {

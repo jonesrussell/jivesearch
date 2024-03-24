@@ -7,8 +7,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/contributors"
+	"golang.org/x/text/language"
 )
+
+// PotusType is an answer Type
+const PotusType Type = "potus"
 
 // Potus is an instant answer
 type Potus struct {
@@ -31,48 +34,42 @@ type Person struct {
 	End   string
 }
 
-func (p *Potus) setQuery(r *http.Request) answerer {
-	p.Answer.setQuery(r)
+func (p *Potus) setQuery(r *http.Request, qv string) Answerer {
+	p.Answer.setQuery(r, qv)
 	return p
 }
 
-func (p *Potus) setUserAgent(r *http.Request) answerer {
+func (p *Potus) setUserAgent(r *http.Request) Answerer {
 	return p
 }
 
-func (p *Potus) setType() answerer {
-	p.Type = "potus"
+func (p *Potus) setLanguage(lang language.Tag) Answerer {
+	p.language = lang
 	return p
 }
 
-func (p *Potus) setContributors() answerer {
-	p.Contributors = contributors.Load(
-		[]string{
-			"brentadamson",
-		},
-	)
+func (p *Potus) setType() Answerer {
+	p.Type = PotusType
 	return p
 }
 
-func (p *Potus) setTriggers() answerer {
-	p.triggers = []string{
+func (p *Potus) setRegex() Answerer {
+	triggers := []string{
 		"president of the united states", "potus",
 	}
+
+	t := strings.Join(triggers, "|")
+	p.regex = append(p.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>%s) (?P<remainder>.*)$`, t)))
+	p.regex = append(p.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>%s)$`, t)))
+
 	return p
 }
 
-func (p *Potus) setTriggerFuncs() answerer {
-	p.triggerFuncs = []triggerFunc{
-		startsWith, endsWith,
-	}
-	return p
-}
-
-func (p *Potus) setSolution() answerer {
+func (p *Potus) solve(r *http.Request) Answerer {
 	// maybe a better solution is to have
 	// a set of non-trigger funcs???
 	if strings.Contains(p.query, "vice") {
-		p.Solution = Solution{}
+		p.Data = Data{}
 		return p
 	}
 
@@ -96,17 +93,12 @@ func (p *Potus) setSolution() answerer {
 	// then we'll just do this.
 	data, found := presidents(i)
 	if !found {
-		p.Solution = Solution{}
+		p.Data = Data{}
 		return p
 	}
 
-	p.Text = data.President.Name
+	p.Solution = data.President.Name
 
-	return p
-}
-
-func (p *Potus) setCache() answerer {
-	p.Cache = true
 	return p
 }
 
@@ -114,33 +106,27 @@ func (p *Potus) tests() []test {
 	// there is an obvious flaw in the tests below:
 	// e.g. "2st", etc. Also, we need to support the
 	// numbers spelled out ("first", "second", etc.)
-	typ := "potus"
-
-	contrib := contributors.Load([]string{"brentadamson"})
-
 	tests := []test{
-		test{
+		{
 			query: "current POTUS",
-			expected: []Solution{
-				Solution{
-					Type:         typ,
-					Triggered:    true,
-					Contributors: contrib,
-					Text:         "Donald Trump",
-					Cache:        true,
+			expected: []Data{
+				{
+					Type:      PotusType,
+					Triggered: true,
+					Solution:  "Donald Trump",
 				},
 			},
 		},
-		test{
+		{
 			query: "46th POTUS",
-			expected: []Solution{
-				Solution{},
+			expected: []Data{
+				{},
 			},
 		},
-		test{
+		{
 			query: "32nd vice POTUS",
-			expected: []Solution{
-				Solution{},
+			expected: []Data{
+				{},
 			},
 		},
 	}
@@ -199,13 +185,11 @@ func (p *Potus) tests() []test {
 		} {
 			t := test{
 				query: fmt.Sprintf(q, i+1),
-				expected: []Solution{
-					Solution{
-						Type:         typ,
-						Triggered:    true,
-						Contributors: contrib,
-						Text:         pres,
-						Cache:        true,
+				expected: []Data{
+					{
+						Type:      PotusType,
+						Triggered: true,
+						Solution:  pres,
 					},
 				},
 			}
@@ -229,7 +213,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "George Washington", Start: "4/30/1789", End: "3/4/1797"},
 			Vice: []Person{
-				Person{Name: "John Adams", Start: "4/30/1789", End: "3/4/1797"},
+				{Name: "John Adams", Start: "4/30/1789", End: "3/4/1797"},
 			},
 		}
 	case 2:
@@ -239,7 +223,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "John Adams", Start: "3/4/1797", End: "3/4/1801"},
 			Vice: []Person{
-				Person{Name: "Thomas Jefferson", Start: "3/4/1797", End: "3/4/1801"},
+				{Name: "Thomas Jefferson", Start: "3/4/1797", End: "3/4/1801"},
 			},
 		}
 	case 3:
@@ -249,8 +233,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Thomas Jefferson", Start: "3/4/1801", End: "3/4/1809"},
 			Vice: []Person{
-				Person{Name: "Aaron Burr", Start: "3/4/1801", End: "3/4/1805"},
-				Person{Name: "George Clinton", Start: "3/4/1805", End: "3/4/1809"},
+				{Name: "Aaron Burr", Start: "3/4/1801", End: "3/4/1805"},
+				{Name: "George Clinton", Start: "3/4/1805", End: "3/4/1809"},
 			},
 		}
 	case 4:
@@ -260,8 +244,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "James Madison", Start: "3/4/1809", End: "3/4/1817"},
 			Vice: []Person{
-				Person{Name: "George Clinton", Start: "3/4/1809", End: "4/20/1812"},
-				Person{Name: "Elbridge Gerry", Start: "3/4/1813", End: "11/23/1814"},
+				{Name: "George Clinton", Start: "3/4/1809", End: "4/20/1812"},
+				{Name: "Elbridge Gerry", Start: "3/4/1813", End: "11/23/1814"},
 			},
 		}
 	case 5:
@@ -271,7 +255,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "James Monroe", Start: "3/4/1817", End: "3/4/1825"},
 			Vice: []Person{
-				Person{Name: "Daniel Tomkins", Start: "3/4/1817", End: "3/4/1825"},
+				{Name: "Daniel Tomkins", Start: "3/4/1817", End: "3/4/1825"},
 			},
 		}
 	case 6:
@@ -281,7 +265,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "John Quincy Adams", Start: "3/4/1825", End: "3/4/1829"},
 			Vice: []Person{
-				Person{Name: "John C. Calhoun", Start: "3/4/1825", End: "3/4/1829"},
+				{Name: "John C. Calhoun", Start: "3/4/1825", End: "3/4/1829"},
 			},
 		}
 	case 7:
@@ -291,8 +275,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Andrew Jackson", Start: "3/4/1829", End: "3/4/1837"},
 			Vice: []Person{
-				Person{Name: "John C. Calhoun", Start: "3/4/1829", End: "12/28/1832"},
-				Person{Name: "Martin Van Buren", Start: "3/4/1833", End: "3/4/1837"},
+				{Name: "John C. Calhoun", Start: "3/4/1829", End: "12/28/1832"},
+				{Name: "Martin Van Buren", Start: "3/4/1833", End: "3/4/1837"},
 			},
 		}
 	case 8:
@@ -302,7 +286,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Martin Van Buren", Start: "3/4/1837", End: "3/4/1841"},
 			Vice: []Person{
-				Person{Name: "Richard Mentor Johnson", Start: "3/4/1837", End: "3/4/1841"},
+				{Name: "Richard Mentor Johnson", Start: "3/4/1837", End: "3/4/1841"},
 			},
 		}
 	case 9:
@@ -312,7 +296,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "William Henry Harrison", Start: "3/4/1841", End: "4/4/1841"},
 			Vice: []Person{
-				Person{Name: "John Tyler", Start: "3/4/1841", End: "4/4/1841"},
+				{Name: "John Tyler", Start: "3/4/1841", End: "4/4/1841"},
 			},
 		}
 	case 10:
@@ -329,7 +313,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "James K. Polk", Start: "3/4/1845", End: "3/4/1849"},
 			Vice: []Person{
-				Person{Name: "George M. Dallas", Start: "3/4/1845", End: "3/4/1849"},
+				{Name: "George M. Dallas", Start: "3/4/1845", End: "3/4/1849"},
 			},
 		}
 	case 12:
@@ -339,7 +323,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Zachary Taylor", Start: "3/4/1849", End: "7/9/1850"},
 			Vice: []Person{
-				Person{Name: "Millard Fillmore", Start: "3/4/1849", End: "7/9/1850"},
+				{Name: "Millard Fillmore", Start: "3/4/1849", End: "7/9/1850"},
 			},
 		}
 	case 13:
@@ -356,7 +340,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Franklin Pierce", Start: "3/4/1853", End: "3/4/1857"},
 			Vice: []Person{
-				Person{Name: "William R. King", Start: "3/4/1853", End: "4/18/1853"},
+				{Name: "William R. King", Start: "3/4/1853", End: "4/18/1853"},
 			},
 		}
 	case 15:
@@ -366,7 +350,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "James Buchanan", Start: "3/4/1857", End: "3/4/1861"},
 			Vice: []Person{
-				Person{Name: "John C. Breckinridge", Start: "3/4/1857", End: "3/4/1861"},
+				{Name: "John C. Breckinridge", Start: "3/4/1857", End: "3/4/1861"},
 			},
 		}
 	case 16:
@@ -376,8 +360,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Abraham Lincoln", Start: "3/4/1861", End: "4/15/1865"},
 			Vice: []Person{
-				Person{Name: "Hannibal Hamlin", Start: "3/4/1861", End: "3/4/1865"},
-				Person{Name: "Andrew Johnson", Start: "3/4/1865", End: "4/15/1865"},
+				{Name: "Hannibal Hamlin", Start: "3/4/1861", End: "3/4/1865"},
+				{Name: "Andrew Johnson", Start: "3/4/1865", End: "4/15/1865"},
 			},
 		}
 	case 17:
@@ -394,8 +378,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Ulysses S. Grant", Start: "3/4/1869", End: "3/4/1877"},
 			Vice: []Person{
-				Person{Name: "Schuyler Colfax", Start: "3/4/1869", End: "3/4/1873"},
-				Person{Name: "Henry Wilson", Start: "3/4/1873", End: "11/22/1875"},
+				{Name: "Schuyler Colfax", Start: "3/4/1869", End: "3/4/1873"},
+				{Name: "Henry Wilson", Start: "3/4/1873", End: "11/22/1875"},
 			},
 		}
 	case 19:
@@ -405,7 +389,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Rutherford B. Hayes", Start: "3/4/1877", End: "3/4/1881"},
 			Vice: []Person{
-				Person{Name: "William A. Wheeler", Start: "3/4/1877", End: "3/4/1881"},
+				{Name: "William A. Wheeler", Start: "3/4/1877", End: "3/4/1881"},
 			},
 		}
 	case 20:
@@ -415,7 +399,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "James A. Garfield", Start: "3/4/1881", End: "9/19/1881"},
 			Vice: []Person{
-				Person{Name: "Chester A. Arthur", Start: "3/4/1881", End: "9/19/1881"},
+				{Name: "Chester A. Arthur", Start: "3/4/1881", End: "9/19/1881"},
 			},
 		}
 	case 21:
@@ -432,7 +416,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Grover Cleveland", Start: "3/4/1885", End: "3/4/1889"},
 			Vice: []Person{
-				Person{Name: "Thomas A. Hendricks", Start: "3/4/1885", End: "11/25/1885"},
+				{Name: "Thomas A. Hendricks", Start: "3/4/1885", End: "11/25/1885"},
 			},
 		}
 	case 23:
@@ -442,7 +426,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Benjamin Harrison", Start: "3/4/1889", End: "3/4/1893"},
 			Vice: []Person{
-				Person{Name: "Levi P. Morton", Start: "3/4/1889", End: "3/4/1893"},
+				{Name: "Levi P. Morton", Start: "3/4/1889", End: "3/4/1893"},
 			},
 		}
 	case 24:
@@ -452,7 +436,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Grover Cleveland", Start: "3/4/1893", End: "3/4/1897"},
 			Vice: []Person{
-				Person{Name: "Adlai Stevenson", Start: "3/4/1893", End: "3/4/1897"},
+				{Name: "Adlai Stevenson", Start: "3/4/1893", End: "3/4/1897"},
 			},
 		}
 	case 25:
@@ -462,8 +446,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "William McKinley", Start: "3/4/1897", End: "9/14/1901"},
 			Vice: []Person{
-				Person{Name: "Garret Hobart", Start: "3/4/1897", End: "11/21/1899"},
-				Person{Name: "Theodore Roosevelt", Start: "3/4/1901", End: "9/14/1901"},
+				{Name: "Garret Hobart", Start: "3/4/1897", End: "11/21/1899"},
+				{Name: "Theodore Roosevelt", Start: "3/4/1901", End: "9/14/1901"},
 			},
 		}
 	case 26:
@@ -473,7 +457,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Theodore Roosevelt", Start: "9/14/1901", End: "3/4/1909"},
 			Vice: []Person{
-				Person{Name: "Charles W. Fairbanks", Start: "3/4/1905", End: "3/4/1909"},
+				{Name: "Charles W. Fairbanks", Start: "3/4/1905", End: "3/4/1909"},
 			},
 		}
 	case 27:
@@ -483,7 +467,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "William Howard Taft", Start: "3/4/1909", End: "3/4/1913"},
 			Vice: []Person{
-				Person{Name: "James S. Sherman", Start: "3/4/1909", End: "10/30/1912"},
+				{Name: "James S. Sherman", Start: "3/4/1909", End: "10/30/1912"},
 			},
 		}
 	case 28:
@@ -493,7 +477,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Woodrow Wilson", Start: "3/4/1913", End: "3/4/1921"},
 			Vice: []Person{
-				Person{Name: "Thomas R. Marshall", Start: "3/4/1913", End: "3/4/1921"},
+				{Name: "Thomas R. Marshall", Start: "3/4/1913", End: "3/4/1921"},
 			},
 		}
 	case 29:
@@ -503,7 +487,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Warren G. Harding", Start: "3/4/1921", End: "8/2/1923"},
 			Vice: []Person{
-				Person{Name: "Calvin Coolidge", Start: "3/4/1921", End: "8/2/1923"},
+				{Name: "Calvin Coolidge", Start: "3/4/1921", End: "8/2/1923"},
 			},
 		}
 	case 30:
@@ -513,7 +497,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Calvin Coolidge", Start: "8/2/1923", End: "3/4/1929"},
 			Vice: []Person{
-				Person{Name: "Charles G. Dawes", Start: "3/4/1925", End: "3/4/1929"},
+				{Name: "Charles G. Dawes", Start: "3/4/1925", End: "3/4/1929"},
 			},
 		}
 	case 31:
@@ -523,7 +507,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Herbert Hoover", Start: "3/4/1929", End: "3/4/1933"},
 			Vice: []Person{
-				Person{Name: "Charles Curtis", Start: "3/4/1929", End: "3/4/1933"},
+				{Name: "Charles Curtis", Start: "3/4/1929", End: "3/4/1933"},
 			},
 		}
 	case 32:
@@ -533,9 +517,9 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     4,
 			President: Person{Name: "Franklin D. Roosevelt", Start: "3/4/1933", End: "4/12/1945"},
 			Vice: []Person{
-				Person{Name: "John Nance Garner", Start: "3/4/1933", End: "1/20/1941"},
-				Person{Name: "Henry A. Wallace", Start: "1/20/1941", End: "1/20/1945"},
-				Person{Name: "Harry S. Truman", Start: "1/20/1945", End: "4/12/1945"},
+				{Name: "John Nance Garner", Start: "3/4/1933", End: "1/20/1941"},
+				{Name: "Henry A. Wallace", Start: "1/20/1941", End: "1/20/1945"},
+				{Name: "Harry S. Truman", Start: "1/20/1945", End: "4/12/1945"},
 			},
 		}
 	case 33:
@@ -545,7 +529,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Harry S. Truman", Start: "4/12/1945", End: "1/20/1953"},
 			Vice: []Person{
-				Person{Name: "Alben W. Barkley", Start: "1/20/1949", End: "1/20/1953"},
+				{Name: "Alben W. Barkley", Start: "1/20/1949", End: "1/20/1953"},
 			},
 		}
 	case 34:
@@ -555,7 +539,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Dwight D. Eisenhower", Start: "1/20/1953", End: "1/20/1961"},
 			Vice: []Person{
-				Person{Name: "Richard Nixon", Start: "1/20/1953", End: "1/20/1961"},
+				{Name: "Richard Nixon", Start: "1/20/1953", End: "1/20/1961"},
 			},
 		}
 	case 35:
@@ -565,7 +549,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "John F. Kennedy", Start: "1/20/1961", End: "11/22/1963"},
 			Vice: []Person{
-				Person{Name: "Lyndon B. Johnson", Start: "1/20/1961", End: "11/22/1963"},
+				{Name: "Lyndon B. Johnson", Start: "1/20/1961", End: "11/22/1963"},
 			},
 		}
 	case 36:
@@ -575,7 +559,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Lyndon B. Johnson", Start: "11/22/1963", End: "1/20/1969"},
 			Vice: []Person{
-				Person{Name: "Hubert Humphrey", Start: "1/20/1965", End: "1/20/1969"},
+				{Name: "Hubert Humphrey", Start: "1/20/1965", End: "1/20/1969"},
 			},
 		}
 	case 37:
@@ -585,8 +569,8 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Richard Nixon", Start: "1/20/1969", End: "8/9/1974"},
 			Vice: []Person{
-				Person{Name: "Spiro Agnew", Start: "1/20/1969", End: "10/10/1973"},
-				Person{Name: "Gerald Ford", Start: "12/6/1973", End: "8/9/1974"},
+				{Name: "Spiro Agnew", Start: "1/20/1969", End: "10/10/1973"},
+				{Name: "Gerald Ford", Start: "12/6/1973", End: "8/9/1974"},
 			},
 		}
 	case 38:
@@ -596,7 +580,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Gerald Ford", Start: "8/9/1974", End: "1/20/1977"},
 			Vice: []Person{
-				Person{Name: "Nelson Rockefeller", Start: "12/19/1974", End: "1/20/1977"},
+				{Name: "Nelson Rockefeller", Start: "12/19/1974", End: "1/20/1977"},
 			},
 		}
 	case 39:
@@ -607,7 +591,7 @@ func presidents(i int) (POTUS, bool) {
 			President: Person{
 				Name: "Jimmy Carter", Start: "1/20/1977", End: "1/20/1981",
 			},
-			Vice: []Person{Person{Name: "Walter Mondale", Start: "1/20/1977", End: "1/20/1981"}},
+			Vice: []Person{{Name: "Walter Mondale", Start: "1/20/1977", End: "1/20/1981"}},
 		}
 	case 40:
 		p = POTUS{
@@ -616,7 +600,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Ronald Reagan", Start: "1/20/1981", End: "1/20/1989"},
 			Vice: []Person{
-				Person{Name: "George H. W. Bush", Start: "1/20/1981", End: "1/20/1989"},
+				{Name: "George H. W. Bush", Start: "1/20/1981", End: "1/20/1989"},
 			},
 		}
 	case 41:
@@ -626,7 +610,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "George H. W. Bush", Start: "1/20/1989", End: "1/20/1993"},
 			Vice: []Person{
-				Person{Name: "Dan Quayle", Start: "1/20/1989", End: "1/20/1993"},
+				{Name: "Dan Quayle", Start: "1/20/1989", End: "1/20/1993"},
 			},
 		}
 	case 42:
@@ -636,7 +620,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Bill Clinton", Start: "1/20/1993", End: "1/20/2001"},
 			Vice: []Person{
-				Person{Name: "Al Gore", Start: "1/20/1993", End: "1/20/2001"},
+				{Name: "Al Gore", Start: "1/20/1993", End: "1/20/2001"},
 			},
 		}
 	case 43:
@@ -646,7 +630,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "George W. Bush", Start: "1/20/2001", End: "1/20/2009"},
 			Vice: []Person{
-				Person{Name: "Dick Cheney", Start: "1/20/2001", End: "1/20/2009"},
+				{Name: "Dick Cheney", Start: "1/20/2001", End: "1/20/2009"},
 			},
 		}
 	case 44:
@@ -656,7 +640,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     2,
 			President: Person{Name: "Barack Obama", Start: "1/20/2009", End: "1/20/2017"},
 			Vice: []Person{
-				Person{Name: "Joe Biden", Start: "1/20/2009", End: "1/20/2017"},
+				{Name: "Joe Biden", Start: "1/20/2009", End: "1/20/2017"},
 			},
 		}
 	case 45:
@@ -666,7 +650,7 @@ func presidents(i int) (POTUS, bool) {
 			Terms:     1,
 			President: Person{Name: "Donald Trump", Start: "1/20/2017", End: ""},
 			Vice: []Person{
-				Person{Name: "Mike Pence", Start: "1/20/2017", End: ""},
+				{Name: "Mike Pence", Start: "1/20/2017", End: ""},
 			},
 		}
 	default:

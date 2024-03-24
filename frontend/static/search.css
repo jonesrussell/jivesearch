@@ -1,0 +1,302 @@
+#container {
+    margin-top: 0;
+}
+#search_container {
+    margin-left: 0;
+}
+.navbar {
+    overflow: hidden;
+}
+.nav{
+    display: inline-block;
+    line-height: 1.5; 
+}
+.nav_selected{
+    color: #4285f4;
+    display: inline-block;
+    line-height: 1.5; 
+    border-bottom: 2px solid #4285f4;
+}
+#safesearch {
+    display: none;
+    float: left;
+    overflow: hidden;
+}
+/* Dropdown button */
+#safesearchbtn {
+    font-size: 16px; 
+    border: none;
+    outline: none;
+    padding: 4px 16px;
+    background-color: inherit;
+    font-family: inherit; /* Important for vertical align on mobile phones */
+    margin: 0; /* Important for vertical align on mobile phones */
+}
+#safesearchbtn:after { /* caret */
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 0.255em;
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+}
+#safesearch-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    margin-left:-40px;
+}  
+/* Links inside the dropdown */
+.safesearch-content-label {
+  float: none;
+  font-size:14px;
+  color: black;
+  padding: 15px 16px;
+  text-decoration: none;
+  display: block;
+  text-align: left;
+}
+  
+/* 
+by default we don't display the count. 
+TODO: display via themes 
+*/
+.count {
+    color: #999;
+    font-size: small;
+    margin-bottom: 10px;
+}
+#instant {
+    margin-bottom: 15px;
+}
+#answer {
+    box-shadow: rgba(0,0,0,.25) 0 1px 2px 0;
+    height: 200px;
+    resize: both;
+    overflow: auto;
+}
+#wikipedia {
+    margin-bottom: 15px;
+}
+#wikipedia_image {
+    box-shadow: rgba(0,0,0,.15) 0 0 2px 0; /* remove box shadow from bottom of wikipedia_image */
+}
+#wikipedia_box {
+    box-shadow: rgba(0,0,0,.15) 0 1px 2px 0;
+    padding: 14px;
+}
+.wikipedia_claim {
+    margin-top: 4px;
+    padding: 2px;
+}
+.social_media {
+    color: #111;
+}
+i {
+    font-size: 20px;
+    vertical-align: middle;
+}
+.social_media:hover {
+    text-decoration: underline;
+}
+.wikipedia_item {
+  cursor: pointer;
+  text-decoration: none;
+  color: #1a0dab;
+}
+.wikipedia_item:hover {
+  text-decoration: underline;
+}
+.wikipedia_item:visited {
+  color: #609;
+}
+.arrow {
+    margin: 2px 0;
+    display: block;
+    cursor: pointer;
+    margin-left: auto;
+    margin-right: auto;
+    outline: none;
+    padding: 0;
+    width: 15px;
+    height: 14px;
+}
+.up {
+    background: url("/static/icons/sprite.png") no-repeat -42px -3px;
+}
+.down {
+    background: url("/static/icons/sprite.png") no-repeat 0 -3px;
+}
+.result {
+    margin-bottom: 23px;
+}
+.title {
+    line-height: 1.2;
+    font-size: 18px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: break-word;
+    zoom: 1;
+    -webkit-tap-highlight-color: rgba(0,0,0,.1);
+}
+.url {
+    color: #006621;
+    height: auto;
+    line-height: 16px;
+    white-space: nowrap;
+    zoom: 1;
+}
+.description {
+    height: auto;
+    line-height: 18.2px;
+    word-wrap: break-word;
+    font-size: 13px;
+    color: #545454;
+    zoom: 1;
+}
+.pagination {
+    cursor: pointer;
+}
+.pagination:hover {
+    text-decoration: underline;
+}
+
+@media screen 
+and (max-width: 48em) { /* <768px */
+    #wikipedia_image {
+        max-width: 150px;
+    }
+}
+
+@media screen 
+and (min-width: 80em) { /* .pure-u-xl-*, >=1280px */    
+    #instant,
+    #results{
+        max-width: 635px;
+    }
+}
+
+@media screen 
+and (min-width: 80em) { /* .pure-u-xl-*, >=1280px */
+    .spacer {
+        width: 115px;
+    }
+    #results_container {
+        min-width: 875px;
+        max-width: 1115px;
+    }
+    #wikipedia {
+        float: right;
+    }
+    .title {
+        word-wrap: nowrap;
+    }
+}
+
+@media screen 
+and (min-width: 80em) { /* .pure-u-xl-*, >=1280px */
+  /* scroll to top */
+  #return-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 850px;
+    background: rgb(0, 0, 0);
+    background: rgba(0, 0, 0, 0.7);
+    width: 50px;
+    height: 50px;
+    display: block;
+    text-decoration: none;
+    -webkit-border-radius: 35px;
+    -moz-border-radius: 35px;
+    border-radius: 35px;
+    display: none;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+  }
+  #return-to-top i {
+    color: #fff;
+    margin: 0;
+    position: relative;
+    left: 11.5px;
+    top: 13px;
+    font-size: 19px;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+  }
+  #return-to-top:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+  #return-to-top:hover i {
+    color: #fff;
+    top: 5px;
+  }
+}
+
+/* widget popup */
+.widget-window {
+  position: fixed;
+  background-color: rgba(200, 200, 200, 0.75);
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  opacity: 0;
+  pointer-events: none;
+  -webkit-transition: all 0.3s;
+  -moz-transition: all 0.3s;
+  transition: all 0.3s;
+}
+
+.widget-window:target {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.widget-window>div {
+  letter-spacing: normal; /* reset purecss's style here */
+  width: 550px;
+  position: relative;
+  margin: 10% auto;
+  padding: 1.5rem;
+  background: #fff;
+  color: #444;
+}
+
+.widget-window header {
+  font-weight: bold;
+}
+
+.widget-close {
+  color: #aaa;
+  line-height: 50px;
+  font-size: 90%;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+  width: 70px;
+  text-decoration: none;
+}
+
+.widget-close:hover {
+  color: #000;
+}
+
+.widget-window h1 {
+  font-size: 150%;
+  margin: 0 0 15px;
+}

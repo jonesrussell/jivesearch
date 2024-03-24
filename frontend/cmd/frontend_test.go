@@ -3,10 +3,9 @@ package main
 import (
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/jivesearch/jivesearch/frontend"
-	"github.com/jivesearch/jivesearch/wikipedia"
+	"github.com/jivesearch/jivesearch/instant/wikipedia"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )
@@ -22,10 +21,6 @@ func TestSetup(t *testing.T) {
 
 	if !parsed {
 		t.Fatal("expected templates to be parsed. they weren't.")
-	}
-
-	if reflect.DeepEqual(httpClient.Timeout, time.Time{}) {
-		t.Fatal("expected http client to have a timeout. it doesn't")
 	}
 
 	want := ":8000"

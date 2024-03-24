@@ -1,0 +1,97 @@
+{{define "small_logo"}}
+  {{.Brand.SmallLogo|SafeHTML}}
+{{end}}
+
+{{define "search_form"}}
+<div id="search_container">
+  <div class="ui-widget">
+    <form id="form" name="x" method="{{if .Context.POST}}POST{{else}}GET{{end}}" action="/" role="search" target="_top">
+      {{if .Context.D}}<input type="hidden" name="d" value="{{.Context.D}}"/>{{end}}
+      {{if ne .Context.F "moderate"}}<input type="hidden" name="f" value="{{.Context.F}}"/>{{end}}
+      {{if .Context.L}}<input type="hidden" name="l" value="{{.Context.L}}"/>{{end}}
+      {{if .Context.N}}<input type="hidden" name="n" value="{{.Context.N}}"/>{{end}}
+      {{if .Context.R}}<input type="hidden" name="r" value="{{.Context.R}}"/>{{end}}
+      {{if .Context.Ref}}<input type="hidden" name="ref" value="{{.Context.Ref}}"/>{{end}}     
+      {{if .Context.S}}<input type="hidden" name="s" value="{{.Context.S}}"/>{{end}}
+      {{if eq .Context.Safe false}}<input type="hidden" name="safe" value="f"/>{{end}}
+      {{if .Context.T}}<input type="hidden" name="t" value="{{.Context.T}}"/>{{end}}
+      {{if .Context.Theme}}<input type="hidden" name="theme" value="{{.Context.Theme}}"/>{{end}}
+      <!--don't set 'p' param...always force it back to page 1 on new query-->
+    	<input id="query" type="text" data-query="{{.Context.Q}}" placeholder="" name="q" maxlength="2048" tabindex="1"
+        autocomplete="off" title="Search" value="{{.Context.Q}}" aria-label="Search" autofocus />
+      <button id="search_submit" type="submit" tabindex="2"><i class="icon-search" aria-hidden="true"></i></button>
+    </form>
+  </div>
+</div>
+{{end}}
+
+{{define "did_you_mean"}}
+  {{if .Alternative}}
+  <div class="pure-u-1" style="font-size:18px;cursor:pointer;">
+    <p>
+      Did you mean <i><a id="alternative" data-alternative="{{.Alternative}}">{{.Alternative}}?</a></i>
+    </p>
+  </div>
+  {{end}}
+{{end}}
+
+{{define "search_results"}}
+  {{if ne .Context.T "maps"}}
+  <div id="results" class="pure-u-1 pure-u-xl-15-24">
+  {{template "did_you_mean" .}}
+  <div id="documents" class="pure-u-1">
+    {{range $i, $doc := .Search.Documents}}
+    <div class="document pure-u-1">
+      <div class="pure-u-22-24 pure-u-md-21-24 result">
+        <div class="title"><a href="{{$doc.ID}}" rel="noopener">{{$doc.Title}}</a></div>
+        <div class="url">
+          {{Truncate $doc.ID 60 false}} 
+          <span style="margin-left:15px;"><a href="/proxy?q={{$doc.ID}}&key={{$doc.ID | HMACKey}}" style="color:#555;font-size:15px;">Proxy</a></span></div>
+        <div class="description">{{$doc.Description}}</div>
+      </div>
+    </div>
+    {{end}}
+  </div>
+  <!--pagination-->
+  {{if .S}}
+  <div class="pure-u-1" style="text-align:center;padding-top:10px;padding-bottom:35px;">
+  {{else}}
+  <div class="pure-u-20-24" style="float:right;">
+    <a id="return-to-top" href="javascript:"><i class="icon-up-open-big"></i></a>
+  </div>
+  <div id="loading" class="pure-u-20-24" style="margin-top:5px;margin-bottom:15px;display:none;">
+    <img src="/static/loading.gif" alt="loading" width="16" height="16" style="display:block;margin:auto;" />
+  </div>
+  <div id="infinite_scroll" class="pure-u-1" style="text-align:center;padding-top:10px;padding-bottom:35px;display:none;">
+  {{end}}
+    <div class="pure-u-1" style="display:inline-block;color:hsl(222, 77%, 55%);">
+      <span class="pagination" data-page="{{if .Search.Previous}}{{.Search.Previous}}{{end}}" style="margin-right:35px;cursor:pointer;">Previous</span>
+      {{range $p := .Search.Pagination}}
+      <span class="pagination" data-page="{{$p}}" {{if eq $.Search.Page $p}}style="color:#000;margin-right:7px;"{{else}}style="color:#3367e5;margin-right:7px;"{{end}}>{{$p}}</span>
+      {{end}}
+      <span id="next_page" class="pagination" data-page="{{if .Search.Next}}{{.Search.Next}}{{end}}" style="margin-left:35px;cursor:pointer;">Next</span>
+    </div>
+  </div>
+  {{if .Search.Documents}}
+    {{if eq .Search.Provider "Yandex"}}
+    <div class="pure-u-1" style="display:table-cell;vertical-align:middle;">
+      <span class="image" style="margin-left:5px;">
+        <img src="/static/providers/yandex-for-white-background.png"/>
+        <span style="display:table-cell;font-size:16px;color:#444;">has found {{.Search.Count|Commafy}} answers</span>
+      </span>        
+    </div>
+    {{end}}
+  {{else}}
+  <div id="empty" class="pure-u-1">
+    {{template "did_you_mean" .}}
+    <p style="padding-top:5px;">No results for <strong>{{.Context.Q}}</strong></p>
+    <p>Suggestions:</p>
+    <ul>
+      <li>Please check your spelling.</li>
+      <li>Try a more general query.</li>
+    </ul>
+  </div>
+  {{end}}
+  </div>
+  {{end}}
+{{end}}
