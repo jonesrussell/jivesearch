@@ -175,7 +175,7 @@ func (d *Document) SetPolicyFromHeader(bot string) *Document {
 // In case of competing directives we follow the most restrictive.
 // Since our default is to Index and Follow we don't want to
 // switch a "false" to "true" since we follow the most restrictive.
-func (d *Document) setPolicy(bot, pol string) {
+func (d *Document) setPolicy(_ string, pol string) {
 	for _, p := range strings.Split(pol, ",") {
 		p = strings.ToLower(strings.TrimSpace(p))
 		switch p {

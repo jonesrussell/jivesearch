@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func TestGet(t *testing.T) {

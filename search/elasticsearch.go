@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/jivesearch/jivesearch/search/document"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"golang.org/x/text/language"
 )
 
@@ -72,7 +72,7 @@ func (e *ElasticSearch) Fetch(q string, filter Filter, lang language.Tag, region
 
 	for _, u := range out.Hits.Hits {
 		doc := &document.Document{}
-		err := json.Unmarshal(*u.Source, doc)
+		err := json.Unmarshal(u.Source, doc)
 		if err != nil {
 			return res, err
 		}

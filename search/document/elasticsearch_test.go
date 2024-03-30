@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"golang.org/x/text/language"
 )
 

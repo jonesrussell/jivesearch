@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jivesearch/jivesearch/search/document"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 // ElasticSearch satisfies the crawler's Backend interface
@@ -97,16 +97,19 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 
 	cnt = int(r1.TotalHits())
 
-	if err != nil && !elastic.IsNotFound(r2.Error) {
+	if !elastic.IsNotFound(r2.Error) {
 		return crawled, cnt, fmt.Errorf(r2.Error.Reason)
 	}
 
 	for _, h := range r2.Hits.Hits {
 		c := make(map[string]string)
-		if err := json.Unmarshal(*h.Source, &c); err != nil {
+		if err := json.Unmarshal(h.Source, &c); err != nil {
 			return crawled, cnt, err
 		}
 		crawled, err = time.Parse("20060102", c["crawled"])
+		if err != nil {
+			return crawled, cnt, err
+		}
 	}
 
 	return crawled, cnt, err

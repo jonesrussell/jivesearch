@@ -9,7 +9,7 @@ import (
 
 	"github.com/jivesearch/jivesearch/search/document"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func TestUpsert(t *testing.T) {

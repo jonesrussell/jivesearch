@@ -78,7 +78,7 @@ func SetDefaults(cfg Provider) {
 	cfg.SetDefault("languages", []string{}) // e.g. JIVESEARCH_LANGUAGES="en fr de"
 
 	// Elasticsearch
-	cfg.SetDefault("elasticsearch.url", "http://127.0.0.1:9200")
+	cfg.SetDefault("elasticsearch.url", "https://127.0.0.1:9200")
 	cfg.SetDefault("elasticsearch.search.index", "test-search")
 	cfg.SetDefault("elasticsearch.search.type", "document")
 

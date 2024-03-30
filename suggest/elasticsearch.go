@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 const completionSuggest = "completion_suggest"
@@ -81,7 +81,6 @@ func (e *ElasticSearch) Increment(term string) error {
 	_, err := e.Client.
 		Update().
 		Index(e.Index).
-		Type(e.Type).
 		Id(term).
 		Script(elastic.NewScriptInline("ctx._source.completion_suggest.weight += 1")).
 		Do(context.TODO())
@@ -90,7 +89,7 @@ func (e *ElasticSearch) Increment(term string) error {
 }
 
 func (e *ElasticSearch) mapping() string {
-	return fmt.Sprintf(`{
+	mapping := fmt.Sprintf(`{
 		"mappings": {
 			"%v": {
 				"dynamic": "strict",
@@ -107,6 +106,10 @@ func (e *ElasticSearch) mapping() string {
 			}
 		}
 	}`, e.Type, completionSuggest)
+
+	fmt.Println(mapping)
+
+	return mapping
 }
 
 // Setup creates a completion index

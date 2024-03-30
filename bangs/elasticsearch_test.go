@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 func TestSuggestES(t *testing.T) {

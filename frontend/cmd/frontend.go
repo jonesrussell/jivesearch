@@ -47,7 +47,7 @@ import (
 	img "github.com/jivesearch/jivesearch/search/image"
 	"github.com/jivesearch/jivesearch/search/provider"
 	"github.com/jivesearch/jivesearch/suggest"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )

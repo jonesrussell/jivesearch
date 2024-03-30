@@ -18,7 +18,7 @@ import (
 	"github.com/jivesearch/jivesearch/search/crawler"
 	"github.com/jivesearch/jivesearch/search/document"
 	img "github.com/jivesearch/jivesearch/search/image"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

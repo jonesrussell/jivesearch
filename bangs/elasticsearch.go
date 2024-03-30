@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 const bangSuggest = "bang_suggest"
@@ -58,7 +58,7 @@ func (e *ElasticSearch) SuggestResults(term string, size int) (Results, error) {
 
 func (e *ElasticSearch) mapping() string {
 	// Note: the simple analyzer won't work for numeric triggers -> e.g. "500".
-	return fmt.Sprintf(`{
+	mapping := fmt.Sprintf(`{
 		"mappings": {
 			"%v": {
 				"dynamic": "strict",
@@ -75,6 +75,10 @@ func (e *ElasticSearch) mapping() string {
 			}
 		}
 	}`, e.Type, bangSuggest)
+
+	fmt.Println(mapping)
+	
+	return mapping
 }
 
 // IndexExists returns true if the index exists

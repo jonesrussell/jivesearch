@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jivesearch/jivesearch/log"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"golang.org/x/text/language"
 )
 
@@ -45,12 +45,7 @@ func (e *ElasticSearch) Analyzer(lang language.Tag) (string, error) {
 func (e *ElasticSearch) Setup() error {
 	// We create one index per analyzer: search-english, search-spanish, etc...
 	// This is a list of all elasticsearch analyzers
-	analyzers := []string{"arabic", "armenian", "basque", "brazilian",
-		"bulgarian", "catalan", "cjk", "czech", "danish", "dutch",
-		"english", "finnish", "french", "galician", "german", "greek",
-		"hindi", "hungarian", "indonesian", "irish", "italian", "latvian",
-		"lithuanian", "norwegian", "persian", "portuguese", "romanian",
-		"russian", "sorani", "spanish", "swedish", "turkish", "thai",
+	analyzers := []string{"english",
 	}
 
 	for _, a := range analyzers {
@@ -74,130 +69,123 @@ func (e *ElasticSearch) Setup() error {
 // mapping is the mapping of our main search Index.
 // https://www.elastic.co/guide/en/elasticsearch/guide/current/one-lang-docs.html
 func (e *ElasticSearch) mapping(a string) string {
-	// Notes: Does the domain_name_analyzer and path_analyzer deal with rtl text (arabic, hebrew, etc)???
-	// Also, needs better analyzer for domain...
-	// e.g. search for "jimi hendrix" should return jimihendrix.com
 	m := fmt.Sprintf(`{
-		"settings": {
-			"analysis": {
-				"filter": {
-					"my_shingle_filter": {
-						"type":             "shingle",
-						"min_shingle_size": 2, 
-						"max_shingle_size": 2, 
-						"output_unigrams":  false   
-					}
-				},
-				"analyzer": {
-					"my_shingle_analyzer": {
-						"type":             "custom",
-						"tokenizer":        "standard",
-						"filter": [
-							"lowercase",
-							"my_shingle_filter" 
-						]
-					},
-					"domain_name_analyzer": {
-						"tokenizer": "domain_name_tokenizer"
-					},
-					"path_analyzer": {
-						"tokenizer": "path_tokenizer"
-					}
-				},
-				"tokenizer": {
-					"domain_name_tokenizer": {
-						"type": "path_hierarchy",
-						"delimiter": "."
-					},
-					"path_tokenizer": {
-						"type": "path_hierarchy",
-						"delimiter": "/",
-						"replacement": " "
-					}
-				}
-			}
-		},
-		"mappings": {
-			"document": {
-				"_all": {
-					"enabled": false
-				},
-				"dynamic": "strict",
-				"properties": {
-					"title": {
-						"type": "text",
-						"fields": {
-							"lang": {
-								"type":     "text",
-								"analyzer": "%v" 
+			"settings": {
+					"analysis": {
+							"filter": {
+									"my_shingle_filter": {
+											"type": "shingle",
+											"min_shingle_size": 2,
+											"max_shingle_size": 2,
+											"output_unigrams": false
+									}
 							},
-							"shingles": {
-								"type": 	"text",
-								"analyzer": "my_shingle_analyzer"
-							}
-						}
-					},
-					"description": {
-						"type": "text",
-						"fields": {
-							"lang": {
-								"type":     "text",
-								"analyzer": "%v" 
+							"analyzer": {
+									"my_shingle_analyzer": {
+											"type": "custom",
+											"tokenizer": "standard",
+											"filter": [
+													"lowercase",
+													"my_shingle_filter"
+											]
+									},
+									"domain_name_analyzer": {
+											"tokenizer": "domain_name_tokenizer"
+									},
+									"path_analyzer": {
+											"tokenizer": "path_tokenizer"
+									}
 							},
-							"shingles": {
-								"type": 	"text",
-								"analyzer": "my_shingle_analyzer"
+							"tokenizer": {
+									"domain_name_tokenizer": {
+											"type": "path_hierarchy",
+											"delimiter": "."
+									},
+									"path_tokenizer": {
+											"type": "path_hierarchy",
+											"delimiter": "/",
+											"replacement": " "
+									}
 							}
-						}
-					},
-					"id": {
-						"type": "keyword"
-					},
-					"keywords": {
-						"type": "text"
-					},
-					"scheme": {
-						"type": "keyword"
-					},
-					"domain": {
-						"type": "text",
-						"analyzer": "domain_name_analyzer"
-					},
-					"tld": {
-						"type": "keyword"
-					},						
-					"host": {
-						"type": "keyword"
-					},						
-					"path_parts": {
-						"type":  "text",
-						"analyzer": "path_analyzer"
-					},
-					"index": {
-						"type": "boolean"
-					},
-					"crawled": {
-						"type": "date",
-						"format": "basic_date"
-					},
-					"date": {
-						"type": "date",
-						"format": "strict_date_optional_time"
-					},
-					"status": {
-						"type": "short"
-					},
-					"canonical": {
-						"type": "text",
-						"index": "false"
-					},
-					"mime": {
-						"type": "keyword"
 					}
-				}
+			},
+			"mappings": {
+					"properties": {
+							"title": {
+									"type": "text",
+									"fields": {
+											"lang": {
+													"type": "text",
+													"analyzer": "%v"
+											},
+											"shingles": {
+													"type": "text",
+													"analyzer": "my_shingle_analyzer"
+											}
+									}
+							},
+							"description": {
+									"type": "text",
+									"fields": {
+											"lang": {
+													"type": "text",
+													"analyzer": "%v"
+											},
+											"shingles": {
+													"type": "text",
+													"analyzer": "my_shingle_analyzer"
+											}
+									}
+							},
+							"id": {
+									"type": "keyword"
+							},
+							"keywords": {
+									"type": "text"
+							},
+							"scheme": {
+									"type": "keyword"
+							},
+							"domain": {
+									"type": "text",
+									"analyzer": "domain_name_analyzer"
+							},
+							"tld": {
+									"type": "keyword"
+							},
+							"host": {
+									"type": "keyword"
+							},
+							"path_parts": {
+									"type": "text",
+									"analyzer": "path_analyzer"
+							},
+							"index": {
+									"type": "boolean"
+							},
+							"crawled": {
+									"type": "date",
+									"format": "basic_date"
+							},
+							"date": {
+									"type": "date",
+									"format": "strict_date_optional_time"
+							},
+							"status": {
+									"type": "short"
+							},
+							"canonical": {
+									"type": "text",
+									"index": "false"
+							},
+							"mime": {
+									"type": "keyword"
+							}
+					}
 			}
-		}
 	}`, a, a)
+
+	fmt.Println(m)
 
 	return m
 }
@@ -209,7 +197,7 @@ func init() {
 
 	//langAnalyzer[language.Afrikaans] = ""                   // af
 	//langAnalyzer[language.Amharic] = ""                      // am
-	langAnalyzer[language.Arabic] = "arabic" // ar
+	//langAnalyzer[language.Arabic] = "arabic" // ar
 	//langAnalyzer[language.ModernStandardArabic] = ""         // ar-001
 	//langAnalyzer[language.Azerbaijani] = ""                // az
 	langAnalyzer[language.Bulgarian] = "bulgarian" // bg
@@ -236,7 +224,7 @@ func init() {
 	langAnalyzer[language.Hindi] = "hindi" //  hi
 	//langAnalyzer[language.Croatian] = ""                 //  hr
 	langAnalyzer[language.Hungarian] = "hungarian"   //  hu
-	langAnalyzer[language.Armenian] = "armenian"     //  hy
+	//langAnalyzer[language.Armenian] = "armenian"     //  hy
 	langAnalyzer[language.Indonesian] = "indonesian" //  id
 	//langAnalyzer[language.Icelandic] = ""                   //  is
 	langAnalyzer[language.Italian] = "italian" //  it

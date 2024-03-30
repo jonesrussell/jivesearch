@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/http"
@@ -19,7 +20,7 @@ import (
 	"github.com/jivesearch/jivesearch/search/crawler/robots"
 	"github.com/jivesearch/jivesearch/search/document"
 	img "github.com/jivesearch/jivesearch/search/image"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 )
 
@@ -59,6 +60,9 @@ func setup(v *viper.Viper) {
 
 	c.HTTPClient = &http.Client{
 		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // Disable SSL verification
+			},
 			Dial: (&nett.Dialer{
 				Resolver: &nett.CacheResolver{TTL: 10 * time.Minute},
 				IPFilter: nett.DualStack,
@@ -66,8 +70,6 @@ func setup(v *viper.Viper) {
 			DisableKeepAlives: true,
 		},
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			// For robots.txt follow the default redirect policy of max 10 redirects
-			// For all others don't follow redirects
 			if strings.ToLower(req.URL.Path) == crawler.RobotsPath.Path {
 				if len(via) >= 10 {
 					return errors.New("stopped after 10 redirects")
@@ -80,6 +82,7 @@ func setup(v *viper.Viper) {
 	}
 }
 
+
 func main() {
 	v := viper.New()
 	setup(v)
@@ -88,7 +91,21 @@ func main() {
 	// Note: for remote URLs I can't seem to get it to work with sniffing on
 	// see https://github.com/olivere/elastic/issues/312
 	ri := v.GetString("elasticsearch.robots.index")
-	client, err := elastic.NewClient(elastic.SetURL(v.GetString("elasticsearch.url")), elastic.SetSniff(false))
+	client, err := elastic.NewClient(
+		elastic.SetURL(v.GetString("elasticsearch.url")),
+		elastic.SetHttpClient(&http.Client{
+			Transport: &http.Transport{
+					TLSClientConfig: &tls.Config{
+							InsecureSkipVerify: true, // Disable SSL verification
+					},
+			},
+			CheckRedirect: func(req *http.Request, via []*http.Request) error {
+					return http.ErrUseLastResponse
+			},
+		}),
+		elastic.SetBasicAuth("elastic", "nTC*OSGrc5pCt+xVIGd*"),
+		elastic.SetSniff(false),
+	)
 	if err != nil {
 		panic(err)
 	}

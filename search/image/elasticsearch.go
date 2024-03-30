@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jivesearch/jivesearch/log"
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 // ElasticSearch hold connection and index settings
@@ -82,7 +82,7 @@ func (e *ElasticSearch) Fetch(q string, safe bool, number int, offset int) (*Res
 		img := &Image{
 			ID: h.Id,
 		}
-		err := json.Unmarshal(*h.Source, img)
+		err := json.Unmarshal(h.Source, img)
 		if err != nil {
 			return res, err
 		}
@@ -190,7 +190,7 @@ func (e *ElasticSearch) Uncrawled(number int, since time.Time) ([]*Image, error)
 
 		for _, h := range hits.Hits.Hits {
 			img := &Image{}
-			err := json.Unmarshal(*h.Source, img)
+			err := json.Unmarshal(h.Source, img)
 			if err != nil {
 				return images, err
 			}
@@ -223,52 +223,24 @@ func (e *ElasticSearch) Setup() error {
 // mapping is the mapping of our image Index.
 func (e *ElasticSearch) mapping() string {
 	m := `{
-		"index.mapping.total_fields.limit": 100000,
-		"mappings": {
-			"image": {
-				"_all": {
-					"enabled": false
-				},
-				"dynamic": "strict",
-				"properties": {
-					"id": {
-						"type": "text"
-					},
-					"domain": {
-						"type": "keyword"
-					},
-					"alt": {
-						"type": "text"
-					},
-					"copyright": {
-						"type": "text"
-					},
-					"mime": {
-						"type": "keyword"
-					},
-					"width": {
-						"type": "integer"
-					},
-					"height": {
-						"type": "integer"
-					},
-					"nsfw_score": {
-						"type": "scaled_float",
-						"scaling_factor": 100
-					},
-					"crawled": {
-						"type": "date",
-						"format": "basic_date"
-					},
-					"classification": {
-					  "type": "object",
-						"dynamic": "true", 
-						"enabled": "true"
+			"mappings": {
+					"properties": {
+							"expires": {
+									"type": "date",
+									"format": "yyyyMMddHHmm"
+							},
+							"body": {
+									"type": "text",
+									"index": false
+							},
+							"status": {
+									"type": "short"
+							}
 					}
-				}
 			}
-		}
 	}`
+
+	fmt.Println(m)
 
 	return m
 }

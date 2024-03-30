@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/olivere/elastic"
+	"github.com/olivere/elastic/v7"
 )
 
 // ElasticSearch holds our Elasticsearch connection and index information
@@ -28,7 +28,7 @@ func (e *ElasticSearch) Get(sh string) (*Robots, error) {
 		return rob, err
 	}
 
-	if err := json.Unmarshal(*res.Source, rob); err != nil {
+	if err := json.Unmarshal(res.Source, rob); err != nil {
 		return rob, err
 	}
 
@@ -52,26 +52,28 @@ func (e *ElasticSearch) Put(r *Robots) {
 
 // Mapping is the mapping of our robots Index
 func (e *ElasticSearch) Mapping() string {
-	return fmt.Sprintf(`{
+	mapping := fmt.Sprintf(`{
     "mappings": {
-			"%v": {
-				"dynamic": "strict",
+		"dynamic": "strict",
         "properties": {
-					"body": {
-            "type": "text",
-    				"index": false
-          },
-					"status": {
-            "type": "short"
-          },
-					"expires": {
-						"type": "date",
-						"format": "yyyyMMddHHmm"
-          }
+			"body": {
+				"type": "text",
+				"index": false
+			},
+			"status": {
+				"type": "short"
+			},
+			"expires": {
+				"type": "date",
+				"format": "yyyyMMddHHmm"
+			}
         }
-      }
     }
-  }`, e.Type)
+  }`)
+  
+  fmt.Println(mapping)
+  
+  return mapping
 }
 
 // Setup creates an index for caching robots.txt files
