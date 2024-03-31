@@ -3,6 +3,7 @@ package crawler
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -115,6 +116,9 @@ func New(cfg config.Provider) *Crawler {
 
 // Start the crawler
 func (c *Crawler) Start(t time.Duration) error {
+
+	fmt.Println("Start")
+
 	ctx, cancel := context.WithTimeout(context.TODO(), t)
 	defer cancel()
 

@@ -290,9 +290,9 @@ var ParseTemplates = func() {
 		template.New("base.html").
 			Funcs(funcMap).
 			ParseFiles(
-				"templates/base.html",
-				"templates/search_form.html",
-				"templates/about.html",
+				"frontend/templates/base.html",
+				"frontend/templates/search_form.html",
+				"frontend/templates/about.html",
 			),
 	)
 
@@ -306,50 +306,50 @@ var ParseTemplates = func() {
 	templates["answer"] = template.Must(
 		t.Funcs(funcMap).
 			ParseFiles(
-				"templates/wikipedia.html",
-				"templates/answer.html",
+				"frontend/templates/wikipedia.html",
+				"frontend/templates/answer.html",
 			),
 	)
 	templates["maps"] = template.Must(
 		template.New("maps.html").
 			Funcs(funcMap).
 			ParseFiles(
-				"templates/maps.html",
+				"frontend/templates/maps.html",
 			),
 	)
 	templates["opensearch"] = template.Must(
 		template.New("opensearch.xml").
 			ParseFiles(
-				"templates/opensearch.xml",
+				"frontend/templates/opensearch.xml",
 			),
 	)
 	templates["proxy_header"] = template.Must(
 		template.New("base.html").
 			Funcs(funcMap).
 			ParseFiles(
-				"templates/base.html",
-				"templates/search_form.html",
-				"templates/proxy_header.html",
+				"frontend/templates/base.html",
+				"frontend/templates/search_form.html",
+				"frontend/templates/proxy_header.html",
 			),
 	)
 	templates["proxy"] = template.Must(
 		template.New("base.html").
 			Funcs(funcMap).
 			ParseFiles(
-				"templates/base.html",
-				"templates/search_form.html",
-				"templates/proxy.html",
+				"frontend/templates/base.html",
+				"frontend/templates/search_form.html",
+				"frontend/templates/proxy.html",
 			),
 	)
 	templates["search"] = template.Must(
 		template.New("base.html").
 			Funcs(funcMap).
 			ParseFiles(
-				"templates/base.html",
-				"templates/answer.html",
-				"templates/search_form.html",
-				"templates/search.html",
-				"templates/wikipedia.html",
+				"frontend/templates/base.html",
+				"frontend/templates/answer.html",
+				"frontend/templates/search_form.html",
+				"frontend/templates/search.html",
+				"frontend/templates/wikipedia.html",
 			),
 	)
 }

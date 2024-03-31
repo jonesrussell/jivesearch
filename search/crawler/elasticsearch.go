@@ -43,6 +43,8 @@ func (e *ElasticSearch) Upsert(doc *document.Document) error {
 // CrawledAndCount returns the crawled date of the url (if any) and
 // the total number of links a domain has
 func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error) {
+	fmt.Println(domain)
+
 	body := fmt.Sprintf(`{
 		"bool": {
 			"filter": [
@@ -59,6 +61,10 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 			]
 		}
 	}`, domain)
+
+	fmt.Println("Index:", e.Index+"-*")
+	fmt.Println(body)
+	fmt.Println("Query:", elastic.NewSearchSource().Query(elastic.RawStringQuery(body)))
 
 	var crawled, cnt = time.Time{}, 0
 
@@ -85,6 +91,26 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 	res, err := e.Client.MultiSearch().
 		Add(countReq, crawledRequest).
 		Do(context.TODO())
+
+	if err != nil {
+		// Handle error
+		fmt.Printf("Error executing multi-search: %v\n", err)
+		return crawled, cnt, err
+	}
+
+	// Iterate over the responses
+	for i, r := range res.Responses {
+		fmt.Printf("Response %d:\n", i+1)
+		if r.Error != nil {
+			fmt.Printf(" Error: %s\n", r.Error.Reason)
+		} else {
+			fmt.Printf(" Total Hits: %d\n", r.TotalHits())
+			// Print each hit
+			for _, hit := range r.Hits.Hits {
+				fmt.Printf("    Hit ID: %s, Source: %s\n", hit.Id, string(hit.Source))
+			}
+		}
+	}
 
 	e.Unlock()
 

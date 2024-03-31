@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/abursavich/nett"
@@ -45,7 +46,7 @@ var (
 )
 
 func setup(v *viper.Viper) {
-	v.SetEnvPrefix("jivesearch")
+	// v.SetEnvPrefix("PP")
 	v.AutomaticEnv()
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	config.SetDefaults(v)
@@ -82,7 +83,6 @@ func setup(v *viper.Viper) {
 	}
 }
 
-
 func main() {
 	v := viper.New()
 	setup(v)
@@ -95,15 +95,15 @@ func main() {
 		elastic.SetURL(v.GetString("elasticsearch.url")),
 		elastic.SetHttpClient(&http.Client{
 			Transport: &http.Transport{
-					TLSClientConfig: &tls.Config{
-							InsecureSkipVerify: true, // Disable SSL verification
-					},
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true, // Disable SSL verification
+				},
 			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
-					return http.ErrUseLastResponse
+				return http.ErrUseLastResponse
 			},
 		}),
-		elastic.SetBasicAuth("elastic", "nTC*OSGrc5pCt+xVIGd*"),
+		elastic.SetBasicAuth("elastic", "wDFn4OvYRG6REI=w+VUP"),
 		elastic.SetSniff(false),
 	)
 	if err != nil {
@@ -123,12 +123,9 @@ func main() {
 
 	// setup our search index
 	c.Backend = &crawler.ElasticSearch{
-		ElasticSearch: &document.ElasticSearch{
-			Client: client,
-			Index:  v.GetString("elasticsearch.search.index"),
-			Type:   v.GetString("elasticsearch.search.type"),
-		},
-		Bulk: bulk,
+		ElasticSearch: &document.ElasticSearch{Client: client, Index: v.GetString("elasticsearch.search.index"), Type: v.GetString("elasticsearch.search.type")},
+		Bulk:          bulk,
+		Mutex:         sync.Mutex{},
 	}
 
 	if err := c.Backend.Setup(); err != nil {

@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	foo "log"
+
 	"github.com/jivesearch/jivesearch/instant/breach"
 	"github.com/jivesearch/jivesearch/instant/congress"
 	"github.com/jivesearch/jivesearch/instant/nutrition"
@@ -142,7 +144,7 @@ func main() {
 	}
 
 	//parent := filepath.Dir(cwd)
-	if err := suggest.NewNaughty(path.Join(cwd, "../suggest/naughty.txt")); err != nil {
+	if err := suggest.NewNaughty(path.Join(cwd, "./suggest/naughty.txt")); err != nil {
 		panic(err)
 	}
 
@@ -150,11 +152,21 @@ func main() {
 	debug := v.GetBool("debug")
 	vb := viper.New()
 	vb.SetConfigType("toml")
-	vb.AddConfigPath("../bangs")
+	vb.AddConfigPath("bangs")
 	vb.SetConfigName("bangs") // the default !bangs config file
 	if debug {
 		vb.SetConfigName("bangs.test") // a shorter file to load quicker when debugging
 	}
+
+	// Print the current working directory
+	cwd, err = os.Getwd()
+	if err != nil {
+		foo.Fatal(err)
+	}
+	fmt.Println("Current Working Directory:", cwd)
+
+	// Assuming you've set the config path as shown in your code
+	fmt.Println("Config Path:", "bangs")
 
 	f.Bangs, err = bangs.New(vb)
 	if err != nil {

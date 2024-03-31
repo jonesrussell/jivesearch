@@ -3,3 +3,4 @@ cover.html
 *.out
 npm-debug.log
 .env
+vendor/
