@@ -77,7 +77,7 @@ func (e *ElasticSearch) mapping() string {
 	}`, e.Type, bangSuggest)
 
 	fmt.Println(mapping)
-	
+
 	return mapping
 }
 
@@ -108,7 +108,6 @@ func (e *ElasticSearch) Setup(bangs []Bang) error {
 
 			_, err := e.Client.Index().
 				Index(e.Index).
-				Type(e.Type).
 				BodyJson(&q).
 				Do(context.TODO())
 

@@ -66,13 +66,12 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 	// it s/b faster using multisearch.
 	countReq := elastic.NewSearchRequest().
 		Index(e.Index + "-*").
-		Type(e.Type).Source(elastic.NewSearchSource().
-		Query(elastic.RawStringQuery(body)),
-	)
+		Source(elastic.NewSearchSource().
+			Query(elastic.RawStringQuery(body)),
+		)
 
 	crawledRequest := elastic.NewSearchRequest().
 		Index(e.Index + "-*").
-		Type(e.Type).
 		Source(elastic.NewSearchSource().
 			Query(elastic.NewTermQuery("_id", u)).
 			FetchSourceContext(elastic.NewFetchSourceContext(true).Include("crawled")),

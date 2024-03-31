@@ -99,7 +99,6 @@ func (e *ElasticSearch) Fetch(q string, safe bool, number int, offset int) (*Res
 func (e *ElasticSearch) Upsert(img *Image) error {
 	item := elastic.NewBulkUpdateRequest().
 		Index(e.Index).
-		Type(e.Type).
 		Id(img.ID).
 		DocAsUpsert(true).
 		Doc(img)

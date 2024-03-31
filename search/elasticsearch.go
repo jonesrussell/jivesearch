@@ -63,7 +63,7 @@ func (e *ElasticSearch) Fetch(q string, filter Filter, lang language.Tag, region
 
 	idx := e.IndexName(a)
 
-	out, err := e.Client.Search().Index(idx).Type(e.Type).Query(qu).From(offset).Size(number).Do(context.TODO())
+	out, err := e.Client.Search().Index(idx).Query(qu).From(offset).Size(number).Do(context.TODO())
 	if err != nil {
 		return res, err
 	}

@@ -20,7 +20,7 @@ type ElasticSearch struct {
 func (e *ElasticSearch) Get(sh string) (*Robots, error) {
 	rob := &Robots{SchemeHost: sh}
 
-	res, err := e.Client.Get().Index(e.Index).Type(e.Type).Id(sh).Do(context.TODO())
+	res, err := e.Client.Get().Index(e.Index).Id(sh).Do(context.TODO())
 	if err != nil {
 		if elastic.IsNotFound(err) {
 			err = nil
@@ -43,7 +43,6 @@ func (e *ElasticSearch) Get(sh string) (*Robots, error) {
 func (e *ElasticSearch) Put(r *Robots) {
 	item := elastic.NewBulkIndexRequest().
 		Index(e.Index).
-		Type(e.Type).
 		Id(r.SchemeHost).
 		Doc(r)
 
@@ -52,9 +51,8 @@ func (e *ElasticSearch) Put(r *Robots) {
 
 // Mapping is the mapping of our robots Index
 func (e *ElasticSearch) Mapping() string {
-	mapping := fmt.Sprintf(`{
+	mapping := `{
     "mappings": {
-		"dynamic": "strict",
         "properties": {
 			"body": {
 				"type": "text",
@@ -69,11 +67,11 @@ func (e *ElasticSearch) Mapping() string {
 			}
         }
     }
-  }`)
-  
-  fmt.Println(mapping)
-  
-  return mapping
+  }`
+
+	fmt.Println(mapping)
+
+	return mapping
 }
 
 // Setup creates an index for caching robots.txt files

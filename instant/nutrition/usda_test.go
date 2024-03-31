@@ -10,6 +10,34 @@ import (
 	"github.com/jarcoal/httpmock"
 )
 
+type FoodDetail struct {
+	SR        string        `json:"sr"`
+	Type      string        `json:"type"`
+	Desc      Description   `json:"desc"`
+	Nutrients []Nutrient    `json:"nutrients"`
+	Sources   []interface{} `json:"sources"`
+	Footnotes []interface{} `json:"footnotes"`
+	Langual   []interface{} `json:"langual"`
+}
+
+type Description struct {
+	Ndbno string  `json:"ndbno"`
+	Name  string  `json:"name"`
+	SD    string  `json:"sd"`
+	FG    string  `json:"fg"`
+	SN    string  `json:"sn"`
+	CN    string  `json:"cn"`
+	Manu  string  `json:"manu"`
+	NF    float64 `json:"nf"`
+	CF    float64 `json:"cf"`
+	FF    float64 `json:"ff"`
+	PF    float64 `json:"pf"`
+	R     string  `json:"r"`
+	RD    string  `json:"rd"`
+	DS    string  `json:"ds"`
+	RU    string  `json:"ru"`
+}
+
 func TestUSDAFetch(t *testing.T) {
 	type args struct {
 		ndbnos []string
@@ -31,67 +59,66 @@ func TestUSDAFetch(t *testing.T) {
 			u:    `https://api.nal.usda.gov/ndb/V2/reports?api_key=&format=json&max=25&type=f&ndbno=208&ndbno=25`,
 			resp: `{
 				"foods": [
-					{
-						"food": {
-							"sr": "1",
-							"type": "f",
-							"desc": {
-								"ndbno": "01123",
-								"name": "Egg, whole, raw, fresh",
-								"sd": "EGG,WHL,RAW,FRSH",
-								"fg": "Dairy and Egg Products",
-								"sn": "",
-								"cn": "",
-								"manu": "",
-								"nf": 6.25,
-								"cf": 3.68,
-								"ff": 9.02,
-								"pf": 4.36,
-								"r": "12%",
-								"rd": "Shell",
-								"ds": "Standard Reference",
-								"ru": "g"
-							},
-							"nutrients": [
-								{
-									"nutrient_id": 208,
-									"name": "Energy",
-									"group": "Proximates",
-									"unit": "kcal",
-									"value": 143,
-									"derivation": "NC",
-									"sourcecode": "",
-									"dp": "",
-									"se": "",
-									"measures": [
-										{
-											"label": "large",
-											"eqv": 50,
-											"eunit": "g",
-											"qty": 1,
-											"value": 72
+						{
+								"food": {
+										"sr": "1",
+										"type": "f",
+										"desc": {
+												"ndbno": "01123",
+												"name": "Egg, whole, raw, fresh",
+												"sd": "EGG,WHL,RAW,FRSH",
+												"fg": "Dairy and Egg Products",
+												"sn": "",
+												"cn": "",
+												"manu": "",
+												"nf": "6.25",
+												"cf": "3.68",
+												"ff": "9.02",
+												"pf": "4.36",
+												"r": "12%",
+												"rd": "Shell",
+												"ds": "Standard Reference",
+												"ru": "g"
 										},
-										{
-											"label": "extra large",
-											"eqv": 56,
-											"eunit": "g",
-											"qty": 1,
-											"value": 80
-										},
-										null
-									]
+										"nutrients": [
+												{
+														"nutrient_id": 208,
+														"name": "Energy",
+														"group": "Proximates",
+														"unit": "kcal",
+														"value": 143,
+														"derivation": "NC",
+														"sourcecode": "",
+														"dp": "",
+														"se": "",
+														"measures": [
+																{
+																		"label": "large",
+																		"eqv": "50",
+																		"eunit": "g",
+																		"qty": 1,
+																		"value": 72
+																},
+																{
+																		"label": "extra large",
+																		"eqv": "56",
+																		"eunit": "g",
+																		"qty": 1,
+																		"value": 80
+																}
+														]
+												}
+										],
+										"sources": [],
+										"footnotes": [],
+										"langual": []
 								}
-							],
-							"sources": [],
-							"footnotes": [],
-							"langual": []
 						}
-					}
 				],
 				"count": 1,
 				"notfound": 0,
 				"api": 2
-			}`,
+		}`,
 			want: &Response{
 				Foods: []Food{
 					{

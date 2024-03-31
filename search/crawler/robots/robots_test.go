@@ -111,7 +111,7 @@ func TestExpired(t *testing.T) {
 			rbts.Expires = c.expires
 			got, err := rbts.Expired()
 
-			if !reflect.DeepEqual(err, c.err) {
+			if err != c.err {
 				t.Fatalf("got err %q; want %q", err, c.err)
 			}
 
