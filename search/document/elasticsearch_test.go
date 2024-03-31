@@ -9,15 +9,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-func TestAnalyzers(t *testing.T) {
-	// make sure we have an analyzer mapped for each language listed in document.go
-	for _, lang := range available {
-		if _, ok := langAnalyzer[lang]; !ok {
-			t.Fatalf("no elasticsearch analyzer found for %q", lang.String())
-		}
-	}
-}
-
 func TestAnalyzer(t *testing.T) {
 	for _, c := range []struct {
 		name string

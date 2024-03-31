@@ -1,6 +1,7 @@
 package weather
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"testing"
@@ -298,7 +299,7 @@ func TestConvertCode(t *testing.T) {
 		{900, Extreme},
 		{951, Windy},
 	} {
-		t.Run(string(tt.c), func(t *testing.T) {
+		t.Run(fmt.Sprint(tt.c), func(t *testing.T) {
 			r := &OwmInstant{
 				Instant: &Instant{},
 			}

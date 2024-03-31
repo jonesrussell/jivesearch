@@ -38,8 +38,8 @@ func (w *WHOIS) setType() Answerer {
 }
 
 func (w *WHOIS) setRegex() Answerer {
-	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<trigger>whois) (?P<remainder>.*)$`)))
-	w.regex = append(w.regex, regexp.MustCompile(fmt.Sprintf(`^(?P<remainder>.*) (?P<trigger>whois)$`)))
+	w.regex = append(w.regex, regexp.MustCompile(`^(?P<trigger>whois) (?P<remainder>.*)$`))
+	w.regex = append(w.regex, regexp.MustCompile(`^(?P<remainder>.*) (?P<trigger>whois)$`))
 
 	return w
 }

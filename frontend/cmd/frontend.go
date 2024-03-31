@@ -64,7 +64,6 @@ func setup(v *viper.Viper) *http.Server {
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	config.SetDefaults(v)
 
-	frontend.ParseTemplates()
 	f = &frontend.Frontend{
 		Brand: frontend.Brand{
 			Name:      v.GetString("brand.name"),

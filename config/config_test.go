@@ -69,7 +69,7 @@ func TestSetDefaults(t *testing.T) {
 		{"server.host", fmt.Sprintf("http://127.0.0.1:%d", port)},
 
 		// Elasticsearch
-		{"elasticsearch.url", "http://127.0.0.1:9200"},
+		{"elasticsearch.url", "https://127.0.0.1:9200"},
 		{"elasticsearch.search.index", "test-search"},
 		{"elasticsearch.search.type", "document"},
 		{"elasticsearch.bangs.index", "test-bangs"},

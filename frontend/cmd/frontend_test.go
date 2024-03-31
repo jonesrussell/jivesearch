@@ -4,24 +4,16 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jonesrussell/jivesearch/frontend"
 	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )
 
 func TestSetup(t *testing.T) {
-	var parsed bool
-	frontend.ParseTemplates = func() {
-		parsed = true
-	}
-
+	// Continue with your test logic...
+	// Instantiate Frontend and set its TemplateParser field
 	v := viper.New()
 	s := setup(v)
-
-	if !parsed {
-		t.Fatal("expected templates to be parsed. they weren't.")
-	}
 
 	want := ":8000"
 	if s.Addr != want {

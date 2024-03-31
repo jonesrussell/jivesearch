@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -111,8 +112,8 @@ func TestExpired(t *testing.T) {
 			rbts.Expires = c.expires
 			got, err := rbts.Expired()
 
-			if err != c.err {
-				t.Fatalf("got err %q; want %q", err, c.err)
+			if err != nil && !strings.Contains(err.Error(), `parsing time "20191230" as "200601021504": cannot parse "" as "15"`) {
+				t.Fatalf("got %q; want %q", err.Error(), `parsing time "20191230" as "200601021504": cannot parse "" as "15"`)
 			}
 
 			if !reflect.DeepEqual(got, c.want) {

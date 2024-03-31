@@ -18,6 +18,7 @@ import (
 	img "github.com/jonesrussell/jivesearch/search/image"
 	"github.com/jonesrussell/jivesearch/suggest"
 	"github.com/oxtoacart/bpool"
+	"github.com/spf13/afero"
 	"golang.org/x/text/language"
 )
 
@@ -283,8 +284,9 @@ func (f *Frontend) autocompleteHandler(w http.ResponseWriter, r *http.Request) *
 	}
 }
 
-// ParseTemplates parses our html templates.
-var ParseTemplates = func() {
+// Assuming ParseTemplates is defined in the same package as TestAnswerHandler
+func ParseTemplates(fs afero.Fs) {
+	// Use fs instead of the default file system for reading files
 	templates = make(map[string]*template.Template)
 	templates["about"] = template.Must(
 		template.New("base.html").

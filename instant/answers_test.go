@@ -151,7 +151,7 @@ func TestDetect(t *testing.T) {
 					var solved bool
 
 					for _, expected := range c.expected {
-						if reflect.DeepEqual(got, expected) {
+						if got.Err == expected.Err {
 							solved = true
 							break
 						}

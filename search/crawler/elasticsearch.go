@@ -3,6 +3,7 @@ package crawler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -11,16 +12,12 @@ import (
 	"github.com/olivere/elastic/v7"
 )
 
-// ElasticSearch satisfies the crawler's Backend interface
 type ElasticSearch struct {
 	*document.ElasticSearch
 	Bulk *elastic.BulkProcessor
 	sync.Mutex
 }
 
-// Upsert updates a document or inserts it if it doesn't exist
-// NOTE: Elasticsearch has a 512-byte limit on an insert operation.
-// Upsert does not have that limit.
 func (e *ElasticSearch) Upsert(doc *document.Document) error {
 	a, err := e.Analyzer(doc.Language)
 	if err != nil {
@@ -40,9 +37,11 @@ func (e *ElasticSearch) Upsert(doc *document.Document) error {
 	return nil
 }
 
-// CrawledAndCount returns the crawled date of the url (if any) and
-// the total number of links a domain has
-func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error) {
+func (e *ElasticSearch) CrawledAndCount(url, domain string) (time.Time, int, error) {
+	if e == nil || e.Client == nil {
+		return time.Time{}, 0, errors.New("ElasticSearch client is not initialized in CrawledAndCount function")
+	}
+
 	fmt.Println(domain)
 
 	body := fmt.Sprintf(`{
@@ -62,14 +61,8 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 		}
 	}`, domain)
 
-	fmt.Println("Index:", e.Index+"-*")
-	fmt.Println(body)
-	fmt.Println("Query:", elastic.NewSearchSource().Query(elastic.RawStringQuery(body)))
-
 	var crawled, cnt = time.Time{}, 0
 
-	// even though this technically could be a count request
-	// it s/b faster using multisearch.
 	countReq := elastic.NewSearchRequest().
 		Index(e.Index + "-*").
 		Source(elastic.NewSearchSource().
@@ -79,58 +72,65 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 	crawledRequest := elastic.NewSearchRequest().
 		Index(e.Index + "-*").
 		Source(elastic.NewSearchSource().
-			Query(elastic.NewTermQuery("_id", u)).
+			Query(elastic.NewTermQuery("_id", url)).
 			FetchSourceContext(elastic.NewFetchSourceContext(true).Include("crawled")),
 		)
 
-	// Concurrently calling this results in Error 429 [reduce_search_phase_exception] error.
-	// Seems to only happen when searching multiple indices (e.g. search-*) as it
-	// doesn't happen when searching one at a time (e.g. search-english, etc...)
 	e.Lock()
+	defer e.Unlock() // Ensure the lock is always released
 
 	res, err := e.Client.MultiSearch().
 		Add(countReq, crawledRequest).
 		Do(context.TODO())
 
 	if err != nil {
-		// Handle error
 		fmt.Printf("Error executing multi-search: %v\n", err)
 		return crawled, cnt, err
 	}
 
-	// Iterate over the responses
 	for i, r := range res.Responses {
 		fmt.Printf("Response %d:\n", i+1)
 		if r.Error != nil {
 			fmt.Printf(" Error: %s\n", r.Error.Reason)
 		} else {
 			fmt.Printf(" Total Hits: %d\n", r.TotalHits())
-			// Print each hit
 			for _, hit := range r.Hits.Hits {
 				fmt.Printf("    Hit ID: %s, Source: %s\n", hit.Id, string(hit.Source))
 			}
 		}
 	}
 
-	e.Unlock()
-
 	r1, r2 := res.Responses[0], res.Responses[1]
 
 	cnt = int(r1.TotalHits())
 
 	if !elastic.IsNotFound(r2.Error) {
-		return crawled, cnt, fmt.Errorf(r2.Error.Reason)
+		return crawled, cnt, fmt.Errorf("%v", r2.Error)
 	}
 
-	for _, h := range r2.Hits.Hits {
+	h2 := r2.Hits
+	fmt.Printf("r2: %+v\n", h2)
+
+	hits := r2.Hits.Hits
+
+	for _, hit := range hits {
+		fmt.Printf("h: %+v\n", hit)
+		if hit.Source == nil {
+			return crawled, cnt, fmt.Errorf("source is nil for hit ID: %s", hit.Id)
+		}
 		c := make(map[string]string)
-		if err := json.Unmarshal(h.Source, &c); err != nil {
+		if err := json.Unmarshal(hit.Source, &c); err != nil {
 			return crawled, cnt, err
 		}
-		crawled, err = time.Parse("20060102", c["crawled"])
+		crawledStr, ok := c["crawled"]
+		if !ok {
+			return crawled, cnt, fmt.Errorf("crawled field not found in hit ID: %s", hit.Id)
+		}
+		crawled, err = time.Parse("20060102", crawledStr)
 		if err != nil {
 			return crawled, cnt, err
 		}
+
 	}
 
 	return crawled, cnt, err
