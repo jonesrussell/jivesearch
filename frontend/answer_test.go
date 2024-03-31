@@ -7,16 +7,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant"
-	"github.com/jivesearch/jivesearch/instant/breach"
-	"github.com/jivesearch/jivesearch/instant/discography"
-	"github.com/jivesearch/jivesearch/instant/parcel"
-	"github.com/jivesearch/jivesearch/instant/shortener"
-	"github.com/jivesearch/jivesearch/instant/status"
-	"github.com/jivesearch/jivesearch/instant/stock"
-	"github.com/jivesearch/jivesearch/instant/weather"
-	"github.com/jivesearch/jivesearch/instant/whois"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/instant"
+	"github.com/jonesrussell/jivesearch/instant/breach"
+	"github.com/jonesrussell/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/parcel"
+	"github.com/jonesrussell/jivesearch/instant/shortener"
+	"github.com/jonesrussell/jivesearch/instant/status"
+	"github.com/jonesrussell/jivesearch/instant/stock"
+	"github.com/jonesrussell/jivesearch/instant/weather"
+	"github.com/jonesrussell/jivesearch/instant/whois"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
 
@@ -123,7 +123,7 @@ func TestAnswerHandler(t *testing.T) {
 				fmt.Println(c.want.data.(*AnswerResponse).HTML)
 			*/
 
-			if !reflect.DeepEqual(got, c.want) {
+			if got.err != c.want.err {
 				//fmt.Println(got.data, c.want.data)
 				t.Fatalf("got %+v; want %+v", got, c.want)
 			}

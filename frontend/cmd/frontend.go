@@ -12,43 +12,43 @@ import (
 
 	foo "log"
 
-	"github.com/jivesearch/jivesearch/instant/breach"
-	"github.com/jivesearch/jivesearch/instant/congress"
-	"github.com/jivesearch/jivesearch/instant/nutrition"
-	"github.com/jivesearch/jivesearch/instant/status"
-	"github.com/jivesearch/jivesearch/instant/whois"
+	"github.com/jonesrussell/jivesearch/instant/breach"
+	"github.com/jonesrussell/jivesearch/instant/congress"
+	"github.com/jonesrussell/jivesearch/instant/nutrition"
+	"github.com/jonesrussell/jivesearch/instant/status"
+	"github.com/jonesrussell/jivesearch/instant/whois"
 
-	"github.com/jivesearch/jivesearch/instant/econ/gdp"
+	"github.com/jonesrussell/jivesearch/instant/econ/gdp"
 
-	"github.com/jivesearch/jivesearch/instant/currency"
-	"github.com/jivesearch/jivesearch/instant/econ/population"
-	"github.com/jivesearch/jivesearch/instant/shortener"
+	"github.com/jonesrussell/jivesearch/instant/currency"
+	"github.com/jonesrussell/jivesearch/instant/econ/population"
+	"github.com/jonesrussell/jivesearch/instant/shortener"
 
 	"time"
 
 	tzz "github.com/evanoberholster/timezoneLookup"
-	"github.com/jivesearch/jivesearch/instant/location"
-	"github.com/jivesearch/jivesearch/instant/weather"
+	"github.com/jonesrussell/jivesearch/instant/location"
+	"github.com/jonesrussell/jivesearch/instant/weather"
 
 	"github.com/abursavich/nett"
 	"github.com/garyburd/redigo/redis"
-	"github.com/jivesearch/jivesearch/bangs"
-	"github.com/jivesearch/jivesearch/config"
-	"github.com/jivesearch/jivesearch/frontend"
-	"github.com/jivesearch/jivesearch/frontend/cache"
-	"github.com/jivesearch/jivesearch/instant"
-	"github.com/jivesearch/jivesearch/instant/discography/musicbrainz"
-	"github.com/jivesearch/jivesearch/instant/parcel"
-	"github.com/jivesearch/jivesearch/instant/stackoverflow"
-	"github.com/jivesearch/jivesearch/instant/stock"
-	"github.com/jivesearch/jivesearch/instant/timezone"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
-	"github.com/jivesearch/jivesearch/log"
-	"github.com/jivesearch/jivesearch/search"
-	"github.com/jivesearch/jivesearch/search/document"
-	img "github.com/jivesearch/jivesearch/search/image"
-	"github.com/jivesearch/jivesearch/search/provider"
-	"github.com/jivesearch/jivesearch/suggest"
+	"github.com/jonesrussell/jivesearch/bangs"
+	"github.com/jonesrussell/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/frontend"
+	"github.com/jonesrussell/jivesearch/frontend/cache"
+	"github.com/jonesrussell/jivesearch/instant"
+	"github.com/jonesrussell/jivesearch/instant/discography/musicbrainz"
+	"github.com/jonesrussell/jivesearch/instant/parcel"
+	"github.com/jonesrussell/jivesearch/instant/stackoverflow"
+	"github.com/jonesrussell/jivesearch/instant/stock"
+	"github.com/jonesrussell/jivesearch/instant/timezone"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/search"
+	"github.com/jonesrussell/jivesearch/search/document"
+	img "github.com/jonesrussell/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/search/provider"
+	"github.com/jonesrussell/jivesearch/suggest"
 	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
@@ -350,7 +350,7 @@ func main() {
 			DatabaseType: "memory",
 			DatabaseName: v.GetString("timezone.database"),
 			Snappy:       true,
-			Encoding:     "json",
+			Encoding:     tzz.EncJSON,
 		})
 		if err != nil {
 			panic(err)

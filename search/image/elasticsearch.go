@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 	"github.com/olivere/elastic/v7"
 )
 

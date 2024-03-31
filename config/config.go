@@ -108,7 +108,7 @@ func SetDefaults(cfg Provider) {
 
 	// crawler defaults
 	tme := 5 * time.Minute
-	cfg.SetDefault("crawler.useragent.full", "https://github.com/jivesearch/jivesearch")
+	cfg.SetDefault("crawler.useragent.full", "https://github.com/jonesrussell/jivesearch")
 	cfg.SetDefault("crawler.useragent.short", "jivesearchbot")
 	cfg.SetDefault("crawler.time", tme.String())
 	cfg.SetDefault("crawler.since", 30*24*time.Hour)
@@ -142,7 +142,7 @@ func SetDefaults(cfg Provider) {
 	cfg.SetDefault("propublica.key", "my_key")
 
 	// useragent for fetching api's, images, etc.
-	cfg.SetDefault("useragent", "https://github.com/jivesearch/jivesearch")
+	cfg.SetDefault("useragent", "https://github.com/jonesrussell/jivesearch")
 
 	// stackoverflow API settings
 	cfg.SetDefault("stackoverflow.key", "app key") // https://stackapps.com/apps/oauth/

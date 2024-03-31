@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/jivesearch/jivesearch/instant/whois"
+	"github.com/jonesrussell/jivesearch/instant/whois"
 	"golang.org/x/text/language"
 )
 

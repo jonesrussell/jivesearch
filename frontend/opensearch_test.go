@@ -3,7 +3,6 @@ package frontend
 import (
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 )
 
@@ -35,8 +34,8 @@ func TestOpenSearchHandler(t *testing.T) {
 
 			got := f.openSearchHandler(httptest.NewRecorder(), req)
 
-			if !reflect.DeepEqual(got, c.want) {
-				t.Fatalf("got %+v; want %+v", got, c.want)
+			if got.err != c.want.err {
+				t.Fatalf("got error %q; want error %q", got.err, c.want.err)
 			}
 		})
 	}

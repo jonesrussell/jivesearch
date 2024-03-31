@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jivesearch/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/discography"
 )
 
 // JiveData is a Wikipedia data provider

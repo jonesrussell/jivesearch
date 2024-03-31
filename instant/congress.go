@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/congress"
+	"github.com/jonesrussell/jivesearch/instant/congress"
 	"golang.org/x/text/language"
 )
 

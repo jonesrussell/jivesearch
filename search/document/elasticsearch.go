@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 	"github.com/olivere/elastic/v7"
 	"golang.org/x/text/language"
 )
@@ -45,8 +45,7 @@ func (e *ElasticSearch) Analyzer(lang language.Tag) (string, error) {
 func (e *ElasticSearch) Setup() error {
 	// We create one index per analyzer: search-english, search-spanish, etc...
 	// This is a list of all elasticsearch analyzers
-	analyzers := []string{"english",
-	}
+	analyzers := []string{"english"}
 
 	for _, a := range analyzers {
 		idx := e.IndexName(a)
@@ -223,7 +222,7 @@ func init() {
 	//langAnalyzer[language.Hebrew] = ""                       //  he
 	langAnalyzer[language.Hindi] = "hindi" //  hi
 	//langAnalyzer[language.Croatian] = ""                 //  hr
-	langAnalyzer[language.Hungarian] = "hungarian"   //  hu
+	langAnalyzer[language.Hungarian] = "hungarian" //  hu
 	//langAnalyzer[language.Armenian] = "armenian"     //  hy
 	langAnalyzer[language.Indonesian] = "indonesian" //  id
 	//langAnalyzer[language.Icelandic] = ""                   //  is

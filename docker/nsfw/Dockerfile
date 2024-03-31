@@ -5,7 +5,7 @@ ARG TERM=xterm-color
 ENV CAFFE_ROOT=/nsfw/caffe
 WORKDIR $CAFFE_ROOT
 ENV CLONE_TAG=1.0
-ENV JIVESEARCH_CRAWLER_USERAGENT_FULL https://github.com/jivesearch/jivesearch
+ENV JIVESEARCH_CRAWLER_USERAGENT_FULL https://github.com/jonesrussell/jivesearch
 ENV NSFW_ADDR 0.0.0.0
 ENV PYCAFFE_ROOT $CAFFE_ROOT/python
 ENV PYTHONPATH $PYCAFFE_ROOT:$PYTHONPATH
@@ -55,7 +55,7 @@ RUN apt-get update && \
   ldconfig
 
 WORKDIR /nsfw
-RUN wget --no-check-certificate https://raw.githubusercontent.com/jivesearch/jivesearch/master/search/image/cmd/classifier.py
+RUN wget --no-check-certificate https://raw.githubusercontent.com/jonesrussell/jivesearch/master/search/image/cmd/classifier.py
 
 ENV NSFW_MODEL 5005730b-eff1-4700-a553-c13f9bc97a53_nsfw_model.zip
 ENV NSFW_MODEL_URL https://modeldepot.io/assets/uploads/models/models/$NSFW_MODEL

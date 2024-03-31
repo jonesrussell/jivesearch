@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jivesearch/jivesearch/frontend"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/frontend"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )

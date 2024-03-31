@@ -9,9 +9,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/log"
-	"github.com/jivesearch/jivesearch/search"
-	"github.com/jivesearch/jivesearch/search/document"
+	"github.com/jonesrussell/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/search"
+	"github.com/jonesrussell/jivesearch/search/document"
 	"golang.org/x/text/language"
 )
 
@@ -31,7 +31,7 @@ type Yandex struct {
 func (y *Yandex) Fetch(q string, filter search.Filter, lang language.Tag, region language.Region, number int, offset int) (*search.Results, error) {
 	page := (offset / number) + 1
 
-	u, err := y.buildYandexURL(q, filter, lang, region, number, page)
+	u, err := y.buildYandexURL(q, filter, region, number, page)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (y *Yandex) Fetch(q string, filter search.Filter, lang language.Tag, region
 }
 
 // https://tech.yandex.com/xml/doc/dg/concepts/get-request-docpage/
-func (y *Yandex) buildYandexURL(query string, filter search.Filter, lang language.Tag, region language.Region, number int, page int) (*url.URL, error) {
+func (y *Yandex) buildYandexURL(query string, filter search.Filter, region language.Region, number int, page int) (*url.URL, error) {
 	u, err := url.Parse("https://yandex.com/search/xml")
 	if err != nil {
 		return nil, err

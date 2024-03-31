@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/search/document"
+	"github.com/jonesrussell/jivesearch/search/document"
 
 	"github.com/olivere/elastic/v7"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/jivesearch/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/discography"
 	"github.com/lib/pq"
 )
 

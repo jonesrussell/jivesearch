@@ -7,23 +7,23 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/breach"
-	"github.com/jivesearch/jivesearch/instant/congress"
-	"github.com/jivesearch/jivesearch/instant/whois"
-	"github.com/jivesearch/jivesearch/search"
+	"github.com/jonesrussell/jivesearch/instant/breach"
+	"github.com/jonesrussell/jivesearch/instant/congress"
+	"github.com/jonesrussell/jivesearch/instant/whois"
+	"github.com/jonesrussell/jivesearch/search"
 
-	"github.com/jivesearch/jivesearch/instant/econ"
-	"github.com/jivesearch/jivesearch/instant/econ/gdp"
-	"github.com/jivesearch/jivesearch/instant/econ/population"
+	"github.com/jonesrussell/jivesearch/instant/econ"
+	"github.com/jonesrussell/jivesearch/instant/econ/gdp"
+	"github.com/jonesrussell/jivesearch/instant/econ/population"
 
-	"github.com/jivesearch/jivesearch/instant/currency"
-	"github.com/jivesearch/jivesearch/instant/shortener"
+	"github.com/jonesrussell/jivesearch/instant/currency"
+	"github.com/jonesrussell/jivesearch/instant/shortener"
 
-	"github.com/jivesearch/jivesearch/instant/stock"
-	"github.com/jivesearch/jivesearch/instant/weather"
+	"github.com/jonesrussell/jivesearch/instant/stock"
+	"github.com/jonesrussell/jivesearch/instant/weather"
 
-	"github.com/jivesearch/jivesearch/instant"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/instant"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
 

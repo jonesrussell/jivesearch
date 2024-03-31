@@ -12,12 +12,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jivesearch/jivesearch/bangs"
-	"github.com/jivesearch/jivesearch/instant"
-	"github.com/jivesearch/jivesearch/log"
-	"github.com/jivesearch/jivesearch/search"
-	img "github.com/jivesearch/jivesearch/search/image"
-	"github.com/jivesearch/jivesearch/suggest"
+	"github.com/jonesrussell/jivesearch/bangs"
+	"github.com/jonesrussell/jivesearch/instant"
+	"github.com/jonesrussell/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/search"
+	img "github.com/jonesrussell/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/suggest"
 	"github.com/pkg/errors"
 	"golang.org/x/text/language"
 )

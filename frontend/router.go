@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
-	"github.com/jivesearch/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/config"
 	"willnorris.com/go/imageproxy"
 )
 
@@ -51,7 +51,7 @@ func (f *Frontend) Router(cfg config.Provider) *mux.Router {
 	p := imageproxy.NewProxy(nil, nil)
 	p.Verbose = false // otherwise logs the image fetched
 	//p.UserAgent = cfg.GetString("useragent") // not implemented yet: https://github.com/willnorris/imageproxy/pull/83
-	p.SignatureKey = []byte(key)
+	p.SignatureKeys = [][]byte{[]byte(key)}
 	p.Timeout = 2 * time.Second
 	router.NewRoute().Name("image").Methods("GET").PathPrefix("/image/").Handler(http.StripPrefix("/image", p))
 

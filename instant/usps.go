@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/parcel"
+	"github.com/jonesrussell/jivesearch/instant/parcel"
 	"golang.org/x/text/language"
 )
 

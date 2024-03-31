@@ -12,9 +12,9 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/jivesearch/jivesearch/config"
-	"github.com/jivesearch/jivesearch/log"
-	img "github.com/jivesearch/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/log"
+	img "github.com/jonesrussell/jivesearch/search/image"
 	"github.com/olivere/elastic/v7"
 	"github.com/spf13/viper"
 )

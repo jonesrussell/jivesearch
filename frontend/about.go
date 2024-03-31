@@ -54,10 +54,10 @@ func (f *Frontend) aboutHandler(w http.ResponseWriter, r *http.Request) *respons
 	}
 
 	/*
-		For more detail on additions, deletions and commits: https://api.github.com/repos/jivesearch/jivesearch/stats/contributors
+		For more detail on additions, deletions and commits: https://api.github.com/repos/jonesrussell/jivesearch/stats/contributors
 		The below is sorted by # of contributions (in descending order).
 	*/
-	rsp, err := f.GitHub.HTTPClient.Get("https://api.github.com/repos/jivesearch/jivesearch/contributors")
+	rsp, err := f.GitHub.HTTPClient.Get("https://api.github.com/repos/jonesrussell/jivesearch/contributors")
 	if err != nil {
 		resp.err = err
 		return resp

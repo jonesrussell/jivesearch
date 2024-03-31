@@ -13,11 +13,11 @@ import (
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/queue"
 	"github.com/gocolly/redisstorage"
-	"github.com/jivesearch/jivesearch/config"
-	"github.com/jivesearch/jivesearch/log"
-	"github.com/jivesearch/jivesearch/search/crawler"
-	"github.com/jivesearch/jivesearch/search/document"
-	img "github.com/jivesearch/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/search/crawler"
+	"github.com/jonesrussell/jivesearch/search/document"
+	img "github.com/jonesrussell/jivesearch/search/image"
 	"github.com/olivere/elastic/v7"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -153,7 +153,7 @@ func main() {
 		stats.Update(r.StatusCode)
 
 		lnk := r.Request.URL.String()
-		log.Debug.Println(fmt.Sprintf("%d %v", r.StatusCode, lnk))
+		log.Debug.Printf("%d %v", r.StatusCode, lnk)
 
 		doc, err := document.New(lnk)
 		if err != nil {
@@ -221,7 +221,7 @@ func main() {
 
 	for _, lnk := range v.GetStringSlice("crawler.seeds") {
 		if err := q.AddURL(lnk); err != nil {
-			log.Debug.Println(fmt.Sprintf("%q %v", lnk, err))
+			log.Debug.Printf("%q %v", lnk, err)
 			return
 		}
 	}
@@ -250,16 +250,16 @@ func main() {
 	}
 }
 
-func linkHandler(q *queue.Queue, links chan string, errs chan error) {
+func linkHandler(q *queue.Queue, links chan string, _ chan error) {
 	for lnk := range links {
 		if err := q.AddURL(lnk); err != nil {
-			log.Debug.Println(fmt.Sprintf("%q %v", lnk, err))
+			log.Debug.Printf("%q %v", lnk, err)
 			return
 		}
 	}
 }
 
-func imageHandler(b *img.ElasticSearch, q *queue.Queue, images chan *img.Image, errs chan error) {
+func imageHandler(b *img.ElasticSearch, _ *queue.Queue, images chan *img.Image, errs chan error) {
 	for img := range images {
 		if err := b.Upsert(img); err != nil {
 			errs <- errors.Wrapf(err, "unable to insert image: %v", img.ID)

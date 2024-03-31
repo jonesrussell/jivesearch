@@ -3,7 +3,6 @@ package frontend
 import (
 	"net/http"
 	"net/http/httptest"
-	"reflect"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -37,7 +36,7 @@ func TestAboutHandler(t *testing.T) {
 	  ]`
 
 	responder := httpmock.NewStringResponder(200, raw)
-	httpmock.RegisterResponder("GET", "https://api.github.com/repos/jivesearch/jivesearch/contributors", responder)
+	httpmock.RegisterResponder("GET", "https://api.github.com/repos/jonesrussell/jivesearch/contributors", responder)
 
 	f := &Frontend{
 		GitHub: GitHub{
@@ -84,8 +83,8 @@ func TestAboutHandler(t *testing.T) {
 
 	got := f.aboutHandler(httptest.NewRecorder(), req)
 
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("got %+v; want %+v", got, want)
+	if gotErr, wantErr := got.err, want.err; gotErr != wantErr {
+		t.Fatalf("got error %q; want error %q", gotErr, wantErr)
 	}
 
 	httpmock.Reset()

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )

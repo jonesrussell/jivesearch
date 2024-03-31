@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 	"github.com/lib/pq"
 	"golang.org/x/text/language"
 )

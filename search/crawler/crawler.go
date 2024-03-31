@@ -9,13 +9,13 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/jivesearch/jivesearch/search/document"
-	img "github.com/jivesearch/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/search/document"
+	img "github.com/jonesrussell/jivesearch/search/image"
 
-	"github.com/jivesearch/jivesearch/config"
-	"github.com/jivesearch/jivesearch/log"
-	"github.com/jivesearch/jivesearch/search/crawler/queue"
-	"github.com/jivesearch/jivesearch/search/crawler/robots"
+	"github.com/jonesrussell/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/search/crawler/queue"
+	"github.com/jonesrussell/jivesearch/search/crawler/robots"
 	"github.com/pkg/errors"
 	"github.com/temoto/robotstxt"
 

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/jivesearch/jivesearch/config"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/config"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"

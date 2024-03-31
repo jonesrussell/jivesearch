@@ -36,7 +36,7 @@ type Nutrient struct {
 	ID       json.Number
 	Name     string
 	Unit     string
-	Value    json.Number
+	Value    string
 	Measures []Measure
 }
 

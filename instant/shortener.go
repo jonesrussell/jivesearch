@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jivesearch/jivesearch/instant/shortener"
+	"github.com/jonesrussell/jivesearch/instant/shortener"
 	"golang.org/x/text/language"
 )
 

@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/location"
-	"github.com/jivesearch/jivesearch/instant/nutrition"
-	"github.com/jivesearch/jivesearch/instant/timezone"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/instant/location"
+	"github.com/jonesrussell/jivesearch/instant/nutrition"
+	"github.com/jonesrussell/jivesearch/instant/timezone"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
 
@@ -798,7 +798,7 @@ func (w *Wikipedia) tests() []test {
 											ID:    "212",
 											Name:  "Sodium",
 											Unit:  "mg",
-											Value: json.Number("12"),
+											Value: string(json.Number("12")),
 											Measures: []nutrition.Measure{
 												{
 													Label:      "large",
@@ -845,7 +845,7 @@ func (w *Wikipedia) tests() []test {
 											ID:    "208",
 											Name:  "Energy",
 											Unit:  "kcal",
-											Value: json.Number("554"),
+											Value: string(json.Number("554")),
 											Measures: []nutrition.Measure{
 												{
 													Label:      "1 size",

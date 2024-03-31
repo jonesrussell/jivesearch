@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 )
 
 // FedEx holds settings for the FedEx API

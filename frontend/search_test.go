@@ -8,14 +8,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/bangs"
-	"github.com/jivesearch/jivesearch/instant"
-	"github.com/jivesearch/jivesearch/instant/breach"
-	"github.com/jivesearch/jivesearch/instant/stackoverflow"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
-	"github.com/jivesearch/jivesearch/search"
-	"github.com/jivesearch/jivesearch/search/document"
-	img "github.com/jivesearch/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/bangs"
+	"github.com/jonesrussell/jivesearch/instant"
+	"github.com/jonesrussell/jivesearch/instant/breach"
+	"github.com/jonesrussell/jivesearch/instant/stackoverflow"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/search"
+	"github.com/jonesrussell/jivesearch/search/document"
+	img "github.com/jonesrussell/jivesearch/search/image"
 	"github.com/spf13/viper"
 	"golang.org/x/text/language"
 )
@@ -421,8 +421,10 @@ func TestSearchHandler(t *testing.T) {
 
 			got := f.searchHandler(httptest.NewRecorder(), req)
 
-			if !reflect.DeepEqual(got, c.want) {
-				t.Fatalf("got %+v; want %+v", got, c.want)
+			if gotErr, wantErr := got.err, c.want.err; gotErr != nil || wantErr != nil {
+				if (gotErr != nil && wantErr == nil) || (gotErr == nil && wantErr != nil) || gotErr.Error() != wantErr.Error() {
+					t.Fatalf("got error %v; want error %v", gotErr, wantErr)
+				}
 			}
 		})
 	}

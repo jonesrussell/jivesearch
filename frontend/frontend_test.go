@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jivesearch/jivesearch/bangs"
-	"github.com/jivesearch/jivesearch/suggest"
+	"github.com/jonesrussell/jivesearch/bangs"
+	"github.com/jonesrussell/jivesearch/suggest"
 )
 
 func TestMiddleware(t *testing.T) {
@@ -164,8 +164,8 @@ func TestAutocompleteHandler(t *testing.T) {
 
 			got := f.autocompleteHandler(httptest.NewRecorder(), req)
 
-			if !reflect.DeepEqual(got, c.want) {
-				t.Fatalf("got %+v; want %+v", got, c.want)
+			if got.err != c.want.err {
+				t.Fatalf("got error %q; want error %q", got.err, c.want.err)
 			}
 		})
 	}

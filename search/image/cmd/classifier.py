@@ -177,7 +177,7 @@ def index():
   headers = {
     'User-Agent':
       os.environ.get('JIVESEARCH_CRAWLER_USERAGENT_FULL',
-      'https://github.com/jivesearch/jivesearch'),
+      'https://github.com/jonesrussell/jivesearch'),
   }
 
   try:

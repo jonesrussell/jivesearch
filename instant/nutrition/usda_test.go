@@ -64,22 +64,22 @@ func TestUSDAFetch(t *testing.T) {
 										"sr": "1",
 										"type": "f",
 										"desc": {
-												"ndbno": "01123",
-												"name": "Egg, whole, raw, fresh",
-												"sd": "EGG,WHL,RAW,FRSH",
-												"fg": "Dairy and Egg Products",
-												"sn": "",
-												"cn": "",
-												"manu": "",
-												"nf": "6.25",
-												"cf": "3.68",
-												"ff": "9.02",
-												"pf": "4.36",
-												"r": "12%",
-												"rd": "Shell",
-												"ds": "Standard Reference",
-												"ru": "g"
-										},
+											"ndbno": "01123",
+											"name": "Egg, whole, raw, fresh",
+											"sd": "EGG,WHL,RAW,FRSH",
+											"fg": "Dairy and Egg Products",
+											"sn": "",
+											"cn": "",
+											"manu": "",
+											"nf": 6.25,
+											"cf": 3.68,
+											"ff": 9.02,
+											"pf": 4.36,
+											"r": "12%",
+											"rd": "Shell",
+											"ds": "Standard Reference",
+											"ru": "g"
+									},
 										"nutrients": [
 												{
 														"nutrient_id": 208,
@@ -130,7 +130,7 @@ func TestUSDAFetch(t *testing.T) {
 								ID:    "208",
 								Name:  "Energy",
 								Unit:  "kcal",
-								Value: json.Number("143"),
+								Value: string(json.Number("143")),
 								Measures: []Measure{
 									{
 										Label:      "large",

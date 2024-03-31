@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/jivesearch/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/discography"
 )
 
 func TestJiveDataFetch(t *testing.T) {

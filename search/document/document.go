@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	img "github.com/jivesearch/jivesearch/search/image"
+	img "github.com/jonesrussell/jivesearch/search/image"
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"golang.org/x/net/html/charset"

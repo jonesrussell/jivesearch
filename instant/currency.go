@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	curr "github.com/jivesearch/jivesearch/instant/currency"
+	curr "github.com/jonesrussell/jivesearch/instant/currency"
 	"golang.org/x/text/language"
 )
 

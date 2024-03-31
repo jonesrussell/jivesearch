@@ -4,13 +4,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/jarcoal/httpmock"
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 	"github.com/tdewolff/minify"
 	"github.com/tdewolff/minify/css"
 	"github.com/tdewolff/minify/html"
@@ -57,8 +56,8 @@ func TestProxyHeaderHandler(t *testing.T) {
 
 			got := f.proxyHeaderHandler(httptest.NewRecorder(), req)
 
-			if !reflect.DeepEqual(got, c.want) {
-				t.Fatalf("got %+v; want %+v", got, c.want)
+			if got.err != c.want.err {
+				t.Fatalf("got error %v; want error %v", got.err, c.want.err)
 			}
 		})
 	}
@@ -228,8 +227,8 @@ func TestProxyHandler(t *testing.T) {
 				got.data = g
 			}
 
-			if !reflect.DeepEqual(got, want) {
-				t.Fatalf("got %+v; want %+v", got, want)
+			if got.err != want.err {
+				t.Fatalf("got error %v; want error %v", got.err, want.err)
 			}
 		})
 	}

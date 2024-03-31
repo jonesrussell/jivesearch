@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 )
 
 // USPS holds settings for the USPS API

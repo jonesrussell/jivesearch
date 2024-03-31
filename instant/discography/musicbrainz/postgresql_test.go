@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/discography"
 	"github.com/lib/pq"
 	sqlmock "gopkg.in/DATA-DOG/go-sqlmock.v2"
 )

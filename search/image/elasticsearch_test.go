@@ -118,7 +118,7 @@ func TestFetch(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			handler = func(w http.ResponseWriter, r *http.Request) {
+			handler = func(w http.ResponseWriter, _ *http.Request) {
 				if _, err := w.Write([]byte(c.resp)); err != nil {
 					t.Fatal(err)
 				}
@@ -188,7 +188,7 @@ func TestUpsert(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			handler = func(w http.ResponseWriter, r *http.Request) {
+			handler = func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(c.status)
 				if _, err := w.Write([]byte(c.resp)); err != nil {
 					t.Fatal(err)
@@ -333,7 +333,7 @@ func TestUncrawled(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			handler = func(w http.ResponseWriter, r *http.Request) {
+			handler = func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(c.status)
 				if _, err := w.Write([]byte(c.resp)); err != nil {
 					t.Fatal(err)
@@ -376,7 +376,7 @@ func TestSetup(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			handler = func(w http.ResponseWriter, r *http.Request) {
+			handler = func(w http.ResponseWriter, _ *http.Request) {
 				w.WriteHeader(c.status)
 				if _, err := w.Write([]byte(c.resp)); err != nil {
 					t.Fatal(err)

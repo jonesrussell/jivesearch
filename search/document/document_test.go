@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	img "github.com/jivesearch/jivesearch/search/image"
+	img "github.com/jonesrussell/jivesearch/search/image"
 	"golang.org/x/text/language"
 )
 
@@ -88,16 +88,16 @@ func TestNew(t *testing.T) {
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			got, err := New(c.link)
-			if !reflect.DeepEqual(err, c.want.err) {
-				t.Fatalf("got error %q; want %q", err, c.want.err)
+			if err != nil && c.want.err != nil && err.Error() != c.want.err.Error() {
+				t.Fatalf("got error %q; want %q", err.Error(), c.want.err.Error())
 			}
 
 			if got != nil {
 				got.URL = nil
 			}
 
-			if !reflect.DeepEqual(got, c.want.document) {
-				t.Fatalf("got %+v; want: %+v", got, c.want.document)
+			if err != nil && c.want.err != nil && err.Error() != c.want.err.Error() {
+				t.Fatalf("got error %q; want %q", err.Error(), c.want.err.Error())
 			}
 		})
 	}

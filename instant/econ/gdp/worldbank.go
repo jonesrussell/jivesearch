@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/econ"
+	"github.com/jonesrussell/jivesearch/instant/econ"
 )
 
 // WorldBank holds settings for The World Bank API

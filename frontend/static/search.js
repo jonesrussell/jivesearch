@@ -17,7 +17,7 @@ $(document).ready(function() {
     return c.join(" ")
   }
 
-  // this is a workaround for https://github.com/jivesearch/jivesearch/issues/66
+  // this is a workaround for https://github.com/jonesrussell/jivesearch/issues/66
   if (($(".document").length === 0) && (getUrlParameter('t')=="")){
     $("#empty").hide();
     fetch(1, true);

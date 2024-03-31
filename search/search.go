@@ -5,7 +5,7 @@ import (
 	"math"
 	"strconv"
 
-	"github.com/jivesearch/jivesearch/search/document"
+	"github.com/jonesrussell/jivesearch/search/document"
 	"golang.org/x/text/language"
 )
 

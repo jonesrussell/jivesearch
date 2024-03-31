@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	disc "github.com/jivesearch/jivesearch/instant/discography"
+	disc "github.com/jonesrussell/jivesearch/instant/discography"
 
 	"golang.org/x/text/language"
 )

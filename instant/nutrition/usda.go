@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 )
 
 // USDAProvider indicates the source is the USDA
@@ -69,7 +69,7 @@ type USDAResponse struct {
 				Name       string        `json:"name"`
 				Group      string        `json:"group"`
 				Unit       string        `json:"unit"`
-				Value      json.Number   `json:"value"`
+				Value      string        `json:"value"`
 				Derivation string        `json:"derivation"`
 				Sourcecode interface{}   `json:"sourcecode"`
 				Dp         json.Number   `json:"dp"` // sometimes it's a string, sometimes a number

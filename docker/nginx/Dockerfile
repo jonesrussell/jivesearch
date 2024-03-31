@@ -113,8 +113,8 @@ RUN \
 WORKDIR /config
 RUN apt-get update && \
     apt-get -y install wget --no-install-recommends && \
-    wget --no-check-certificate https://raw.githubusercontent.com/jivesearch/jivesearch/master/frontend/nginx/nginx.conf && \
-    wget --no-check-certificate https://raw.githubusercontent.com/jivesearch/jivesearch/master/frontend/nginx/server.conf
+    wget --no-check-certificate https://raw.githubusercontent.com/jonesrussell/jivesearch/master/frontend/nginx/nginx.conf && \
+    wget --no-check-certificate https://raw.githubusercontent.com/jonesrussell/jivesearch/master/frontend/nginx/server.conf
 
 EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;", "-c", "/config/nginx.conf"]

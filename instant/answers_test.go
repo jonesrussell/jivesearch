@@ -11,24 +11,24 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/breach"
-	"github.com/jivesearch/jivesearch/instant/congress"
-	curr "github.com/jivesearch/jivesearch/instant/currency"
-	disc "github.com/jivesearch/jivesearch/instant/discography"
-	"github.com/jivesearch/jivesearch/instant/econ"
-	ggdp "github.com/jivesearch/jivesearch/instant/econ/gdp"
-	pop "github.com/jivesearch/jivesearch/instant/econ/population"
-	"github.com/jivesearch/jivesearch/instant/nutrition"
-	"github.com/jivesearch/jivesearch/instant/status"
-	"github.com/jivesearch/jivesearch/instant/whois"
+	"github.com/jonesrussell/jivesearch/instant/breach"
+	"github.com/jonesrussell/jivesearch/instant/congress"
+	curr "github.com/jonesrussell/jivesearch/instant/currency"
+	disc "github.com/jonesrussell/jivesearch/instant/discography"
+	"github.com/jonesrussell/jivesearch/instant/econ"
+	ggdp "github.com/jonesrussell/jivesearch/instant/econ/gdp"
+	pop "github.com/jonesrussell/jivesearch/instant/econ/population"
+	"github.com/jonesrussell/jivesearch/instant/nutrition"
+	"github.com/jonesrussell/jivesearch/instant/status"
+	"github.com/jonesrussell/jivesearch/instant/whois"
 
-	"github.com/jivesearch/jivesearch/instant/location"
-	"github.com/jivesearch/jivesearch/instant/parcel"
-	"github.com/jivesearch/jivesearch/instant/shortener"
-	so "github.com/jivesearch/jivesearch/instant/stackoverflow"
-	"github.com/jivesearch/jivesearch/instant/stock"
-	"github.com/jivesearch/jivesearch/instant/weather"
-	"github.com/jivesearch/jivesearch/instant/wikipedia"
+	"github.com/jonesrussell/jivesearch/instant/location"
+	"github.com/jonesrussell/jivesearch/instant/parcel"
+	"github.com/jonesrussell/jivesearch/instant/shortener"
+	so "github.com/jonesrussell/jivesearch/instant/stackoverflow"
+	"github.com/jonesrussell/jivesearch/instant/stock"
+	"github.com/jonesrussell/jivesearch/instant/weather"
+	"github.com/jonesrussell/jivesearch/instant/wikipedia"
 	"golang.org/x/text/language"
 )
 
@@ -464,7 +464,7 @@ func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, erro
 							ID:    "212",
 							Name:  "Sodium",
 							Unit:  "mg",
-							Value: json.Number("12"),
+							Value: string(json.Number("12")),
 							Measures: []nutrition.Measure{
 								{
 									Label:      "large",
@@ -499,7 +499,7 @@ func (m *mockNutritionFetcher) Fetch(ndbnos []string) (*nutrition.Response, erro
 							ID:    "208",
 							Name:  "Energy",
 							Unit:  "kcal",
-							Value: json.Number("554"),
+							Value: string(json.Number("554")),
 							Measures: []nutrition.Measure{
 								{
 									Label:      "1 size",

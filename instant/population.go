@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/econ"
-	pop "github.com/jivesearch/jivesearch/instant/econ/population"
+	"github.com/jonesrussell/jivesearch/instant/econ"
+	pop "github.com/jonesrussell/jivesearch/instant/econ/population"
 	"github.com/pariz/gountries"
 	"golang.org/x/text/language"
 )

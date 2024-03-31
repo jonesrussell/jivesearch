@@ -5,7 +5,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/econ"
+	"github.com/jonesrussell/jivesearch/instant/econ"
 )
 
 // Provider indicates the source of the data

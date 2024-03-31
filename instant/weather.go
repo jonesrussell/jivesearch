@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jivesearch/jivesearch/instant/location"
-	"github.com/jivesearch/jivesearch/instant/weather"
+	"github.com/jonesrussell/jivesearch/instant/location"
+	"github.com/jonesrussell/jivesearch/instant/weather"
 	"golang.org/x/text/language"
 )
 
@@ -85,7 +85,7 @@ func (w *Weather) solve(r *http.Request) Answerer {
 	}
 }
 
-func (w *Weather) city(r *http.Request) *Weather {
+func (w *Weather) city(_ *http.Request) *Weather {
 	var err error
 	w.Data.Solution, err = w.Fetcher.FetchByCity(w.remainder)
 	if err != nil {

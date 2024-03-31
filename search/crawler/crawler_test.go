@@ -10,11 +10,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jivesearch/jivesearch/search/document"
-	img "github.com/jivesearch/jivesearch/search/image"
+	"github.com/jonesrussell/jivesearch/search/document"
+	img "github.com/jonesrussell/jivesearch/search/image"
 
 	"github.com/jarcoal/httpmock"
-	"github.com/jivesearch/jivesearch/search/crawler/robots"
+	"github.com/jonesrussell/jivesearch/search/crawler/robots"
 	"github.com/spf13/pflag"
 )
 

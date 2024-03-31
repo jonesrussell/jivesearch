@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jivesearch/jivesearch/search/document"
+	"github.com/jonesrussell/jivesearch/search/document"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -113,10 +113,6 @@ func (e *ElasticSearch) CrawledAndCount(u, domain string) (time.Time, int, error
 	}
 
 	e.Unlock()
-
-	if err != nil {
-		return crawled, cnt, err
-	}
 
 	r1, r2 := res.Responses[0], res.Responses[1]
 

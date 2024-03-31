@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/jivesearch/jivesearch/log"
+	"github.com/jonesrussell/jivesearch/log"
 )
 
 // UPS holds settings for the UPS API

@@ -92,7 +92,7 @@ func TestSetDefaults(t *testing.T) {
 		{"redis.port", 6379},
 
 		// crawler defaults
-		{"crawler.useragent.full", "https://github.com/jivesearch/jivesearch"},
+		{"crawler.useragent.full", "https://github.com/jonesrussell/jivesearch"},
 		{"crawler.useragent.short", "jivesearchbot"},
 		{"crawler.time", tme.String()},
 		{"crawler.since", 30 * 24 * time.Hour},
@@ -112,7 +112,7 @@ func TestSetDefaults(t *testing.T) {
 		{"crawler.truncate.description", 250},
 
 		// useragent for fetching api's, images, etc.
-		{"useragent", "https://github.com/jivesearch/jivesearch"},
+		{"useragent", "https://github.com/jonesrussell/jivesearch"},
 
 		// image nsfw scoring and metadata
 		{"nsfw.workers", 10},
